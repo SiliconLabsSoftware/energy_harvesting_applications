@@ -1,0 +1,303 @@
+html {
+	/* primary theme color */
+	--primary-color:					#f7472e;	/* e-peas' Red */
+	--primary-dark-color: 			#142918;	/* e-peas' Dark Green */
+	--primary-light-color:			#989997;	/* e-peas' Dark Grey */
+	--primary-lighter-color:		#d5d9d6;	/* e-peas' Light Grey */
+	--primary-lightest-color:		#e6e6e6;	/* e-peas' Super Light Grey */
+
+	/* page base colors */
+	--page-background-color:				white;
+	--page-foreground-color:				#142918;	/* e-peas' Dark Green */
+	--page-secondary-foreground-color: 	#989997;	/* e-peas' Dark Grey */
+
+	/* color for all separators on the website: hr, borders, ... */
+	--separator-color: 			#dedede;
+
+   /* default spacings. Most compontest reference these values for spacing, to provide uniform spacing on the page. */
+    --spacing-small: 3px;
+    --spacing-medium: 9px;
+    --spacing-large: 15px;
+    --spacing-xlarge: 20px;
+
+	/* font-families. will affect all text on the website
+	 * font-family: the normal font for text, headlines, menus
+	 * font-family-monospace: used for preformatted text in memtitle, code, fragments
+	 */
+	--font-family: 					Open Sans;
+	--font-family-monospace: 		source-code-pro,Menlo,Monaco,Consolas,Courier New,monospace;
+
+	/* font sizes */
+	--page-font-size: 			15.6px;
+	--navigation-font-size: 	14.4px;
+	--code-font-size: 			14.4px; /* affects code, fragment */
+	--title-font-size: 			22px;
+	--table-font-size: 			13px;
+
+	/* colors for various content boxes: @warning, @note, @deprecated @bug */
+	--boxes-background: 			#f5f5f5;
+	--warning-color: 				var(--boxes-background);
+	--warning-color-dark:		#510a02;
+	--warning-color-darker: 	var(--page-foreground-color);
+	--note-color: 					var(--boxes-background);
+	--note-color-dark: 			#9f7300;
+	--note-color-darker: 		var(--page-foreground-color);
+	--post-color: 					var(--boxes-background);
+	--post-color-dark: 			#5b6269;
+	--post-color-darker: 		var(--page-foreground-color);
+	--deprecated-color: 			var(--boxes-background);
+	--deprecated-color-dark: 	#262e37;
+	--deprecated-color-darker: var(--page-foreground-color);
+	--bug-color: 					var(--boxes-background);
+	--bug-color-dark: 			#812a00;
+	--bug-color-darker: 			var(--page-foreground-color);
+	--invariant-color: 			var(--boxes-background);
+	--invariant-color-dark: 	#64a063;
+	--invariant-color-darker: 	var(--page-foreground-color);
+
+	/* blockquote colors */
+	--blockquote-background: 	var(--boxes-background);
+	--blockquote-foreground: 	#727272;
+
+	/* table colors */
+	--tablehead-background: 	var(--primary-color);
+	--tablehead-foreground: 	white;
+	--tablehead-link-color:		#ddd;
+
+	--table-even-row-background-color: 	#f2f2f2;
+	--table-hover-row-background-color: #ddd;
+
+	/* sidebar navigation (treeview) colors */
+	--side-nav-background: 				var(--header-background);
+	--side-nav-hover-background: 		#ddd;
+	--side-nav-foreground: 				var(--page-foreground-color);
+	--side-nav-arrow-opacity: 			0;
+	--side-nav-arrow-hover-opacity: 	0.9;
+
+}
+
+html.dark-mode {
+	--primary-color:					#f7472e;	/* e-peas' Red */
+	--primary-dark-color: 			#142918;	/* e-peas' Dark Green */
+	--primary-light-color:			#989997;	/* e-peas' Dark Grey */
+	--primary-lighter-color:		#d5d9d6;	/* e-peas' Light Grey */
+	--primary-lightest-color:		#e6e6e6;	/* e-peas' Super Light Grey */
+
+	--odd-color: 						rgba(0,0,0,.1);
+	
+	--page-background-color: 				#1C1D1F;
+	--page-foreground-color: 				#d5d9d6;	/* e-peas' Light Grey */
+	--page-secondary-foreground-color: 	#e6e6e6;	/* e-peas' Super Light Grey */
+	--separator-color: 						#000000;
+
+	--tablehead-link-color:		#f7472e;
+	--table-even-row-background-color: 		#1f2022;
+	--table-hover-row-background-color: 	#2a2c2f;
+
+	--code-background: 					#2a2c2f;
+
+	--boxes-background:					#1f2022;
+
+	--blockquote-background: 			#1f2022;
+	--blockquote-foreground: 			#77848a;
+
+	--header-background: 				#1f2022;
+
+	--side-nav-hover-background: 		#2a2c2f;
+
+}
+
+@font-face {
+	font-family: Open Sans;
+	src: url(https://fonts.gstatic.com/s/opensans/v15/mem8YaGs126MiZpBA-UFVZ0b.woff2);
+}
+
+body {
+	counter-reset: figurenum tablenum;
+	line-height: 1.7;
+	text-align: justify;
+}
+
+#loading {
+	position: fixed; 
+	width: 100%;
+	height: 100%;
+	top:0; 
+	left:0;
+	background-color: var(--page-background-color);
+	z-index:999999;
+}
+
+#spinner {
+	position: absolute;
+	top: 47%;
+	left: 47%;
+}
+
+.spin {
+	display: inline-block;
+	width: 80px;
+	height: 80px;
+}
+
+.spin.two, .spin.three, .spin.four {
+	display: none;
+}
+
+.spin:after {
+	content: " ";
+	display: block;
+	width: 64px;
+	height: 64px;
+	margin: 8px;
+	border-radius: 50%;
+	border: 6px solid var(--primary-color);
+	border-color: var(--primary-color) transparent var(--primary-color) transparent;
+	animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+	transform: rotate(0deg);
+  }
+  100% {
+	transform: rotate(360deg);
+  }
+}
+
+li {
+	margin-bottom: var(--spacing-medium);
+}
+
+#projectlogo svg {
+	width: 143px;
+	height: 50px;
+	padding-right: var(--spacing-xlarge);
+}
+#projectalign {
+	padding-bottom: 4px;
+}
+
+.dark-mode #projectlogo svg #g4020 path {
+	fill: #e0e0e0 !important;
+}
+
+.dark-mode #projectlogo svg #g4002 path, .dark-mode #projectlogo svg #g4020 #path3960 {
+	fill: #b0b0b0 !important;
+}
+
+#main-nav {
+	flex-grow: 0;
+}
+
+#main-menu a {
+	border: 2px solid var(--menu-focus-foreground);
+	margin: 0 var(--spacing-small);
+}
+
+#main-menu a:hover {
+	background: transparent;
+	color: var(--menu-focus-background) !important;
+	border: 2px solid var(--menu-focus-background);
+}
+
+#main-menu .selected {
+	text-shadow: none;
+	font-weight: normal;
+	background: var(--menu-focus-background);
+	color: var(--menu-focus-foreground) !important;
+	border-radius: var(--border-radius-small) !important;
+	font-size: var(--navigation-font-size);
+	border: 2px solid var(--menu-focus-background);
+}
+
+#searchBoxPos2 {
+	position: fixed;
+	margin-top: 70px;
+	right: 30px;
+}
+
+#MSearchResults {
+	width: calc(100% - 10px);
+}
+
+#MSearchClose {
+	padding-right:  8px;
+	border: none !important;
+}
+
+#nav-tree .item a:hover {
+	color: var(--primary-color) !important;
+}
+
+#nav-sync {
+	display: none;
+}
+
+#nav-tree-contents ul {
+	margin-top: 1.5em;
+	margin-bottom: 1em; 
+}
+
+#nav-tree .selected::after {
+	width: 0 !important;
+}
+
+#use_pursuant_nda {
+	color: var(--primary-color);
+}
+
+#version {
+	float: left;
+}
+
+.navelem {
+	display: none !important;
+}
+
+.contents table.markdownTable {
+	display: table !important;
+	font-size: var(--table-font-size);
+}
+
+table.markdownTable td{
+	vertical-align: top;
+}
+
+th.markdownTableHeadLeft, th.markdownTableHeadRight, th.markdownTableHeadCenter, th.markdownTableHeadNone {
+   font-size: var(--table-font-size);
+}
+
+div.t-caption {
+  margin-bottom: var(--spacing-xlarge);
+  font-weight: normal;
+}
+
+div.t-caption:before {
+  counter-increment: tablenum;
+  content: "Table " counter(tablenum) " - ";
+}
+
+div.image {
+	display: block;
+	margin: var(--spacing-large) auto 0 auto;
+}
+
+div.image div.caption {
+  margin-top: var(--spacing-medium);
+  margin-bottom: var(--spacing-large);
+  font-weight: normal;
+}
+
+div.image div.caption:before {
+  counter-increment: figurenum;
+  content: "Fig. " counter(figurenum) " - ";
+}
+#main-menu li:nth-child(n+4) a {
+	border: 2px solid #68bf6a;
+}
+
+#main-menu li:nth-child(n+4) a:hover {
+	background: #68bf6a !important;
+	color: white !important;
+}

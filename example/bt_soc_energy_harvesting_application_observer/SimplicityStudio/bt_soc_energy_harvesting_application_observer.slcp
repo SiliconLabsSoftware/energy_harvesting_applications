@@ -1,0 +1,74 @@
+project_name: bt_soc_energy_harvesting_application_observer
+package: Bluetooth
+label: Bluetooth - SoC Energy Harvesting Application Observer
+description: >
+  This example implements an Observer device for Bluetooth Energy Harvesting examples.
+  It scans and analyzes advertisement packets from Energy Harvesting switch/sensor devices,
+  providing sender information via UART.
+category: Energy Harvesting
+quality: experimental
+
+filter:
+  - name: "Wireless Technology"
+    value: ["Bluetooth"]
+  - name: "Device Type"
+    value: ["SoC"]
+  - name: "Project Difficulty"
+    value: ["Advanced"]
+
+component:
+  - id: bluetooth_stack
+  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_gatt
+  - id: bluetooth_feature_legacy_scanner
+  - id: bluetooth_feature_system
+  - id: bluetooth_feature_power_control
+  - id: bluetooth_feature_nvm
+  - id: rail_util_pti
+  - id: mpu
+  - id: bt_post_build
+  - id: sl_system
+  - id: clock_manager
+  - id: device_init
+  - id: app_log
+  - id: app_assert
+  - id: sleeptimer
+  - id: iostream_usart
+    instance: [vcom]
+  - id: iostream_retarget_stdio
+  - id: simple_led
+    instance: [led0]
+
+include:
+  - path: ../inc
+    file_list:
+      - path: app.h
+
+source:
+  - path: ../src/main.c
+  - path: ../src/app.c
+
+configuration:
+  - name: SL_STACK_SIZE
+    value: '2752'
+  - name: SL_PSA_KEY_USER_SLOT_COUNT
+    condition: [psa_crypto]
+    value: '0'
+
+readme:
+  - path: ../README.md
+
+other_file:
+  - path: ../image/create_project.png
+    directory: image
+  - path: ../image/overview.png
+    directory: image
+  - path: ../image/runtime.png
+    directory: image
+  - path: ../image/log.png
+    directory: image
+
+ui_hints:
+  highlight:
+    - path: README.md
+      focus: true

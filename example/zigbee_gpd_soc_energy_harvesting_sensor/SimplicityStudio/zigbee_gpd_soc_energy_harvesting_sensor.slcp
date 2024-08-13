@@ -1,0 +1,188 @@
+project_name: zigbee_gpd_soc_energy_harvesting_sensor
+label: zigbee_gpd_soc_energy_harvesting_sensor
+description: |
+  This is a Green Power Sensor Device that pairs with a GP Combo or Sink device and sends gpd reports periodically.
+category: Energy Harvesting
+filter:
+- name: Device Type
+  value: [SoC]
+- name: Project Difficulty
+  value: [Advanced]
+- name: Wireless Technology
+  value: [Zigbee]
+package: Zigbee
+quality: experimental
+
+readme:
+- path: ../README.md
+
+source:
+  - path: ../src/main.c
+  - path: ../src/app_process.c
+  - path: ../src/app_cli.c
+
+include:
+- path: ../inc
+  file_list:
+  - path: app_init.h
+  - path: app_process.h
+
+other_file:
+  - path: ../image/ApplicationFlow.png
+    directory: image
+  - path: ../image/Assemble.png
+    directory: image
+  - path: ../image/Delete_app_init.png
+    directory: image
+  - path: ../image/GPC_Commissioning.png
+    directory: image
+  - path: ../image/GPC_Decommissioning.png
+    directory: image
+  - path: ../image/GPC_EnterCommissioning.png
+    directory: image
+  - path: ../image/GreenPowerDevice_Configuration.png
+    directory: image
+  - path: ../image/i2cspm_Configuration.png
+    directory: image
+  - path: ../image/Pairing_Complete.png
+    directory: image
+  - path: ../image/ProjectCreation.png
+    directory: image
+  - path: ../image/ProjectCreation_OriginalSensor.png
+    directory: image
+  - path: ../image/SystemOverview.png
+    directory: image
+  - path: ../image/vcom_configuration.png
+    directory: image
+  - path: ../image/HA_AddDevice.png
+    directory: image
+  - path: ../image/HA_Integration.png
+    directory: image
+  - path: ../image/HA_NewDevice.png
+    directory: image
+  - path: ../image/HA_Overview.png
+    directory: image
+  - path: ../image/aem13920_config_user_enable.png
+    directory: image
+  - path: ../image/aem13920_change_config.png
+    directory: image
+  - path: ../image/aem13920_init_fct.png
+    directory: image
+  - path: ../image/aem13920_quality_filter.png
+    directory: image
+  - path: ../image/gpd_sensor_application_support.png
+    directory: image
+
+component:
+- id: clock_manager
+- id: sl_system
+- id: device_init
+- instance: [gpdCli]
+  id: cli
+- instance: [mikroe]
+  id: i2cspm
+- id: iostream_recommended_stream
+- id: mbedtls_ccm
+- id: nvm3_default
+- instance: [gpdrail]
+  id: rail_util_init
+- id: rail_util_recommended
+- instance: [btn0]
+  id: simple_button
+- instance: [led0]
+  id: simple_led
+- id: sleeptimer
+- id: zigbee_debug_print
+- id: zigbee_gpd_af_cli
+- id: zigbee_gpd_application_support
+- id: zigbee_gpd_network_support
+- from: energy_harvesting
+  id: aem13920
+
+template_contribution:
+- name: cli_group
+  priority: 0
+  value: {name: sensor, help: sensor related commands}
+- name: cli_command
+  priority: 0
+  value: {name: report, group: sensor, handler: sl_zigbee_gpd_af_cli_sensor_report,
+    help: Sends a report out.}
+- name: cli_command
+  priority: 0
+  value: {name: sleep, group: sensor, handler: sl_zigbee_gpd_af_cli_sensor_sleep,
+    help: sets gpd as a sleepy device.}
+
+configuration:
+- name: SL_RAIL_UTIL_INIT_GPDRAIL_ENABLE
+  value: '1'
+- name: SL_RAIL_UTIL_INIT_INIT_COMPLETE_CALLBACK_GPDRAIL_ENABLE
+  value: '1'
+- name: SL_RAIL_UTIL_INIT_PROTOCOLS_GPDRAIL_ENABLE
+  value: '1'
+- name: SL_RAIL_UTIL_INIT_PROTOCOL_GPDRAIL_DEFAULT
+  value: SL_RAIL_UTIL_PROTOCOL_IEEE802154_2P4GHZ
+- name: SL_RAIL_UTIL_INIT_CALIBRATIONS_GPDRAIL_ENABLE
+  value: '1'
+- name: SL_RAIL_UTIL_INIT_CALIBRATION_TEMPERATURE_NOTIFY_GPDRAIL_ENABLE
+  value: '1'
+- name: SL_RAIL_UTIL_INIT_CALIBRATION_ONETIME_NOTIFY_GPDRAIL_ENABLE
+  value: '1'
+- name: SL_RAIL_UTIL_INIT_TRANSITIONS_GPDRAIL_ENABLE
+  value: '1'
+- name: SL_RAIL_UTIL_INIT_EVENTS_GPDRAIL_ENABLE
+  value: '1'
+- name: SL_RAIL_UTIL_INIT_EVENT_RX_PACKET_RECEIVED_GPDRAIL_ENABLE
+  value: '1'
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+- name: SL_CLI_LOCAL_ECHO
+  value: '1'
+- condition: [iostream_eusart]
+  name: SL_IOSTREAM_EUSART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
+  value: '1'
+- condition: [iostream_eusart]
+  name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
+  value: SL_IOSTREAM_EUSART_UART_FLOW_CTRL_NONE
+- condition: [iostream_eusart]
+  name: SL_IOSTREAM_EUSART_VCOM_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION
+  value: 0
+- name: SL_ZIGBEE_AF_PLUGIN_APPS_RX_WINDOW
+  value: '8'
+- name: SL_ZIGBEE_AF_PLUGIN_APPS_APP_INFO
+  value: '0'
+- name: SL_ZIGBEE_AF_PLUGIN_APPS_APPS_GPD_MANUFACTURE_ID_PRESENT
+  value: '0'
+- name: SL_ZIGBEE_AF_PLUGIN_APPS_APPS_GPD_MODEL_ID_PRESENT
+  value: '0'
+- name: SL_ZIGBEE_AF_PLUGIN_APPS_GPD_SWITCH_INFO_PRESENT
+  value: '0'
+- name: SL_ZIGBEE_AF_PLUGIN_APPS_GPD_APP_DESCRIPTION_FOLLOWS
+  value: '1'
+- name: SL_ZIGBEE_AF_PLUGIN_APPS_APP_DEVICE_ID
+  value: '0x12'
+- name: SL_ZIGBEE_AF_PLUGIN_APPS_SRC_ID
+  value: '0x11223344'
+- condition: [device_series_2]
+  name: NVM3_DEFAULT_NVM_SIZE
+  value: '32768'
+- name: SL_PSA_ITS_SUPPORT_V1_DRIVER
+  value: '0'
+- name: SL_PSA_ITS_SUPPORT_V2_DRIVER
+  value: '0'
+- name: SL_PSA_ITS_SUPPORT_V3_DRIVER
+  value: '1'
+- name: SL_DEVICE_INIT_DCDC_ENABLE
+  value: '0'
+- name: SL_ZIGBEE_AF_PLUGIN_APPS_SRC_ID
+  value: '0x55667788'
+- name: SL_ZIGBEE_AF_PLUGIN_APPS_IEEE
+  value: '{ 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11 }'
+
+sdk_extension:
+- id: energy_harvesting
+  version: 1.0.0
+
+ui_hints:
+  highlight:
+    - path: README.md
+      focus: true

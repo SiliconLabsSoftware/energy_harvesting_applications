@@ -1,0 +1,40 @@
+id: aem13920
+package: energy_harvesting
+label: AEM13920 - Energy Harvesting PMIC
+description: >
+  Driver for the AEM13920 - Energy Harvesting PMIC. After installed, you can check the document "energy_harvesting_extension\driver\docs\AEM13920.md" for more information on how to use it.
+category: Power Management
+quality: evaluation 
+root_path: driver
+requires:
+  - name: status
+  - name: i2cspm
+recommends:
+  - id: i2cspm
+    instance: [mikroe]
+provides:
+  - name: aem13920
+  - allow_multiple: false
+template_contribution:
+  - name: component_catalog
+    value: aem13920
+include:
+  - path: thirdparty/e_peas/aem13920/Device/Include
+    file_list:
+      - path: AEM13920_Common.h
+      - path: AEM13920_RegisterMap.h
+  - path: thirdparty/e_peas/aem13920/Drivers/CommInterface
+    file_list:
+      - path: AEM_I2C.h
+  - path: thirdparty/e_peas/aem13920/Drivers/HAL
+    file_list:
+      - path: HAL_AEM13920.h
+source:
+  - path: public/aem13920/src/aem13920_i2c_platform.c
+  - path: thirdparty/e_peas/aem13920/Drivers/HAL/HAL_AEM13920.c
+
+other_file:
+  - path: ../driver/docs/image/install_component.png
+  - path: ../driver/docs/image/after_install.png
+  - path: ../driver/docs/image/quality_filter.png
+  - path: ../driver/docs/AEM13920.md

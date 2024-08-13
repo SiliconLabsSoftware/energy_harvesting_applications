@@ -1,0 +1,95 @@
+project_name: bt_soc_energy_harvesting_sensor
+package: Bluetooth
+label: Bluetooth - SoC Energy Harvesting Sensor
+description: >
+  This example uses a Dual Harvester Shield with a lithium capacitor as the storage element
+  and a photovoltaic cell as the power source to demonstrate a self-powered BLE sensor device.
+category: Energy Harvesting
+quality: experimental
+
+filter:
+  - name: Device Type
+    value: [SoC]
+  - name: Project Difficulty
+    value: [Advanced]
+  - name: Wireless Technology
+    value: [Bluetooth]
+
+component:
+  - id: bluetooth_stack
+  - id: bluetooth_feature_legacy_advertiser
+  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_sm
+  - id: bluetooth_feature_system
+  - id: bt_post_build
+  - id: mpu
+  - id: clock_manager
+  - id: device_init
+  - id: sl_system
+  - id: app_assert
+  - id: app_log
+  - id: iostream_usart
+    instance: [vcom]
+  - id: aem13920
+    from: energy_harvesting
+
+include:
+  - path: ../inc
+    file_list:
+      - path: app.h
+
+source:
+  - path: ../src/main.c
+  - path: ../src/app.c
+
+readme:
+  - path: ../README.md
+
+other_file:
+  - path: ../image/aem13920_config_user_enable.png
+    directory: "image"
+  - path: ../image/aem13920_init_fct.png
+    directory: "image"
+  - path: ../image/create_example_sensor.png
+    directory: "image"
+  - path: ../image/filter.png
+    directory: "image"
+  - path: ../image/find.png
+    directory: "image"
+  - path: ../image/hardware_setup_sensor.png
+    directory: "image"
+  - path: ../image/hex_to_dec.png
+    directory: "image"
+  - path: ../image/modify_macro_config_aem13920.png
+    directory: "image"
+  - path: ../image/sensor_overview.png
+    directory: "image"
+  - path: ../image/system_overview.png
+    directory: "image"
+  - path: ../image/testing_with_observer_device.png
+    directory: "image"
+  - path: ../image/view.png
+    directory: "image"
+
+configuration:
+  - name: SL_STACK_SIZE
+    value: "2752"
+  - name: SL_PSA_KEY_USER_SLOT_COUNT
+    value: "0"
+    condition:
+      - psa_crypto
+  - name: SL_CLOCK_MANAGER_DEFAULT_LF_CLOCK_SOURCE
+    value: "SL_CLOCK_MANAGER_DEFAULT_LF_CLOCK_SOURCE_LFRCO"
+  - name: SL_CLOCK_MANAGER_LFXO_EN
+    value: 0
+  - name: SL_DEVICE_INIT_DCDC_ENABLE
+    value: 0
+
+sdk_extension:
+  - id: energy_harvesting
+    version: 1.0.0
+
+ui_hints:
+  highlight:
+    - path: README.md
+      focus: true

@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.4" xsi:noNamespaceSchemaLocation="PACK.xsd" Dvendor="e-peas:167">
+	<vendor>e-peas</vendor>
+	<name>AEM13920_DFP</name>
+	<description>e-peas AEM13920 Software Pack</description>
+	<url>https://download.e-peas.com/aem13920/pack/</url>
+	<supportContact>https://e-peas.com/contact/</supportContact>
+	<license>License/e-peas_AEM13920_End_User_License_Agreement.txt</license>
+	<releases>
+		<release version="1.0.1" date="2025-01-13">
+			Update AEM AEM13920 HAL: v.1.1.1
+		</release>
+		<release version="1.0.0" date="2024-12-04">
+			Initial release
+		</release>
+	</releases>
+	<keywords>
+		<keyword>e-peas</keyword>
+		<keyword>epeas</keyword>
+		<keyword>AEM</keyword>
+		<keyword>AEM13920</keyword>
+		<keyword>APM</keyword>
+		<keyword>Harvesting</keyword>
+		<keyword>MPPT</keyword>
+	</keywords>
+	<conditions>
+		<condition id="HAL_AEM13920">
+			<require Cclass="AEM" Cgroup="I2C Communication interface" />
+			<require Cclass="AEM" Cgroup="AEM13920" Csub="Registers Map" />
+		</condition>
+		<condition id="AEM_I2C">
+			<accept condition="AEM_I2C_CMSIS" />
+			<accept condition="AEM_I2C_Usr" />
+		</condition>
+		<condition id="AEM13920_RegisterMap">
+		</condition>
+		<condition id="AEM_I2C_CMSIS">
+			<require Cclass="CMSIS Driver" Cgroup="I2C" />
+			<require Cclass="AEM" Cgroup="I2C Communication interface" Cvariant="CMSIS Driver" />
+		</condition>
+		<condition id="AEM_I2C_Usr">
+			<require Cclass="AEM" Cgroup="I2C Communication interface" Cvariant="User Template" />
+		</condition>
+	</conditions>
+	<components>
+		<component Cclass="AEM" Cgroup="AEM13920" Csub="HAL" Cversion="1.1.1" condition="HAL_AEM13920">
+			<description>AEM13920 HAL Driver</description>
+			<files>
+				<file category="header" name="Drivers/HAL/HAL_AEM13920.h" />
+				<file category="source" name="Drivers/HAL/HAL_AEM13920.c" />
+			</files>
+		</component>
+		<component Cclass="AEM" Cgroup="I2C Communication interface" Cversion="1.0.0" Cvariant="User Template" condition="AEM_I2C">
+			<description>AEM13920 Communication interface</description>
+			<files>
+				<file category="header" name="Drivers/CommInterface/AEM_I2C.h" />
+				<file category="sourceC" name="Drivers/CommInterface/templates/AEM_I2C_Template.c" attr="config" />
+			</files>
+		</component>
+		<component Cclass="AEM" Cgroup="I2C Communication interface" Cversion="1.0.0" Cvariant="CMSIS Driver" condition="AEM_I2C">
+			<description>AEM13920 Communication interface</description>
+			<files>
+				<file category="header" name="Drivers/CommInterface/AEM_I2C.h" />
+				<file category="sourceC" name="Drivers/CommInterface/templates/AEM_I2C_CMSIS.c" attr="config" />
+			</files>
+		</component>
+		<component Cclass="AEM" Cgroup="AEM13920" Csub="Registers Map" Cversion="1.0.0" condition="AEM13920_RegisterMap">
+			<description>AEM13920 Registers Map</description>
+			<files>
+				<file category="header" name="Device/Include/AEM13920_RegisterMap.h" />
+				<file category="header" name="Device/Include/AEM13920_Common.h" />
+			</files>
+		</component>
+	</components>
+</package>

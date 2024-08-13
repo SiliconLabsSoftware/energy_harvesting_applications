@@ -1,0 +1,103 @@
+<?xml version="1.0" ?>
+<demos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.silabs.com/ss/Demo.ecore">
+  <demo name="brd2710a.demo.bt_rail_soc_energy_harvesting_sensor" label="Bluetooth RAIL- SoC Energy Harvesting Sensor">
+    <description>This example uses a Dual Harvester Shield with a lithium capacitor and a photovoltaic cell to demonstrate a self-powered sensor device. This example is implemented in RAIL compatible with BLE.</description>
+    <property key="demos.blurb" value="Bluetooth RAIL- SoC Energy Harvesting Sensor"/>
+    <property key="core.partCompatibility" value=".*efr32mg22e224f512im40.*"/>
+    <property key="core.boardCompatibility" value="brd2710a"/>
+    <property key="demos.imageFile" value="demo/brd2710a/bt_rail_soc_energy_harvesting_sensor.s37"/>
+    <property key="readmeFiles" value="example/bt_rail_soc_energy_harvesting_sensor/README.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
+  <demo name="brd2710a.demo.bt_soc_energy_harvesting_sensor" label="Bluetooth - SoC Energy Harvesting Sensor">
+    <description>This example uses a Dual Harvester Shield with a lithium capacitor as the storage element and a photovoltaic cell as the power source to demonstrate a self-powered BLE sensor device.</description>
+    <property key="demos.blurb" value="Bluetooth - SoC Energy Harvesting Sensor"/>
+    <property key="core.partCompatibility" value=".*efr32mg22e224f512im40.*"/>
+    <property key="core.boardCompatibility" value="brd2710a"/>
+    <property key="demos.imageFile" value="demo/brd2710a/bt_soc_energy_harvesting_sensor.s37"/>
+    <property key="readmeFiles" value="example/bt_soc_energy_harvesting_sensor/README.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
+  <demo name="brd2710a.demo.bt_rail_soc_energy_harvesting_kinetic_switch" label="Bluetooth RAIL - SoC Energy Harvesting Kinetic Switch">
+    <description>This example uses a Kinetic Harvester Shield to demonstrate a self-powered switch device. This example is implemented in RAIL compatible with BLE.</description>
+    <property key="demos.blurb" value="Bluetooth RAIL - SoC Energy Harvesting Kinetic Switch"/>
+    <property key="core.partCompatibility" value=".*efr32mg22e224f512im40.*"/>
+    <property key="core.boardCompatibility" value="brd2710a"/>
+    <property key="demos.imageFile" value="demo/brd2710a/bt_rail_soc_energy_harvesting_kinetic_switch.s37"/>
+    <property key="readmeFiles" value="example/bt_rail_soc_energy_harvesting_kinetic_switch/README.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
+  <demo name="brd2703a.demo.bt_soc_energy_harvesting_application_observer" label="Bluetooth - SoC Energy Harvesting Application Observer">
+    <description>This example implements an Observer device for Bluetooth Energy Harvesting examples. It scans and analyzes advertisement packets from Energy Harvesting switch/sensor devices, providing sender information via UART.</description>
+    <property key="demos.blurb" value="Bluetooth - SoC Energy Harvesting Application Observer"/>
+    <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
+    <property key="core.boardCompatibility" value="brd2703a"/>
+    <property key="demos.imageFile" value="demo/brd2703a/bt_soc_energy_harvesting_application_observer.s37"/>
+    <property key="readmeFiles" value="example/bt_soc_energy_harvesting_application_observer/README.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
+  <demo name="brd2710a.demo.bt_soc_energy_harvesting_application_observer" label="Bluetooth - SoC Energy Harvesting Application Observer">
+    <description>This example implements an Observer device for Bluetooth Energy Harvesting examples. It scans and analyzes advertisement packets from Energy Harvesting switch/sensor devices, providing sender information via UART.</description>
+    <property key="demos.blurb" value="Bluetooth - SoC Energy Harvesting Application Observer"/>
+    <property key="core.partCompatibility" value=".*efr32mg22e224f512im40.*"/>
+    <property key="core.boardCompatibility" value="brd2710a"/>
+    <property key="demos.imageFile" value="demo/brd2710a/bt_soc_energy_harvesting_application_observer.s37"/>
+    <property key="readmeFiles" value="example/bt_soc_energy_harvesting_application_observer/README.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
+  <demo name="brd4108a.demo.bt_soc_energy_harvesting_application_observer" label="Bluetooth - SoC Energy Harvesting Application Observer">
+    <description>This example implements an Observer device for Bluetooth Energy Harvesting examples. It scans and analyzes advertisement packets from Energy Harvesting switch/sensor devices, providing sender information via UART.</description>
+    <property key="demos.blurb" value="Bluetooth - SoC Energy Harvesting Application Observer"/>
+    <property key="core.partCompatibility" value=".*efr32bg22c224f512im40.*"/>
+    <property key="core.boardCompatibility" value="brd4108a"/>
+    <property key="demos.imageFile" value="demo/brd4108a/bt_soc_energy_harvesting_application_observer.s37"/>
+    <property key="readmeFiles" value="example/bt_soc_energy_harvesting_application_observer/README.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
+  <demo name="brd4314a.demo.bt_soc_energy_harvesting_application_observer" label="Bluetooth - SoC Energy Harvesting Application Observer">
+    <description>This example implements an Observer device for Bluetooth Energy Harvesting examples. It scans and analyzes advertisement packets from Energy Harvesting switch/sensor devices, providing sender information via UART.</description>
+    <property key="demos.blurb" value="Bluetooth - SoC Energy Harvesting Application Observer"/>
+    <property key="core.partCompatibility" value=".*bgm220pc22hna.*"/>
+    <property key="core.boardCompatibility" value="brd4314a"/>
+    <property key="demos.imageFile" value="demo/brd4314a/bt_soc_energy_harvesting_application_observer.s37"/>
+    <property key="readmeFiles" value="example/bt_soc_energy_harvesting_application_observer/README.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
+  <demo name="brd2710a.demo.zigbee_gpd_soc_energy_harvesting_sensor" label="Zigbee GPD - SoC Energy Harvesting Sensor">
+    <description>This project demonstrates a Green Power sensor device powered by AEM13920 PMIC</description>
+    <property key="demos.blurb" value="Zigbee GPD - SoC Energy Harvesting Sensor"/>
+    <property key="core.partCompatibility" value=".*efr32mg22e224f512im40.*"/>
+    <property key="core.boardCompatibility" value="brd2710a"/>
+    <property key="demos.imageFile" value="demo/brd2710a/zigbee_gpd_soc_energy_harvesting_sensor.s37"/>
+    <property key="readmeFiles" value="example/zigbee_gpd_soc_energy_harvesting_sensor/README.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
+  <demo name="brd2710a.demo.zigbee_gpd_soc_energy_harvesting_switch" label="Zigbee GPD - SoC Energy Harvesting Switch">
+    <description>This is a Green Power Device that pairs with a GP Combo or Sink device and sends gpd toggling GPDF by pushing Kinetic Switch. This demo scans channel 11, 15, 20, 25 during commissioning only.</description>
+    <property key="demos.blurb" value="Zigbee GPD - SoC Energy Harvesting Switch"/>
+    <property key="core.partCompatibility" value=".*efr32mg22e224f512im40.*"/>
+    <property key="core.boardCompatibility" value="brd2710a"/>
+    <property key="demos.imageFile" value="demo/brd2710a/zigbee_gpd_soc_energy_harvesting_switch.s37"/>
+    <property key="readmeFiles" value="example/zigbee_gpd_soc_energy_harvesting_switch/README.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
+  <demo name="brd2703a.demo.zigbee_gpc_soc_energy_harvesting_observer" label="Zigbee GPC - SoC Energy Harvesting Observer">
+    <description>This device is a Zigbee 3.0 light application with Green Power endpoint, Green Power Proxy and Sink functionality design for observing the entergy harvesting GPD.</description>
+    <property key="demos.blurb" value="Zigbee GPC - SoC Energy Harvesting Observer"/>
+    <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
+    <property key="core.boardCompatibility" value="brd2703a"/>
+    <property key="demos.imageFile" value="demo/brd2703a/zigbee_gpc_soc_energy_harvesting_observer.s37"/>
+    <property key="readmeFiles" value="example/zigbee_gpc_soc_energy_harvesting_observer/README.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
+</demos>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="ASCII"?><model:MDescriptors xmlns:model="http://www.silabs.com/ss/Studio.ecore">
+  <descriptors name="bt_rail_soc_energy_harvesting_sensor" label="Bluetooth RAIL- SoC Energy Harvesting Sensor"
+               description="This example uses a Dual Harvester Shield with a lithium capacitor and a photovoltaic cell to demonstrate a self-powered sensor device. This example is implemented in RAIL compatible with BLE.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="example/bt_rail_soc_energy_harvesting_sensor/SimplicityStudio/bt_rail_soc_energy_harvesting_sensor.slcp"/>
+    <properties key="readmeFiles" value="example/bt_rail_soc_energy_harvesting_sensor/README.md"/>
+    <properties key="boardCompatibility" value="brd2710a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32mg22e.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Energy Harvesting"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+  </descriptors>
+  <descriptors name="bt_soc_energy_harvesting_sensor" label="Bluetooth - SoC Energy Harvesting Sensor"
+               description="This example uses a Dual Harvester Shield with a lithium capacitor as the storage element and a photovoltaic cell as the power source to demonstrate a self-powered BLE sensor device.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="example/bt_soc_energy_harvesting_sensor/SimplicityStudio/bt_soc_energy_harvesting_sensor.slcp"/>
+    <properties key="readmeFiles" value="example/bt_soc_energy_harvesting_sensor/README.md"/>
+    <properties key="boardCompatibility" value="brd2710a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32mg22e.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Energy Harvesting"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+  </descriptors>
+  <descriptors name="bt_rail_soc_energy_harvesting_kinetic_switch" label="Bluetooth RAIL - SoC Energy Harvesting Kinetic Switch"
+               description="This example uses a Kinetic Harvester Shield to demonstrate a self-powered switch device. This example is implemented in RAIL compatible with BLE.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="example/bt_rail_soc_energy_harvesting_kinetic_switch/SimplicityStudio/bt_rail_soc_energy_harvesting_kinetic_switch.slcp"/>
+    <properties key="readmeFiles" value="example/bt_rail_soc_energy_harvesting_kinetic_switch/README.md"/>
+    <properties key="boardCompatibility" value="brd2710a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32mg22e.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Energy Harvesting"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+  </descriptors>
+  <descriptors name="bt_soc_energy_harvesting_application_observer" label="Bluetooth - SoC Energy Harvesting Application Observer"
+               description="This example implements an Observer device for Bluetooth Energy Harvesting examples. It scans and analyzes advertisement packets from Energy Harvesting switch/sensor devices, providing sender information via UART.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="example/bt_soc_energy_harvesting_application_observer/SimplicityStudio/bt_soc_energy_harvesting_application_observer.slcp"/>
+    <properties key="readmeFiles" value="example/bt_soc_energy_harvesting_application_observer/README.md"/>
+    <properties key="boardCompatibility" value="brd2710a brd2703a brd4108a brd4314a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32mg22e.* .*bgm22.* .*bg22.* .*efr32mg24.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Energy Harvesting"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+  </descriptors>
+  <descriptors name="zigbee_gpd_soc_energy_harvesting_sensor" label="Zigbee GPD - SoC Energy Harvesting Sensor"
+               description="This project demonstrates a Green Power sensor device powered by AEM13920 PMIC">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="example/zigbee_gpd_soc_energy_harvesting_sensor/SimplicityStudio/zigbee_gpd_soc_energy_harvesting_sensor.slcp"/>
+    <properties key="readmeFiles" value="example/zigbee_gpd_soc_energy_harvesting_sensor/README.md"/>
+    <properties key="boardCompatibility" value="brd2710a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32mg22e.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Energy Harvesting"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+  </descriptors>
+  <descriptors name="zigbee_gpd_soc_energy_harvesting_switch" label="Zigbee GPD - SoC Energy Harvesting Switch"
+               description="This is a Green Power Device that pairs with a GP Combo or Sink device and sends gpd toggling GPDF by pushing Kinetic Switch">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="example/zigbee_gpd_soc_energy_harvesting_switch/SimplicityStudio/zigbee_gpd_soc_energy_harvesting_switch.slcp"/>
+    <properties key="readmeFiles" value="example/zigbee_gpd_soc_energy_harvesting_switch/README.md"/>
+    <properties key="boardCompatibility" value="brd2710a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32mg22e.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Energy Harvesting"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+  </descriptors>
+  <descriptors name="zigbee_gpc_soc_energy_harvesting_observer" label="Zigbee GPC - SoC Energy Harvesting Observer"
+               description="This device is a Zigbee 3.0 light application with Green Power endpoint, Green Power Proxy and Sink functionality design for observing the entergy harvesting GPD.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="example/zigbee_gpc_soc_energy_harvesting_observer/SimplicityStudio/zigbee_gpc_soc_energy_harvesting_observer.slcp"/>
+    <properties key="readmeFiles" value="example/zigbee_gpc_soc_energy_harvesting_observer/README.md"/>
+    <properties key="boardCompatibility" value="brd2703a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32mg24.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Energy Harvesting"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+  </descriptors>
+</model:MDescriptors>

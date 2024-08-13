@@ -1,0 +1,16 @@
+
+#header {
+	display: none;
+}
+
+#side-nav {
+	display: none;
+}
+
+div.header {
+	display: none;
+}
+
+#doc-content {
+	margin-left: 0 !important;
+}
