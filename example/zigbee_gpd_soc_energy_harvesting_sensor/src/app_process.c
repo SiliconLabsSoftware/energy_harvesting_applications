@@ -73,8 +73,6 @@
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
 
-#define USER_OVERRIDE_AEM13920_CONFIG   (0)
-
 #define SL_ZIGBEE_GPD_NV_DATA_TAG       0xA9A1
 
 #define GPD_BUTTON_COUNT                SL_SIMPLE_BUTTON_COUNT
@@ -107,14 +105,6 @@ typedef uint8_t GpdAppEventActionType;
 // Number of 1 KHz ULFRCO clocks between BURTC interrupts per second
 #define BURTC_IRQ_1_SECOND                          1000
 
-#if (USER_OVERRIDE_AEM13920_CONFIG == 1)
-// AEM13920 configurations, for more information, please refer to AEM13920 datasheet.
-#define AEM13920_OVERCHARGE_VOLTAGE_THRESHOLD       3788  // VOVCH(Storage element overcharge threshold, used to protect the super cap from overcharge) 3.788V
-#define AEM13920_CHARGE_READY_VOLTAGE_THRESHOLD     2456  // VCHRDY(Storage element minimum voltage before starting to supply, should be slightly higher than VOVDIS) 2.456V
-#define AEM13920_DISCHARGE_VOLTAGE_THRESHOLD        2419  // VOVDIS(Storage element overdischarge threshold, used to prevent the super cap from being drained) 2419
-#define AEM13920_BUCK_OUT_VOLTAGE                   AEM13920_VLOAD_2200  // BUCKCFG(To set the regulation output voltage as 2.2V)
-#endif
-
 // Whether to send storage voltage report. When it's not 1, the device reports fake occupancy sensing data instead.
 #define REPORT_STORAGE_VOLTAGE                      1
 
@@ -140,11 +130,9 @@ static void startBURTC(uint8_t sec);
 static void buttonReleaseTimeout(sl_sleeptimer_timer_handle_t *handle,
                                  void *contextData);
 
-#if (USER_OVERRIDE_AEM13920_CONFIG == 1)
 // Initialize AEM13920
-static int32_t initAEM13920(const AEM_i2c_cfg *i2c_cfg);
-
-#endif
+static int32_t initAEM13920(AEM13920_Handler_t *aem_handler,
+                            AEM_i2c_cfg *commInfo);
 
 // -----------------------------------------------------------------------------
 //                                Static Variables
@@ -155,7 +143,8 @@ static bool sleepy = false;
 static sl_sleeptimer_timer_handle_t le_timer_handle;
 static sl_sleeptimer_timer_handle_t app_single_event_commission;
 
-static const AEM_i2c_cfg aem13920_i2c_cfg = {
+static AEM13920_Handler_t aem13920_handler;
+static AEM_i2c_cfg aem13920_i2c_cfg = {
   .usr_callback = NULL,
   .interface = (uint32_t) SL_I2CSPM_MIKROE_PERIPHERAL,
   .slaveAddress = AEM13920_I2CSLAVE_ADDRESS
@@ -393,12 +382,11 @@ void app_init(void)
     isBtn0Pressed = true;
   }
 
-#if (USER_OVERRIDE_AEM13920_CONFIG == 1)
   // initialize AEM13920
-  if (initAEM13920(&aem13920_i2c_cfg) != AEM13920_DRIVER_OK) {
+  if (initAEM13920(&aem13920_handler,
+                   &aem13920_i2c_cfg) != AEM13920_DRIVER_OK) {
     isDischargingMode = true; // Enter discharging mode if encountering any failure
   }
-#endif
 }
 
 // -----------------------------------------------------------------------------
@@ -470,7 +458,7 @@ static void sendReport(sl_zigbee_gpd_t_t *gpd)
 {
   uint32_t volt = 0;
 
-  (void)AEM13920_GetStorageVoltage(&aem13920_i2c_cfg, &volt);
+  (void)AEM13920_GetStorageVoltage(&aem13920_handler, &volt);
 #if REPORT_STORAGE_VOLTAGE
   uint8_t command[] = {
     GP_CMD_ATTRIBUTE_REPORTING,
@@ -542,43 +530,80 @@ void BURTC_IRQHandler(void)
   BURTC_IntClear(BURTC_IF_COMP); // compare match
 }
 
-#if (USER_OVERRIDE_AEM13920_CONFIG == 1)
-static int32_t initAEM13920(const AEM_i2c_cfg *commInfo)
+static int32_t initAEM13920(AEM13920_Handler_t *aem_handler,
+                            AEM_i2c_cfg *commInfo)
 {
   int32_t ret = AEM13920_DRIVER_OK;
+  AEM13920_CONFIG_t aem_cfg;
+  aem_handler->i2c_cfg = commInfo;
 
-  AEM_I2C_Initialize(commInfo);
+  ret = AEM13920_Initialize(aem_handler);
 
-  ret = AEM13920_SetOverchargeVoltage(commInfo,
-                                      AEM13920_OVERCHARGE_VOLTAGE_THRESHOLD); // default 0x3A(3.788V), this examples uses the same config.
-
-  // Only set next configuration while previous one succeeds
   if (ret == AEM13920_DRIVER_OK) {
-    ret = AEM13920_SetChargeReadyVoltage(commInfo,
-                                         AEM13920_CHARGE_READY_VOLTAGE_THRESHOLD); // default 0x05(2.55V), this example uses 0(2.456V)
+    ret = AEM13920_GetConfiguration(aem_handler, &aem_cfg);
   }
 
-  // Only set next configuration while previous one succeeds
   if (ret == AEM13920_DRIVER_OK) {
-    ret = AEM13920_SetDischargeVoltage(commInfo,
-                                       AEM13920_DISCHARGE_VOLTAGE_THRESHOLD); // default 0x06(2.513V), this example uses 0x01(2.419V)
-  }
+    aem_cfg.src1_regu_mode = AEM13920_SRCREGU_CONST;
+    aem_cfg.src1_const_voltage = 600;
+    aem_cfg.src1_boost_tmult = AEM13920_TMULT3;
+    aem_cfg.src1_boost_enable = true;
+    aem_cfg.src1_boost_high_power_enable = true;
+    aem_cfg.src1_low_thresh = AEM13920_SRCLOW_THRESH_112;
 
-  // Only set next configuration while previous one succeeds
-  if (ret == AEM13920_DRIVER_OK) {
-    ret = AEM13920_SetBuckVLoad(commInfo,
-                                AEM13920_BUCK_OUT_VOLTAGE);  // default 0x00(Buck Converter off), this example uses 0x06(2.2V)
-  }
+    aem_cfg.src2_regu_mode = AEM13920_SRCREGU_MPPT;
+    aem_cfg.src2_mppt_ratio = AEM13920_MPPT_RATIO_75;
+    aem_cfg.src2_mppt_duration = AEM13920_MPPT_DUR8;
+    aem_cfg.src2_mppt_period = AEM13920_MPPT_PER512;
+    aem_cfg.src2_boost_tmult = AEM13920_TMULT3;
+    aem_cfg.src2_boost_enable = true;
+    aem_cfg.src2_boost_high_power_enable = true;
+    aem_cfg.src2_low_thresh = AEM13920_SRCLOW_THRESH_112;
 
-  // Load the configurations into PMIC
-  if (ret == AEM13920_DRIVER_OK) {
-    ret = AEM13920_LoadConfiguration(commInfo);
+    aem_cfg.vovdis = 2500;
+    aem_cfg.vchrdy = 2550;
+    aem_cfg.vovch = 3800;
+
+    aem_cfg.buck_vout = AEM13920_VOUT_2200;
+    aem_cfg.buck_tmult = AEM13920_TMULT4;
+
+    aem_cfg.temp_mon_enable = true;
+    aem_cfg.temp_rdiv = 22000000;
+    aem_cfg.temp_cold_ch_rth = 98180087;
+    aem_cfg.temp_hot_ch_rth = 2261276;
+    aem_cfg.temp_cold_dis_rth = 98180087;
+    aem_cfg.temp_hot_dis_rth = 2261276;
+
+    aem_cfg.apm_src1_enable = false;
+    aem_cfg.apm_src2_enable = false;
+    aem_cfg.apm_buck_enable = false;
+    aem_cfg.apm_mode = AEM13920_APM_MODE_POWER_METER;  // Ignored as APM is disabled
+    aem_cfg.apm_window = AEM13920_APM_WINDOW_128;     // Ignored as APM is disabled
+
+    aem_cfg.i2c_rdy_irq_enable = true;
+    aem_cfg.apm_done_irq_enable = false;
+    aem_cfg.apm_err_irq_enable = false;
+    aem_cfg.src_low_irq_enable = false;
+    aem_cfg.src1_mppt_start_irq_enable = false;
+    aem_cfg.src1_mppt_done_irq_enable = false;
+    aem_cfg.src2_mppt_start_irq_enable = false;
+    aem_cfg.src2_mppt_done_irq_enable = false;
+    aem_cfg.vovdis_irq_enable = false;
+    aem_cfg.vchrdy_irq_enable = false;
+    aem_cfg.vovch_irq_enable = false;
+    aem_cfg.sto_done_irq_enable = false;
+    aem_cfg.temp_ch_irq_enable = false;
+    aem_cfg.temp_dis_irq_enable = false;
+    aem_cfg.temp_done_irq_enable = false;
+
+    // - Write the updated configuration to the I2C registers,
+    // - Start the synchronization of the registers,
+    // - Wait for it to complete
+    ret = AEM13920_SetConfiguration(aem_handler, &aem_cfg, true);
   }
 
   return ret;
 }
-
-#endif
 
 // Button Events
 static void buttonReleaseTimeout(sl_sleeptimer_timer_handle_t *handle,

@@ -1,6 +1,6 @@
 # Silicon Labs Energy Harvesting Applications - Simplicity SDK Extension #
 
-[![Version Badge](https://img.shields.io/badge/-v1.0.0-green)](https://github.com/SiliconLabs/energy_harvesting_applications/releases)
+[![Version Badge](https://img.shields.io/badge/-v1.1.0-green)](https://github.com/SiliconLabs/energy_harvesting_applications/releases)
 [![SiSDK Badge](https://img.shields.io/badge/SiSDK-v2024.6.2-green)](https://github.com/SiliconLabs/simplicity_sdk/releases)
 ![License badge](https://img.shields.io/badge/License-Zlib-green)
 
@@ -10,8 +10,8 @@ This repo contains documentation, demos, examples and all the code needed for th
 
 ### Hardware ###
 
-- [EFR32xG22E Energy Harvesting Explorer Kit - xG22-EK8200A]()
-- [xG24 Explorer Kit - xG24-EK2703A](https://www.silabs.com/development-tools/wireless/efr32xg24-explorer-kit?tab=overview)
+- [xG22-EK8200A](https://www.silabs.com/development-tools/wireless/efr32xg22e-energy-harvesting-explorer-kit?tab=overview) - EFR32xG22E Energy Harvesting Explorer Kit
+- [xG24-EK2703A](https://www.silabs.com/development-tools/wireless/efr32xg24-explorer-kit?tab=overview) - xG24 Explorer Kit
 
 ### Software ###
 

@@ -33,8 +33,7 @@ ZigBee Green Power is a specialized feature of the ZigBee protocol designed for 
 This solution uses Silicon Labs' EFR32MG22E system-on-chip (SoC), where a kinetic switch generates energy for Green Power frames through button-pushing. The ultra-low power design enables sustainable, maintenance-free performance and **Secure commissioning**, an alternative method to Out Of Band (OOB) methods is implemented here to provide an example of Secure Commissioning procedure, using GP protocol in energy constrained systems with normally disrupted supply. The Green Power state is stored in non-volatile memory (NVM) only after commissioning is complete to optimize energy efficiency.
 
 Once commissioned, the kinetic switch generates Green Power Data Frames (GPDFs) to control the LED of a remote Green Power Combo (GPC) device, which is required to test the system.
-- Green Power Combo device example project is available on GitHub as well - **Zigbee GPC - SoC Energy Harvesting Observer**
-<!-- TODO, Link -->
+- Green Power Combo device example project is available on GitHub as well - [**Zigbee GPC - SoC Energy Harvesting Observer**](https://github.com/SiliconLabs/energy_harvesting_applications/tree/main/example/zigbee_gpc_soc_energy_harvesting_observer)
 
 ### How It Works ###
 
@@ -136,8 +135,7 @@ Please create a project in Simplicity Studio based on an example project to test
 - If the BRD2710A has ever been tested with other project, please fully erase the flash before programming the GPD image.
   ![fully_erase_flash](image/fully_erase_flash.png)
 
-- For GPC, refer to **Zigbee GPC - SoC Energy Harvesting Observer** to create a GPC observer project.
-<!-- ToDo, Link -->
+- For GPC, refer to [**Zigbee GPC - SoC Energy Harvesting Observer**](https://github.com/SiliconLabs/energy_harvesting_applications/tree/main/example/zigbee_gpc_soc_energy_harvesting_observer) to create a GPC observer project.
 
 
 ### Testing ###
@@ -216,12 +214,10 @@ Make sure the GPC has NOT formed a distributed network. If LED0 is blinking, you
 
 ## Resources ##
 
-- **Zigbee GPC - SoC Energy Harvesting Observer**
-<!-- ToDo, Link -->
-
+- [Zigbee GPC - SoC Energy Harvesting Observer](https://github.com/SiliconLabs/energy_harvesting_applications/tree/main/example/zigbee_gpc_soc_energy_harvesting_observer)
 - [UG103.15](https://www.silabs.com/documents/public/user-guides/ug103-15-green-power-fundamentals.pdf) Green Power Fundamentals
 - [UG392](https://www.silabs.com/documents/public/user-guides/ug392-using-sl-green-power-with-ezp.pdf) Using Silicon Labs Green Power with Zigbee EmberZNet PRO
-- UG591: User's Guide to EFR32xG22E Energy Harvesting Explorer Kit
+- [UG591](https://www.silabs.com/documents/public/user-guides/ug591-ek8200a-user-guide.pdf) User's Guide to EFR32xG22E Energy Harvesting Explorer Kit
 - [Energy Harvesting Documentation](https://www.silabs.com/development-tools/wireless/efr32xg22e-explorer-kit?tab=overview)
 
 **Note:** Methods for measuring current consumption specific to this hardware are discussed in the kit's User's Guide (UG591). Some example measurements are also provided in the same document.

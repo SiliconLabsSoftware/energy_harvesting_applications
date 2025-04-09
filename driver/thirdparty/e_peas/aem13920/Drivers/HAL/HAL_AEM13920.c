@@ -5,9 +5,10 @@
   * \license	"e-peas_AEM13920_End_User_License_Agreement.txt"
   * \support 	support\@e-peas.com
   * 
-  * \brief	HAL AEM13920 Driver implementation
+  * \brief	AEM13920's HAL Driver's Implementation
   * 
-  * \version	1.1.1
+  * \version	2.0.2
+  * @}
   ***************************************************************************//*
   *                    ___         _ __   ___  __ _ ___ 
   *                   / _ \  ___  | '_ \ / _ \/ _` / __|
@@ -44,60 +45,418 @@
   * http://www.e-peas.com
   *****************************************************************************/
 #include <stdint.h>
-#include "AEM_I2C.h"
+#include <stdbool.h>
 #include "HAL_AEM13920.h"
+#include "AEM13920_Common.h"
 #include "AEM13920_RegisterMap.h"
 
-#define __AEM13920_SRCREGUCVRT_0		(112UL)
-#define __AEM13920_SRCREGUCVRT_0_STP		(0x06UL)
-#define __AEM13920_SRCREGUCVRT_1_STP		(0x12UL)
-#define __AEM13920_SRCREGUCVRT_1_A		(9000UL)
-#define __AEM13920_SRCREGUCVRT_1_B		(9UL)
-#define __AEM13920_SRCREGUCVRT_1_C		(750UL)
-#define __AEM13920_SRCREGUCVRT_1_D		(100UL)
-#define __AEM13920_SRCREGUCVRT_2_STP		(0x39UL)
-#define __AEM13920_SRCREGUCVRT_2_A		(30000UL)
-#define __AEM13920_SRCREGUCVRT_2_B		(37UL)
-#define __AEM13920_SRCREGUCVRT_2_C		(1500UL)
-#define __AEM13920_SRCREGUCVRT_2_D		(100UL)
-#define __AEM13920_SRCREGUCVRT_3_STP		(0x79UL)
-#define __AEM13920_SRCREGUCVRT_3_A		(30000UL)
-#define __AEM13920_SRCREGUCVRT_3_B		(165UL)
-#define __AEM13920_SRCREGUCVRT_3_C		(1500UL)
-#define __AEM13920_SRCREGUCVRT_3_D		(67UL)
-#define __AEM13920_SRCREGUCVRT_4_STP		(0xB9UL)
-#define __AEM13920_SRCREGUCVRT_4_A		(30000UL)
-#define __AEM13920_SRCREGUCVRT_4_B		(293UL)
-#define __AEM13920_SRCREGUCVRT_4_C		(1500UL)
-#define __AEM13920_SRCREGUCVRT_4_D		(33UL)
-#define __AEM13920_SRCREGUCVRT_5		(4409UL)
+/**
+  * @brief	Read from the I2C registers
+  *
+  * @details	Read the specified number of data from the I2C registers,
+  *		starting from the specified offset
+  *
+  * @param[in]	i2c_cfg		Pointer to the I2C configuration structure
+  * @param[in]	offset		Start offset in the I2C register map
+  * @param[in]	len		Number of bytes to read
+  * @param[in]	buffer		Pointer to the buffer to store the read data
+  * @return	int32_t		\ref AEM13920_STATUS_ERR_CODE
+  *
+  * @post	The specified number of data has been read from the I2C 
+  *		registers and stored in the provided buffer
+  */
+static int32_t __AEM13920_ReadRegisters(const AEM_i2c_cfg *i2c_cfg, 		\
+					uint32_t offset, uint32_t len, 		\
+					uint8_t *buffer)
+{
+	if (!i2c_cfg) {
+		return AEM_I2C_ERR_MISSING_CFG;
+	}
+	if ((i2c_cfg->slaveAddress != AEM13920_I2CSLAVE_ADDRESS)) {
+		return AEM_I2C_ERR_SLV_ADDR;
+	}
 
-#define __AEM13920_SRCREGUCFG_MIN		(0x0000UL)
-#define __AEM13920_SRCREGUCFG_0_STRTV		(0x046AUL)
-#define __AEM13920_SRCREGUCFG_0_STRTR		(0x000CUL)	
-#define __AEM13920_SRCREGUCFG_0_STEP		(0x004BUL)
-#define __AEM13920_SRCREGUCFG_1_STRTV		(0x0BB8UL)
-#define __AEM13920_SRCREGUCFG_1_STRTR		(0x0025UL)	
-#define __AEM13920_SRCREGUCFG_1_STEP		(0x0096UL)
-#define __AEM13920_SRCREGUCFG_2_STRTV		(0x396CUL)
-#define __AEM13920_SRCREGUCFG_2_STRTR		(0x0073UL)
-#define __AEM13920_SRCREGUCFG_2_STEP		(0x0050UL)
-#define __AEM13920_SRCREGUCFG_3_STRTV		(0x39BCUL)
-#define __AEM13920_SRCREGUCFG_3_STRTR		(0x0074UL)
-#define __AEM13920_SRCREGUCFG_3_STEP		(0x00E1UL)
-#define __AEM13920_SRCREGUCFG_4_STRTV		(0x56FEUL)
-#define __AEM13920_SRCREGUCFG_4_STRTR		(0x0095UL)	
-#define __AEM13920_SRCREGUCFG_4_STEP		(0x01C7UL)
-#define __AEM13920_SRCREGUCFG_MAXV		(0xAE06UL)
-#define __AEM13920_SRCREGUCFG_MAX		(0x00C6UL)
-#define __AEM13920_SRCREGUCFG_PREC		(0x000AUL)
+	return AEM_I2C_ReadRegisters(i2c_cfg, offset, len, buffer);
+}
 
-#define __AEM13920_APM_SCALE			(0x12CUL)
-#define __AEM13920_APM_V_IDX_MUL		(56UL)
-#define __AEM13920_APM_L_IDX_MUL		(8UL)
+/**
+  * @brief 	Write to the I2C registers
+  *
+  * @details	Write the specified data to the I2C registers starting from the 
+  *		specified offset.
+  * 
+  * @param[in]	i2c_cfg		Pointer to the I2C configuration structure
+  * @param[in]	offset		Start offset in the I2C register map
+  * @param[in]	len		Length of the data to write
+  * @param[in]	buffer		Pointer to the data to write to the registers
+  * @return	int32_t		\ref AEM13920_STATUS_ERR_CODE
+  *
+  * @post	The data has been written to the I2C registers
+  */
+static int32_t __AEM13920_WriteRegisters(const AEM_i2c_cfg *i2c_cfg, 		\
+					uint32_t offset, uint32_t len, 		\
+					uint8_t *buffer)
+{
+	if (!i2c_cfg) {
+		return AEM_I2C_ERR_MISSING_CFG;
+	}
+	if ((i2c_cfg->slaveAddress != AEM13920_I2CSLAVE_ADDRESS)) {
+		return AEM_I2C_ERR_SLV_ADDR;
+	}
 
-#define	__AEM13920_VSTO_FACT			(0x12C0UL)
-#define __AEM13920_VSTO_DIV			(0x0100UL)
+	return AEM_I2C_WriteRegisters(i2c_cfg, offset, len, buffer);
+}
+
+/**
+  * @brief 	Write to an I2C register
+  *
+  * @details	Write the specified data to the I2C register at the specified 
+  *		offset.
+  * 
+  * @param[in]	i2c_cfg		Pointer to the I2C configuration structure
+  * @param[in]	offset		Offset in the I2C register map
+  * @param[in]	data		Data to write to the register
+  * @return	int32_t		\ref AEM13920_STATUS_ERR_CODE
+  *
+  * @post	The data has been written to the I2C register
+  */
+static int32_t __AEM13920_WriteRegister(					\
+	const AEM_i2c_cfg *i2c_cfg, 						\
+	uint32_t offset, 							\
+	uint8_t data)
+{
+	if (!i2c_cfg) {
+		return AEM_I2C_ERR_MISSING_CFG;
+	}
+	if ((i2c_cfg->slaveAddress != AEM13920_I2CSLAVE_ADDRESS)) {
+		return AEM_I2C_ERR_SLV_ADDR;
+	}
+
+	return AEM_I2C_WriteRegisters(i2c_cfg, offset, 1, &data);
+}
+
+/**
+  * @brief 	Performs rounding for integer division
+  */
+#define ROUND_NEAREST_DIV(a, b) (((a) + ((b) >> 1)) / (b))
+
+/* ~~~~~~~~ SRCREGU ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+#define __AEM13920_SRCREGU_SCALE_FACT		(10UL)
+
+#define __AEM13920_SRCREGU_SLEEP		(0x00UL)
+#define __AEM13920_SRCREGU_SLEEPV		(113UL)
+
+#define __AEM13920_SRCREGU_RGE0_STARTV		(120UL)
+#define __AEM13920_SRCREGU_RGE0_OFFSET		(0x0DU)
+#define __AEM13920_SRCREGU_RGE0_STEP		(75UL)
+#define __AEM13920_SRCREGU_RGE0_STOPV		(293UL)
+#define __AEM13920_SRCREGU_RGE0_MIN		__AEM13920_SRCREGU_RGE0_STARTV
+
+#define __AEM13920_SRCREGU_RGE1_STARTV		(300UL)
+#define __AEM13920_SRCREGU_RGE1_OFFSET		(0x25U)
+#define __AEM13920_SRCREGU_RGE1_STEP		(150UL)
+#define __AEM13920_SRCREGU_RGE1_STOPV		(1470UL)
+#define __AEM13920_SRCREGU_RGE1_MIN						\
+	(__AEM13920_SRCREGU_RGE1_STARTV 					\
+	- ((__AEM13920_SRCREGU_RGE1_STARTV - __AEM13920_SRCREGU_RGE0_STOPV) >> 1))
+
+#define __AEM13920_SRCREGU_RGE2_STARTV		(1478UL)
+#define __AEM13920_SRCREGU_RGE2_OFFSET		(0x74U)
+#define __AEM13920_SRCREGU_RGE2_STEP		(224UL)
+#define __AEM13920_SRCREGU_RGE2_STOPV		(2194UL)
+#define __AEM13920_SRCREGU_RGE2_MIN						\
+	(__AEM13920_SRCREGU_RGE2_STARTV 					\
+	- ((__AEM13920_SRCREGU_RGE2_STARTV - __AEM13920_SRCREGU_RGE1_STOPV) >> 1))
+
+#define __AEM13920_SRCREGU_RGE3_STARTV		(2227UL)
+#define __AEM13920_SRCREGU_RGE3_OFFSET		(0x95U)
+#define __AEM13920_SRCREGU_RGE3_STEP		(455UL)
+#define __AEM13920_SRCREGU_RGE3_STOPV		(4455UL)
+#define __AEM13920_SRCREGU_RGE3_MIN 						\
+	(__AEM13920_SRCREGU_RGE3_STARTV 					\
+	- ((__AEM13920_SRCREGU_RGE3_STARTV - __AEM13920_SRCREGU_RGE2_STOPV) >> 1))
+
+#define __AEM13920_SRCREGU_MAX_OFFSET		(0xC6UL)
+#define __AEM13920_SRCREGU_MAX_V		(__AEM13920_SRCREGU_RGE3_STOPV)
+
+#define __AEM13920_SRCREGU_CFG1_SHIFT		(3UL)
+
+/**
+  * @brief 	Converts millivolts (mv) to SRCREGU register value
+  */
+#define __AEM13920_SRCREGU_VOLT_TO_REG(MV, STRTV, STEP, OFFSET) 		\
+	ROUND_NEAREST_DIV(((MV) - (STRTV)) * __AEM13920_SRCREGU_SCALE_FACT, STEP)\
+	+ (OFFSET)
+
+/**
+  * @brief 	Converts SRCREGU register value (reg) to millivolts
+  */
+#define __AEM13920_SRCREGU_REG_TO_VOLT(REG, OFFSET, STEP, STRTV) 		\
+	ROUND_NEAREST_DIV((((REG) - (OFFSET)) * (STEP)), __AEM13920_SRCREGU_SCALE_FACT) + (STRTV)
+
+/**
+  * @brief 	Computes the register value from the given voltage (mv)
+  * 
+  * @param[in] 	mv 		The voltage (mv)
+  * @param[out] regs		The registers values that better matches the 
+  *				given voltage
+  */
+static void __AEM13920_SRCREGUVoltToReg(uint32_t mv, uint8_t *regs)
+{
+	uint8_t reg_val = __AEM13920_SRCREGU_SLEEP;
+	if (mv >= __AEM13920_SRCREGU_MAX_V) {
+		reg_val = __AEM13920_SRCREGU_MAX_OFFSET;
+	} else if (mv >= __AEM13920_SRCREGU_RGE3_MIN) {
+		reg_val= __AEM13920_SRCREGU_VOLT_TO_REG(
+				mv, __AEM13920_SRCREGU_RGE3_STARTV, 		\
+				__AEM13920_SRCREGU_RGE3_STEP, 			\
+				__AEM13920_SRCREGU_RGE3_OFFSET);
+	} else if (mv >= __AEM13920_SRCREGU_RGE2_MIN) {
+		reg_val = __AEM13920_SRCREGU_VOLT_TO_REG(
+				mv, __AEM13920_SRCREGU_RGE2_STARTV, 		\
+				__AEM13920_SRCREGU_RGE2_STEP, 			\
+				__AEM13920_SRCREGU_RGE2_OFFSET);
+	} else if (mv >= __AEM13920_SRCREGU_RGE1_MIN) {
+		reg_val = __AEM13920_SRCREGU_VOLT_TO_REG(
+				mv, __AEM13920_SRCREGU_RGE1_STARTV, 		\
+				__AEM13920_SRCREGU_RGE1_STEP, 			\
+				__AEM13920_SRCREGU_RGE1_OFFSET);
+	} else if (mv >= __AEM13920_SRCREGU_RGE0_MIN) {
+		reg_val = __AEM13920_SRCREGU_VOLT_TO_REG(
+				mv, __AEM13920_SRCREGU_RGE0_STARTV, 		\
+				__AEM13920_SRCREGU_RGE0_STEP, 			\
+				__AEM13920_SRCREGU_RGE0_OFFSET);
+	}
+	
+	regs[0] = AEM13920_SRCREGU_CONST;
+	regs[0] |= (	(reg_val << AEM13920_SRCxREGU0_CFG0_Pos) 
+			& AEM13920_SRCxREGU0_CFG0_Msk);
+	regs[1] = (	(reg_val >> __AEM13920_SRCREGU_CFG1_SHIFT) 
+			& (AEM13920_SRCxREGU1_CFG1_Msk 
+			| AEM13920_SRCxREGU1_CFG2_Msk));
+}
+
+/**
+  * @brief 	Converts the register value to voltage (mv)
+  * 
+  * @param[in] 	regs 		The registers
+  * @return 	uint32_t	The voltage (mv) corresponding to the configured
+  *				register
+  */
+static uint32_t __AEM13920_SRCREGURegToVolt(uint8_t *regs)
+{
+	
+	uint8_t raw_data = 0;
+	raw_data = (	(regs[0] & AEM13920_SRCxREGU0_CFG0_Msk) 		\
+			>> AEM13920_SRCxREGU0_CFG0_Pos);
+	raw_data |= (	(regs[1] 
+			& (AEM13920_SRCxREGU1_CFG1_Msk 
+			| AEM13920_SRCxREGU1_CFG2_Msk))
+			<< __AEM13920_SRCREGU_CFG1_SHIFT);
+	if (raw_data < __AEM13920_SRCREGU_RGE0_OFFSET) {
+		return __AEM13920_SRCREGU_SLEEPV;
+	}
+	if (raw_data < __AEM13920_SRCREGU_RGE1_OFFSET) {
+		return __AEM13920_SRCREGU_REG_TO_VOLT(				\
+			raw_data, __AEM13920_SRCREGU_RGE0_OFFSET, 		\
+			__AEM13920_SRCREGU_RGE0_STEP, 				\
+			__AEM13920_SRCREGU_RGE0_STARTV);
+	} 
+	if (raw_data < __AEM13920_SRCREGU_RGE2_OFFSET) {
+		return __AEM13920_SRCREGU_REG_TO_VOLT(				\
+			raw_data, __AEM13920_SRCREGU_RGE1_OFFSET, 		\
+			__AEM13920_SRCREGU_RGE1_STEP, 				\
+			__AEM13920_SRCREGU_RGE1_STARTV);
+	} 
+	if (raw_data < __AEM13920_SRCREGU_RGE3_OFFSET) {
+		return __AEM13920_SRCREGU_REG_TO_VOLT(				\
+			raw_data, __AEM13920_SRCREGU_RGE2_OFFSET, 		\
+			__AEM13920_SRCREGU_RGE2_STEP, 				\
+			__AEM13920_SRCREGU_RGE2_STARTV);
+	} 
+	if (raw_data < __AEM13920_SRCREGU_MAX_OFFSET) {
+		return __AEM13920_SRCREGU_REG_TO_VOLT(				\
+			raw_data, __AEM13920_SRCREGU_RGE3_OFFSET, 		\
+			__AEM13920_SRCREGU_RGE3_STEP, 				\
+			__AEM13920_SRCREGU_RGE3_STARTV);
+	}
+	return __AEM13920_SRCREGU_MAX_V;
+}
+
+static int32_t __AEM13920_ComputeSRCREGUReg(					\
+	const AEM13920_CONFIG_t *cfg, 						\
+	uint8_t *regs)
+{
+	if (cfg->src1_regu_mode == AEM13920_SRCREGU_CONST) {
+		__AEM13920_SRCREGUVoltToReg(					\
+			cfg->src1_const_voltage, 				\
+			regs + (AEM13920_SRC1REGU0_OFFSET - AEM13920_CFG_OFFSET));
+	} else if (cfg->src1_regu_mode == AEM13920_SRCREGU_MPPT) {
+		regs[AEM13920_SRC1REGU0_OFFSET - AEM13920_CFG_OFFSET] = 	\
+			(AEM13920_SRCxREGU0_MODE_Msk 				\
+			| ((cfg->src1_mppt_ratio << AEM13920_SRCxREGU0_CFG0_Pos)\
+			& AEM13920_SRCxREGU0_CFG0_Msk));
+		regs[AEM13920_SRC1REGU1_OFFSET - AEM13920_CFG_OFFSET] = 	\
+			(((cfg->src1_mppt_duration << AEM13920_SRCxREGU1_CFG1_Pos)\
+			& AEM13920_SRCxREGU1_CFG1_Msk) 				\
+			| ((cfg->src1_mppt_period << AEM13920_SRCxREGU1_CFG2_Pos)\
+			& AEM13920_SRCxREGU1_CFG2_Msk));
+	} else {
+		return AEM13920_DRIVER_ERR_SRCREGU_MODE;
+	}
+	if (cfg->src2_regu_mode == AEM13920_SRCREGU_CONST) {
+		__AEM13920_SRCREGUVoltToReg(					\
+			cfg->src2_const_voltage, 				\
+			regs + (AEM13920_SRC2REGU0_OFFSET - AEM13920_CFG_OFFSET));
+	} else if (cfg->src2_regu_mode == AEM13920_SRCREGU_MPPT) {
+		regs[AEM13920_SRC2REGU0_OFFSET - AEM13920_CFG_OFFSET] = 	\
+			(AEM13920_SRCxREGU0_MODE_Msk 				\
+			| ((cfg->src2_mppt_ratio << AEM13920_SRCxREGU0_CFG0_Pos)\
+			& AEM13920_SRCxREGU0_CFG0_Msk));
+		regs[AEM13920_SRC2REGU1_OFFSET - AEM13920_CFG_OFFSET] = 	\
+			(((cfg->src2_mppt_duration << AEM13920_SRCxREGU1_CFG1_Pos)\
+			& AEM13920_SRCxREGU1_CFG1_Msk) 				\
+			| ((cfg->src2_mppt_period << AEM13920_SRCxREGU1_CFG2_Pos)\
+			& AEM13920_SRCxREGU1_CFG2_Msk));
+	} else {
+		return AEM13920_DRIVER_ERR_SRCREGU_MODE;
+	}
+	return AEM13920_DRIVER_OK;
+}
+
+static void __AEM13920_ConvertSRCREGUReg(					\
+	uint8_t *regs,								\
+	AEM13920_CONFIG_t *cfg)
+{
+	if (	((regs[AEM13920_SRC1REGU0_OFFSET - AEM13920_CFG_OFFSET] 	\
+		& AEM13920_SRCxREGU0_MODE_Msk) >> AEM13920_SRCxREGU0_MODE_Pos) 	\
+		== AEM13920_SRCREGU_CONST) {
+		cfg->src1_regu_mode = AEM13920_SRCREGU_CONST;
+		cfg->src1_const_voltage = __AEM13920_SRCREGURegToVolt(		\
+			regs + (AEM13920_SRC1REGU0_OFFSET - AEM13920_CFG_OFFSET));
+	} else {
+		cfg->src1_regu_mode = AEM13920_SRCREGU_MPPT;
+		cfg->src1_mppt_ratio = (AEM13920_MPPT_RATIO)			\
+			((regs[AEM13920_SRC1REGU0_OFFSET - AEM13920_CFG_OFFSET] \
+			& AEM13920_SRCxREGU0_CFG0_Msk) 				\
+			>> AEM13920_SRCxREGU0_CFG0_Pos);
+		cfg->src1_mppt_duration = (AEM13920_MPPT_DURATION)		\
+			((regs[AEM13920_SRC1REGU1_OFFSET - AEM13920_CFG_OFFSET] \
+			& AEM13920_SRCxREGU1_CFG1_Msk) 				\
+			>> AEM13920_SRCxREGU1_CFG1_Pos);
+		cfg->src1_mppt_period = (AEM13920_MPPT_PERIOD)			\
+			((regs[AEM13920_SRC1REGU1_OFFSET - AEM13920_CFG_OFFSET] \
+			& AEM13920_SRCxREGU1_CFG2_Msk) 				\
+			>> AEM13920_SRCxREGU1_CFG2_Pos);
+	}
+	if (	((regs[AEM13920_SRC2REGU0_OFFSET - AEM13920_CFG_OFFSET] 	\
+		& AEM13920_SRCxREGU0_MODE_Msk) >> AEM13920_SRCxREGU0_MODE_Pos) 	\
+		== AEM13920_SRCREGU_CONST) {
+		cfg->src2_regu_mode = AEM13920_SRCREGU_CONST;
+		cfg->src2_const_voltage = __AEM13920_SRCREGURegToVolt(		\
+			regs + (AEM13920_SRC2REGU0_OFFSET - AEM13920_CFG_OFFSET));
+	} else {
+		cfg->src2_regu_mode = AEM13920_SRCREGU_MPPT;
+		cfg->src2_mppt_ratio = (AEM13920_MPPT_RATIO)			\
+			((regs[AEM13920_SRC2REGU0_OFFSET - AEM13920_CFG_OFFSET] \
+			& AEM13920_SRCxREGU0_CFG0_Msk) 				\
+			>> AEM13920_SRCxREGU0_CFG0_Pos);
+		cfg->src2_mppt_duration = (AEM13920_MPPT_DURATION)		\
+			((regs[AEM13920_SRC2REGU1_OFFSET - AEM13920_CFG_OFFSET] \
+			& AEM13920_SRCxREGU1_CFG1_Msk) 				\
+			>> AEM13920_SRCxREGU1_CFG1_Pos);
+		cfg->src2_mppt_period = (AEM13920_MPPT_PERIOD)			\
+			((regs[AEM13920_SRC2REGU1_OFFSET - AEM13920_CFG_OFFSET] \
+			& AEM13920_SRCxREGU1_CFG2_Msk) 				\
+			>> AEM13920_SRCxREGU1_CFG2_Pos);
+	}
+}
+
+/* ~~~~~~~~ SRC ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+#define __AEM13920_SRC_MIN_VOLT		(113UL)
+
+#define __AEM13920_SRC_RGE1_START	(0x07UL)
+#define __AEM13920_SRC_RGE1_END		(0x12UL)
+#define __AEM13920_SRC_RGE1_OFFSET	(90UL)
+#define __AEM13920_SRC_RGE1_DIFF_OFFSET	(9UL)
+#define __AEM13920_SRC_RGE1_FACT	(75UL)
+
+#define __AEM13920_SRC_RGE2_START	(0x13UL)
+#define __AEM13920_SRC_RGE2_END		(0x39UL)
+#define __AEM13920_SRC_RGE2_OFFSET	(300UL)
+#define __AEM13920_SRC_RGE2_DIFF_OFFSET	(37UL)
+#define __AEM13920_SRC_RGE2_FACT	(150UL)
+
+#define __AEM13920_SRC_RGE3_START	(0x68UL)
+#define __AEM13920_SRC_RGE3_END		(0x79UL)
+#define __AEM13920_SRC_RGE3_OFFSET	(300UL)
+#define __AEM13920_SRC_RGE3_DIFF_OFFSET	(165UL)
+#define __AEM13920_SRC_RGE3_FACT	(150UL)
+#define __AEM13920_SRC_RGE3_DIV		(67UL)
+
+#define __AEM13920_SRC_RGE4_START	(0x9FUL)
+#define __AEM13920_SRC_RGE4_END		(0xB9UL)
+#define __AEM13920_SRC_RGE4_OFFSET	(300UL)
+#define __AEM13920_SRC_RGE4_DIFF_OFFSET	(293UL)
+#define __AEM13920_SRC_RGE4_FACT	(150UL)
+#define __AEM13920_SRC_RGE4_DIV		(33UL)
+
+#define __AEM13920_SRC_MAX_V		(4409UL)
+
+#define __AEM13920_SRC_SCALE_DIV	(10UL)
+#define __AEM13920_SRC_SCALE_FACT	(100UL)
+
+/**
+  * @brief 	Converts SRC register value to voltage (mV)
+  * 
+  * @param[in]	reg		Register value
+  * @return 	uint32_t	The voltage (mV)
+  */
+static uint32_t __AEM13920_SRCRegToVolt(uint8_t reg)
+{
+	uint32_t vsrcregu = 0;
+	uint32_t offset = 0;
+	uint32_t scale_fact = 0;
+	uint32_t div = 0;
+	if (reg < __AEM13920_SRC_RGE1_START) {
+		return __AEM13920_SRC_MIN_VOLT;
+	} else if (reg <= __AEM13920_SRC_RGE1_END) {
+		vsrcregu = 	__AEM13920_SRC_RGE1_OFFSET;
+		offset = 	__AEM13920_SRC_RGE1_DIFF_OFFSET;
+		scale_fact = 	__AEM13920_SRC_RGE1_FACT;
+	} else if (reg <= __AEM13920_SRC_RGE2_END) {
+		vsrcregu = 	__AEM13920_SRC_RGE2_OFFSET;
+		offset = 	__AEM13920_SRC_RGE2_DIFF_OFFSET;
+		scale_fact = 	__AEM13920_SRC_RGE2_FACT;
+	} else if (	(__AEM13920_SRC_RGE3_START <= reg) 			\
+			&& (reg <= __AEM13920_SRC_RGE3_END)) {
+		vsrcregu = 	__AEM13920_SRC_RGE3_OFFSET;
+		offset = 	__AEM13920_SRC_RGE3_DIFF_OFFSET;
+		scale_fact = 	__AEM13920_SRC_RGE3_FACT;
+		div = 		__AEM13920_SRC_RGE3_DIV;
+	} else if(	(__AEM13920_SRC_RGE4_START <= reg) 			\
+			&& (reg <= __AEM13920_SRC_RGE4_END)) {
+		vsrcregu = 	__AEM13920_SRC_RGE4_OFFSET;
+		offset = 	__AEM13920_SRC_RGE4_DIFF_OFFSET;
+		scale_fact = 	__AEM13920_SRC_RGE4_FACT;
+		div = 		__AEM13920_SRC_RGE4_DIV;
+	} else if (reg > __AEM13920_SRC_RGE4_END) {
+		return __AEM13920_SRC_MAX_V;
+	} else {
+		return 0;
+	}
+	vsrcregu += ROUND_NEAREST_DIV(	(((reg << 1) - offset) * scale_fact), 	\
+					__AEM13920_SRC_SCALE_DIV);
+	if (div > 0) {
+		return ROUND_NEAREST_DIV(vsrcregu * __AEM13920_SRC_SCALE_FACT, div);
+	} else {
+		return vsrcregu;
+	}
+}
+
+/* ~~~~~~~~ STO PROTECT THRESH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #define __AEM13920_VTHRESH_DIV			(0x753UL)
 #define __AEM13920_VTHRESH_FACT			(0x64UL)
@@ -111,194 +470,43 @@
 #define __AEM13920_VOVCH_MAXR			(0x65UL)
 #define __AEM13920_VOVCH_MINV			(0x0A8CUL)
 
-#define __AEM13920_TEMPXTHRESH_FACT		(0x100UL)
-#define __AEM13920_TEMPXTHRESH_PREC		(0x3E8UL)
-
-typedef union _AEM13920_irqFlgs {
-	uint8_t raw[2];
-	AEM13920_IRQFLG bf;	
-} __AEM13920_irqFlgs;
-
-typedef union _AEM13920_irqCfg {
-	uint8_t raw[2];
-	AEM13920_IRQEN bf;
-} __AEM13920_irqCfg;
-
-typedef union _AEM13920_status {
-	uint8_t raw[2];
-	AEM13920_Status bf;
-} __AEM13920_status;
-
-typedef union _AEM13920_apmErr {
-	uint8_t raw;
-	AEM13920_APMERR bf;
-} __AEM13920_apmErr;
-
-static int32_t __AEM13920_ReadRegisters(const AEM_i2c_cfg *i2cCfg, 		\
-					uint32_t offset, uint32_t len, 		\
-					uint8_t *buffer)
-{
-	if (!i2cCfg) {
-		return AEM_I2C_ERR_MISSING_CFG;
-	}
-	if ((i2cCfg->slaveAddress != AEM13920_I2CSLAVE_ADDRESS)) {
-		return AEM_I2C_ERR_SLV_ADDR;
-	}
-
-	return AEM_I2C_ReadRegisters(i2cCfg, offset, len, buffer);
-}
-
-static int32_t __AEM13920_WriteRegisters(const AEM_i2c_cfg *i2cCfg, 		\
-					uint32_t offset, uint32_t len, 		\
-					uint8_t *buffer)
-{
-	if (!i2cCfg) {
-		return AEM_I2C_ERR_MISSING_CFG;
-	}
-	if ((i2cCfg->slaveAddress != AEM13920_I2CSLAVE_ADDRESS)) {
-		return AEM_I2C_ERR_SLV_ADDR;
-	}
-
-	return AEM_I2C_WriteRegisters(i2cCfg, offset, len, buffer);
-}
-
-static int32_t __AEM13920_GetAPMPowerMeter(	AEM13920_LDCDC Ldcdc, 		\
-						uint32_t *apm, uint32_t data,	\
-						uint32_t offset, uint32_t Vsrc,	\
-						AEM13920_TMULT timing)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint32_t alpha = 0;
-	static const uint16_t alphas[224] = {
-		2718, 0, 0, 0, 0, 0, 0, 0, 1477, 5653, 11652, 0, 0, 0, 0, 0, 	\
-		836, 3647, 7794, 13110, 0, 0, 0, 0, 722, 3071, 6581, 11185, 	\
-		21741, 0, 0, 0, 360, 1820, 4022, 7062, 14661, 23683, 0, 0, 149, \
-		1120, 2712, 4872, 10440, 17473, 32959, 0, 28, 720, 1883, 3457, 	\
-		7687, 13035, 25443, 37181, 2731, 0, 0, 0, 0, 0, 0, 0, 1511, 	\
-		5811, 12668, 0, 0, 0, 0, 0, 754, 3669, 8048, 13871, 0, 0, 0, 0, \
-		683, 3123, 6788, 11720, 24417, 0, 0, 0, 477, 1892, 4054, 7121, 	\
-		15483, 26371, 0, 0, 267, 1187, 2685, 4812, 10681, 18699, 40094, \
-		0, 136, 794, 1874, 3433, 7712, 13725, 29711, 50343, 2973, 0, 0, \
-		0, 0, 0, 0, 0, 1609, 6232, 13500, 0, 0, 0, 0, 0, 872, 4000, 	\
-		8569, 14697, 0, 0, 0, 0, 816, 3370, 7156, 12396, 25992, 0, 0, 0,\
-		546, 1995, 4276, 7542, 16442, 28005, 0, 0, 324, 1265, 2852, 	\
-		5121, 11355, 19843, 42361, 0, 188, 863, 2016, 3689, 8252, 14637,\
-		31633, 52666, 3140, 0, 0, 0, 0, 0, 0, 0, 1687, 6479, 13469, 0, 	\
-		0, 0, 0, 0, 1062, 4066, 8588, 14709, 0, 0, 0, 0, 914, 3392, 	\
-		7218, 12517, 25758, 0, 0, 0, 529, 2056, 4438, 7816, 16669, 	\
-		28252, 0, 0, 325, 1340, 3018, 5389, 11686, 20234, 41871, 0, 207,\
-		942, 2188, 3938, 8650, 15035, 31615, 53490
-	};
-
-	if (Ldcdc > AEM13920_LDCDC_68) {
-		return AEM13920_DRIVER_ERR_LDCDC;
-	}
-	alpha = alphas[	(timing + (Ldcdc * __AEM13920_APM_L_IDX_MUL) 		\
-			+ (((Vsrc / 1000) - (Vsrc / 4000)) 			\
-			* __AEM13920_APM_V_IDX_MUL))];
-	*apm = (((((uint64_t) data << offset) * alpha) 				\
-		+ (__AEM13920_APM_SCALE /2)) / __AEM13920_APM_SCALE);
-	return rc;
-}
-
-static void __AEM13920_ComputeSRCREGURegConst(uint32_t Vsrc, uint8_t *regs)
-{
-	uint8_t srcRegu = 0;
-	uint32_t dvd = (Vsrc * __AEM13920_SRCREGUCFG_PREC);
-	uint32_t dvr = 1;
-
-	if (dvd < __AEM13920_SRCREGUCFG_0_STRTV) {
-		srcRegu = __AEM13920_SRCREGUCFG_MIN;
-	} else if (dvd >= __AEM13920_SRCREGUCFG_MAXV) {
-		srcRegu = __AEM13920_SRCREGUCFG_MAX;
-	} else {
-		if (dvd < __AEM13920_SRCREGUCFG_1_STRTV) {
-			srcRegu = __AEM13920_SRCREGUCFG_0_STRTR;
-			dvr = __AEM13920_SRCREGUCFG_0_STEP;
-			dvd -= __AEM13920_SRCREGUCFG_0_STRTV;
-		} else if (dvd < __AEM13920_SRCREGUCFG_2_STRTV) {
-			srcRegu = __AEM13920_SRCREGUCFG_1_STRTR;
-			dvr = __AEM13920_SRCREGUCFG_1_STEP;
-			dvd -= __AEM13920_SRCREGUCFG_1_STRTV;
-		} else if (dvd < __AEM13920_SRCREGUCFG_3_STRTV) {
-			srcRegu = __AEM13920_SRCREGUCFG_2_STRTR;
-			dvr = __AEM13920_SRCREGUCFG_2_STEP;
-			dvd -= __AEM13920_SRCREGUCFG_2_STRTV;
-		} else if (dvd < __AEM13920_SRCREGUCFG_4_STRTV) {
-			srcRegu = __AEM13920_SRCREGUCFG_3_STRTR;
-			dvr = __AEM13920_SRCREGUCFG_3_STEP;
-			dvd -= __AEM13920_SRCREGUCFG_3_STRTV;
-		} else {
-			srcRegu = __AEM13920_SRCREGUCFG_4_STRTR;
-			dvr = __AEM13920_SRCREGUCFG_4_STEP;
-			dvd -= __AEM13920_SRCREGUCFG_4_STRTV;
-		}
-		srcRegu += (uint8_t) ((dvd + (dvr / 2)) / dvr);
-	}
-	regs[0] = (	(srcRegu << AEM13920_SRC1REGU0_CFG0_Pos) 		\
-			& AEM13920_SRC1REGU0_CFG0_Msk);
-	regs[1] = (	(srcRegu >> 3UL) & (AEM13920_SRC1REGU1_CFG1_Msk 	\
-			| AEM13920_SRC1REGU1_CFG2_Msk));
-}
-
-static uint32_t __AEM13920_ConvertSRCReg(uint8_t reg)
-{
-	uint32_t a = 0;
-	uint32_t b = 0;
-	uint32_t c = 0;
-	uint32_t d = 10;
-
-	if (reg <= __AEM13920_SRCREGUCVRT_0_STP) {
-		return __AEM13920_SRCREGUCVRT_0;
-	} else if (reg <= __AEM13920_SRCREGUCVRT_1_STP) {
-		a = __AEM13920_SRCREGUCVRT_1_A;
-		b = __AEM13920_SRCREGUCVRT_1_B;
-		c = __AEM13920_SRCREGUCVRT_1_C;
-		d = __AEM13920_SRCREGUCVRT_1_D;
-	} else if (reg <= __AEM13920_SRCREGUCVRT_2_STP) {
-		a = __AEM13920_SRCREGUCVRT_2_A;
-		b = __AEM13920_SRCREGUCVRT_2_B;
-		c = __AEM13920_SRCREGUCVRT_2_C;
-		d = __AEM13920_SRCREGUCVRT_2_D;
-	} else if (reg <= __AEM13920_SRCREGUCVRT_3_STP) {
-		a = __AEM13920_SRCREGUCVRT_3_A;
-		b = __AEM13920_SRCREGUCVRT_3_B;
-		c = __AEM13920_SRCREGUCVRT_3_C;
-		d = __AEM13920_SRCREGUCVRT_3_D;
-	} else if (reg <= __AEM13920_SRCREGUCVRT_4_STP) {
-		a = __AEM13920_SRCREGUCVRT_4_A;
-		b = __AEM13920_SRCREGUCVRT_4_B;
-		c = __AEM13920_SRCREGUCVRT_4_C;
-		d = __AEM13920_SRCREGUCVRT_4_D;
-	} else {
-		return __AEM13920_SRCREGUCVRT_5;
-	}
-	return (((a + (2 * reg - b) * c) + (d / 2)) / d);
-}
-
-static uint8_t __AEM13920_ComputeVOVDISReg(uint32_t v)
+/**
+  * @brief 	Converts voltage to VOVDIS register value
+  * 
+  * @param[in] 	mv 		The voltage (mv)
+  * @return 	uint32_t	The register value that better matches the given
+  *				voltage
+  */
+static uint8_t __AEM13920_VOVDISVoltToReg(uint32_t mv)
 {
 	uint8_t thresh = 0;
 	uint32_t dvd = 0;
 	uint32_t dvr = 0;
 
-	if (v >= __AEM13920_VOVDIS_MAXV) {
+	if (mv >= __AEM13920_VOVDIS_MAXV) {
 		return __AEM13920_VOVDIS_MAXR;
 	}
-	if (v <= __AEM13920_VOVDIS_MINV) {
+	if (mv <= __AEM13920_VOVDIS_MINV) {
 		return 0;
 	}
 	else {
-		dvd = 	(v * __AEM13920_VTHRESH_FACT) 				\
+		dvd = 	(mv * __AEM13920_VTHRESH_FACT) 				\
 			- (__AEM13920_VTHRESH_FACT * __AEM13920_VOVDIS_MINV);
 		dvr = __AEM13920_VTHRESH_DIV;
-		thresh = (uint8_t)((dvd + (dvr / 2)) / dvr);
+		thresh = ROUND_NEAREST_DIV(dvd, dvr);
 		return ((thresh << AEM13920_VOVDIS_THRESH_Pos) 			\
 			& AEM13920_VOVDIS_THRESH_Msk);
 	}
 }
 
-static uint32_t __AEM13920_ConvertVOVDISReg(uint8_t reg)
+/**
+  * @brief 	Converts VOVDIS register value to millivolts
+  * 
+  * @param[in] 	reg 		The register value
+  * @return 	uint32_t	The voltage (mv) corresponding to the configured
+  *				register
+  */
+static uint32_t __AEM13920_VOVDISRegToVolt(uint8_t reg)
 {
 	uint32_t v = 0;
 	uint32_t div = __AEM13920_VTHRESH_FACT;
@@ -306,24 +514,31 @@ static uint32_t __AEM13920_ConvertVOVDISReg(uint8_t reg)
 		return __AEM13920_VOVDIS_MAXV;
 	}
 	v = ((reg * __AEM13920_VTHRESH_DIV) + (div * __AEM13920_VOVDIS_MINV));
-	v = ((v + (div / 2)) / div);
+	v = ROUND_NEAREST_DIV(v, div);
 	return v;
 }
 
-static uint8_t __AEM13920_ComputeVCHRDYReg(uint32_t v)
+/**
+  * @brief 	Converts voltage to VCHRDY register value
+  * 
+  * @param[in] 	mv		The voltage (mV)
+  * @return 	uint8_t		The register value that better matches the given
+  *				voltage
+  */
+static uint8_t __AEM13920_VCHRDYVoltToReg(uint32_t mv)
 {
 	uint8_t thresh = 0;
 	uint32_t dvd = 0;
 	uint32_t dvr = 0;
 
-	if (v >= __AEM13920_VCHRDY_MAXV) {
+	if (mv >= __AEM13920_VCHRDY_MAXV) {
 		return __AEM13920_VCHRDY_MAXR;
 	}
-	if (v <= __AEM13920_VCHRDY_MINV) {
+	if (mv <= __AEM13920_VCHRDY_MINV) {
 		return 0;
 	}
 	else {
-		dvd = 	(v * __AEM13920_VTHRESH_FACT) 				\
+		dvd = 	(mv * __AEM13920_VTHRESH_FACT) 				\
 			- (__AEM13920_VTHRESH_FACT * __AEM13920_VCHRDY_MINV);
 		dvr = __AEM13920_VTHRESH_DIV;
 		thresh = (uint8_t)((dvd + (dvr / 2)) / dvr);
@@ -332,7 +547,14 @@ static uint8_t __AEM13920_ComputeVCHRDYReg(uint32_t v)
 	}
 }
 
-static uint32_t __AEM13920_ConvertVCHRDYReg(uint8_t reg)
+/**
+  * @brief 	Converts CHRDY register value to millivolts
+  * 
+  * @param[in] 	reg 		The register value
+  * @return 	uint32_t	The voltage (mv) corresponding to the configured
+  *				register
+  */
+static uint32_t __AEM13920_VCHRDYRegToVolt(uint8_t reg)
 {
 	uint32_t v = 0;
 	uint32_t div = __AEM13920_VTHRESH_FACT;
@@ -344,20 +566,27 @@ static uint32_t __AEM13920_ConvertVCHRDYReg(uint8_t reg)
 	return v;
 }
 
-static uint8_t __AEM13920_ComputeVOVCHReg(uint32_t v)
+/**
+  * @brief 	Converts voltage to VOVCH register value
+  * 
+  * @param[in] 	mv		The voltage (mV)
+  * @return 	uint8_t		The register value that better matches the given 
+  *				voltage
+  */
+static uint8_t __AEM13920_VOVCHVoltToReg(uint32_t mv)
 {
 	uint8_t thresh = 0;
 	uint32_t dvd = 0;
 	uint32_t dvr = 0;
 
-	if (v >= __AEM13920_VOVCH_MAXV) {
+	if (mv >= __AEM13920_VOVCH_MAXV) {
 		return __AEM13920_VOVCH_MAXR;
 	}
-	if (v <= __AEM13920_VOVCH_MINV) {
+	if (mv <= __AEM13920_VOVCH_MINV) {
 		return 0;
 	}
 	else {
-		dvd = 	(v * __AEM13920_VTHRESH_FACT) 				\
+		dvd = 	(mv * __AEM13920_VTHRESH_FACT) 				\
 			- (__AEM13920_VTHRESH_FACT * __AEM13920_VOVCH_MINV);
 		dvr = __AEM13920_VTHRESH_DIV;
 		thresh = (uint8_t)((dvd + (dvr / 2)) / dvr);
@@ -366,7 +595,14 @@ static uint8_t __AEM13920_ComputeVOVCHReg(uint32_t v)
 	}
 }
 
-static uint32_t __AEM13920_ConvertVOVCHReg(uint8_t reg)
+/**
+  * @brief 	Converts VOVCH register value to millivolts
+  * 
+  * @param[in] 	reg 		The register value
+  * @return 	uint32_t	The voltage (mv) corresponding to the configured 
+  *				register
+  */
+static uint32_t __AEM13920_VOVCHRegToVolt(uint8_t reg)
 {
 	uint32_t v = 0;
 	uint32_t div = __AEM13920_VTHRESH_FACT;
@@ -380,30 +616,185 @@ static uint32_t __AEM13920_ConvertVOVCHReg(uint8_t reg)
 	return v;
 }
 
-static uint8_t __AEM13920_ComputeTEMPXTHRESHReg(uint32_t Rth, uint32_t Rdiv)
+/* ~~~~~~~~ BSTCFG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+/**
+  * @brief	Boost Config cast structure
+  */
+typedef union __AEM13920_BSTCFG_UNION {
+	uint8_t raw;
+	AEM13920_BSTCFG_t bf;
+} __AEM13920_BSTCFG_UNION_t;
+
+/**
+  * @brief 	Converts the boost configuration structure to BSTCFG register value
+  * 
+  * @param[in] 	cfg 		The configuration structure	
+  * @return 	uint8_t		The register value
+  */
+static uint8_t __AEM13920_BSTCFGHRToReg(const AEM13920_BSTCFG_t *cfg)
 {
-	uint8_t thresh = 0;
-	uint64_t dvd = ((uint64_t) Rth * __AEM13920_TEMPXTHRESH_PREC);
-	uint64_t dvr = ((uint64_t) Rth + Rdiv);
-
-	dvd = ((dvd + (dvr / 2)) / dvr);
-	dvd *= __AEM13920_TEMPXTHRESH_FACT;
-	dvr = __AEM13920_TEMPXTHRESH_PREC;
-	dvd = ((dvd + (dvr / 2)) / dvr);
-	if (dvd > UINT8_MAX) {
-		thresh = UINT8_MAX;
-	} else {
-		thresh = (uint8_t) dvd;
-	}
-
-	return ((thresh << AEM13920_TEMPX_THRESH_Pos) & AEM13920_TEMPX_THRESH_Msk); 
+	__AEM13920_BSTCFG_UNION_t _cfg;
+	_cfg.bf = *cfg;
+	return _cfg.raw;
 }
 
-static uint32_t __AEM13920_ConvertTEMPReg(uint8_t reg, uint32_t Rdiv)
+/**
+  * @brief 	Converts a BOOSTxCFG register value and sets the configuration
+  *		structure accordingly
+  * 
+  * @param[in] 	reg		Register value 
+  * @param[out] cfg		The corresponding configuration
+  */
+static void __AEM13920_BSTCFGRegToHR(uint8_t reg, AEM13920_BSTCFG_t *cfg)
 {
-	uint64_t dvd = ((uint64_t) reg * (uint64_t) Rdiv);
-	uint32_t dvr = (__AEM13920_TEMPXTHRESH_FACT - reg);
-	uint64_t therm = ((dvd + (dvr / 2)) / dvr);
+	__AEM13920_BSTCFG_UNION_t _cfg;
+	_cfg.raw = reg;
+	*cfg = _cfg.bf;
+}
+
+static int32_t __AEM13920_ComputeBSTCFGReg(					\
+	const AEM13920_CONFIG_t *cfg, 						\
+	uint8_t *regs)
+{
+	regs[AEM13920_BST1CFG_OFFSET - AEM13920_CFG_OFFSET] = (			\
+		((cfg->src1_boost_enable << AEM13920_BSTxCFG_EN_Pos) 		\
+		& AEM13920_BSTxCFG_EN_Msk) 					\
+		| ((cfg->src1_boost_high_power_enable << AEM13920_BSTxCFG_HPEN_Pos)\
+		& AEM13920_BSTxCFG_HPEN_Msk) 					\
+		| ((cfg->src1_boost_tmult << AEM13920_BSTxCFG_TMULT_Pos) 	\
+		& AEM13920_BSTxCFG_TMULT_Msk));
+	regs[AEM13920_BST2CFG_OFFSET - AEM13920_CFG_OFFSET] = (			\
+		((cfg->src2_boost_enable << AEM13920_BSTxCFG_EN_Pos) 		\
+		& AEM13920_BSTxCFG_EN_Msk) 					\
+		| ((cfg->src2_boost_high_power_enable << AEM13920_BSTxCFG_HPEN_Pos)\
+		& AEM13920_BSTxCFG_HPEN_Msk) 					\
+		| ((cfg->src2_boost_tmult << AEM13920_BSTxCFG_TMULT_Pos) 	\
+		& AEM13920_BSTxCFG_TMULT_Msk));
+	return AEM13920_DRIVER_OK;
+}
+
+static void __AEM13920_ConvertBSTCFGReg(					\
+	uint8_t bst1, 								\
+	uint8_t bst2, 								\
+	AEM13920_CONFIG_t *cfg)
+{
+	cfg->src1_boost_tmult = 						\
+		(AEM13920_TMULT) ((bst1 & AEM13920_BSTxCFG_TMULT_Msk) 		\
+		>> AEM13920_BSTxCFG_TMULT_Pos);
+	cfg->src1_boost_enable = 						\
+		(bool) (bst1 & AEM13920_BSTxCFG_EN_Msk);
+	cfg->src1_boost_high_power_enable = 					\
+		(bool) (bst1 & AEM13920_BSTxCFG_HPEN_Msk);
+	cfg->src2_boost_tmult = 						\
+		(AEM13920_TMULT) ((bst2 & AEM13920_BSTxCFG_TMULT_Msk) 		\
+		>> AEM13920_BSTxCFG_TMULT_Pos);
+	cfg->src2_boost_enable = 						\
+		(bool) (bst2 & AEM13920_BSTxCFG_EN_Msk);
+	cfg->src2_boost_high_power_enable = 					\
+		(bool) (bst2 & AEM13920_BSTxCFG_HPEN_Msk);
+}
+
+/* ~~~~~~~~ BUCKCFG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+
+/**
+  * @brief	Buck Config cast structure
+  */
+typedef union __AEM13920_BUCKCFG_UNION {
+	uint8_t raw;
+	AEM13920_BUCKCFG_t bf;
+} __AEM13920_BUCKCFG_UNION_t;
+
+/**
+  * @brief 	Converts a buck configuration structure to the corresponding 
+  *		BUCKCFG register value
+  * 
+  * @param[in] 	cfg 		The configuration structure
+  * @return 	uint8_t		The register value
+  */
+static uint8_t __AEM13920_BUCKCFGHRToReg(const AEM13920_BUCKCFG_t *cfg)
+{
+	__AEM13920_BUCKCFG_UNION_t _cfg;
+	_cfg.bf = *cfg;
+	return _cfg.raw;
+}
+
+/**
+  * @brief 	Converts the BUCKCFG register value and sets the configuration
+  *		structure accordingly
+  * 
+  * @param[in] 	reg	The register value 
+  * @param[out] cfg	The corresponding configuration
+  */
+static void __AEM13920_BUCKCFGRegToHR(uint8_t reg, AEM13920_BUCKCFG_t *cfg)
+{
+	__AEM13920_BUCKCFG_UNION_t _cfg;
+	_cfg.raw = reg;
+	*cfg = _cfg.bf;
+}
+
+static int32_t __AEM13920_ComputeBUCKCFGReg(					\
+	const AEM13920_CONFIG_t *cfg, 						\
+	uint8_t *regs)
+{
+	regs[AEM13920_BUCKCFG_OFFSET - AEM13920_CFG_OFFSET] = 			\
+		(	(cfg->buck_vout << AEM13920_BUCKCFG_VOUT_Pos) & 	\
+			AEM13920_BUCKCFG_VOUT_Msk)				\
+		| (	(cfg->buck_tmult << AEM13920_BUCKCFG_TMULT_Pos) & 	\
+			AEM13920_BUCKCFG_TMULT_Msk);
+	return AEM13920_DRIVER_OK;
+}
+
+static void __AEM13920_ConvertBUCKCFGReg(uint8_t reg, AEM13920_CONFIG_t *cfg)
+{
+	cfg->buck_tmult = 							\
+		(AEM13920_TMULT) ((reg & AEM13920_BUCKCFG_TMULT_Msk) 		\
+		>> AEM13920_BUCKCFG_TMULT_Pos);
+	cfg->buck_vout = 							\
+		(AEM13920_VOUT)	((reg & AEM13920_BUCKCFG_VOUT_Msk) 		\
+		>> AEM13920_BUCKCFG_VOUT_Pos);
+}
+
+/* ~~~~~~~~ TEMPCOLD/HOT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+#define AEM13920_TEMPXTHRESH_CONV_FACT	(0x100UL)
+#define AEM13920_TEMPXTHRESH_SCALE_FACT	(0x3E8UL)
+
+/**
+  * @brief 	Converts rth to the register value
+  * 
+  * @param[in] 	rth		Thermistor's impedance (Rth) at a specific 
+  *				threshold (mOhms)
+  * @param[in] 	rdiv 		Impedance of the resistor that creates a 
+  *				resistive voltage divider with Rth (mOhms) 
+  * @return 	uint8_t	The register value
+  */
+static uint8_t __AEM13920_TEMPOhmToReg(uint32_t rth, uint32_t rdiv)
+{
+	uint64_t thresh = AEM13920_TEMPXTHRESH_CONV_FACT * ROUND_NEAREST_DIV(	\
+		(uint64_t) rth * AEM13920_TEMPXTHRESH_SCALE_FACT, 		\
+		(uint64_t) rth + rdiv);
+	thresh = ROUND_NEAREST_DIV(thresh, AEM13920_TEMPXTHRESH_SCALE_FACT);
+	if (thresh > UINT8_MAX) {
+		thresh = UINT8_MAX;
+	}
+
+	return ((thresh << AEM13920_TEMPx_THRESH_Pos) & AEM13920_TEMPx_THRESH_Msk);
+}
+
+/**
+  * @brief 	Converts the register value to the corresponding RTH value (mOhms)
+  * 
+  * @param[in] 	reg		The register value
+  * @param[in]	rdiv 		Impedance of the resistor that creates a resistive 
+  *				voltage divider with Rth (mOhms)
+  * @return 	uint32_t 	RTH (mOhms)
+  */
+static uint32_t __AEM13920_TEMPRegToOhm(uint8_t reg, uint32_t rdiv)
+{
+	uint64_t therm = ROUND_NEAREST_DIV(					\
+		(uint64_t) reg * rdiv, (AEM13920_TEMPXTHRESH_CONV_FACT - reg));
 	if (therm > UINT32_MAX) {
 		return UINT32_MAX;
 	} else {
@@ -411,1098 +802,541 @@ static uint32_t __AEM13920_ConvertTEMPReg(uint8_t reg, uint32_t Rdiv)
 	}
 }
 
-static int32_t __AEM13920_ComputeAPMReg(const AEM13920_Config *cfg, 		\
-					uint8_t *cfgReg)
+/* ~~~~~~~~ SRCLOW ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+
+/**
+  * @brief	SRCLOW config cast structure
+  */
+typedef union __AEM13920_SRCLOW_UNION {
+	uint8_t raw;
+	AEM13920_SRCLOWCFG_t bf;
+} __AEM13920_SRCLOW_UNION_t;
+
+/**
+  * @brief 	Converts a SRCLOWCFG configuration structure to the corresponding 
+  *		SRCLOW register value
+  * 
+  * @param[in] 	cfg 		The configuration structure
+  * @return 	uint8_t		The register value
+  */
+static uint8_t __AEM13920_SRCLOWHRToReg(const AEM13920_SRCLOWCFG_t *cfg)
 {
-	if (cfg->apmMode > AEM13920_APM_MODE_POWER_METER) {
-		return AEM13920_DRIVER_ERR_APM_MODE;
-	}
-	if (cfg->apmWindow > AEM13920_APM_WINDOW_64) {
-		return AEM13920_DRIVER_ERR_APM_WINDOW;
-	}
-	cfgReg[AEM13920_APM_OFFSET - AEM13920_CFG_OFFSET] = 			\
-		((((uint8_t) cfg->enableAPMSRC1 << AEM13920_APM_SRC1EN_Pos) & 	\
+	__AEM13920_SRCLOW_UNION_t _cfg;
+	_cfg.bf = *cfg;
+	return _cfg.raw;
+}
+
+/**
+  * @brief 	Converts the SRCLOW register value and sets the configuration
+  *		structure accordingly
+  * 
+  * @param[in] 	reg	The register value 
+  * @param[out] cfg	The corresponding configuration
+  */
+static void __AEM13920_SRCLOWRegToHR(uint8_t reg, AEM13920_SRCLOWCFG_t *cfg)
+{
+	__AEM13920_SRCLOW_UNION_t _cfg;
+	_cfg.raw = reg;
+	*cfg = _cfg.bf;
+}
+
+static int32_t __AEM13920_ComputeSRCLOWReg(					\
+	const AEM13920_CONFIG_t *cfg, 						\
+	uint8_t *regs)
+{
+	regs[AEM13920_SRCLOW_OFFSET - AEM13920_CFG_OFFSET] = 			\
+		 ((cfg->src1_low_thresh << AEM13920_SRCLOW_SRC1THRESH_Pos) & 	\
+		AEM13920_SRCLOW_SRC1THRESH_Msk)					\
+		| ((cfg->src2_low_thresh << AEM13920_SRCLOW_SRC2THRESH_Pos) & 	\
+		AEM13920_SRCLOW_SRC2THRESH_Msk);
+	return AEM13920_DRIVER_OK;
+}
+
+static void __AEM13920_ConvertSRCLOWReg(uint8_t reg, AEM13920_CONFIG_t *cfg)
+{
+	cfg->src1_low_thresh = (AEM13920_SRCLOW_THRESH)				\
+				((reg & AEM13920_SRCLOW_SRC1THRESH_Msk) 	\
+				>> AEM13920_SRCLOW_SRC1THRESH_Pos);
+	cfg->src2_low_thresh = (AEM13920_SRCLOW_THRESH)				\
+				((reg & AEM13920_SRCLOW_SRC2THRESH_Msk) 	\
+				>> AEM13920_SRCLOW_SRC2THRESH_Pos);
+}
+
+/* ~~~~~~~~ APMCFG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+
+/**
+  * @brief	APM Config cast structure
+  */
+typedef union __AEM13920_APMCFG_UNION {
+	uint8_t raw;
+	AEM13920_APMCFG_t bf;
+} __AEM13920_APMCFG_UNION_t;
+
+/**
+  * @brief 	Converts a APMCFG configuration structure to the corresponding 
+  *		APM register value
+  * 
+  * @param[in] 	cfg 		The configuration structure
+  * @return 	uint8_t		The register value
+  */
+static uint8_t __AEM13920_APMHRToReg(const AEM13920_APMCFG_t *cfg)
+{
+	__AEM13920_APMCFG_UNION_t _cfg;
+	_cfg.bf = *cfg;
+	return _cfg.raw;
+}
+
+/**
+  * @brief 	Converts the APM register value and sets the configuration
+  *		structure accordingly
+  * 
+  * @param[in] 	reg	The register value 
+  * @param[out] cfg	The corresponding configuration
+  */
+static void __AEM13920_APMRegToHR(uint8_t reg, AEM13920_APMCFG_t *cfg)
+{
+	__AEM13920_APMCFG_UNION_t _cfg;
+	_cfg.raw = reg;
+	*cfg = _cfg.bf;
+}
+
+static int32_t __AEM13920_ComputeAPMReg(					\
+	const AEM13920_CONFIG_t *cfg, 						\
+	uint8_t *regs)
+{
+	regs[AEM13920_APM_OFFSET - AEM13920_CFG_OFFSET] = 			\
+		((((uint8_t) cfg->apm_src1_enable << AEM13920_APM_SRC1EN_Pos) & \
 		AEM13920_APM_SRC1EN_Msk) 					\
-		| (((uint8_t) cfg->enableAPMSRC2 << AEM13920_APM_SRC2EN_Pos) 	\
+		| (((uint8_t) cfg->apm_src2_enable << AEM13920_APM_SRC2EN_Pos) 	\
 		& AEM13920_APM_SRC2EN_Msk) 					\
-		| (((uint8_t) cfg->enableAPMBuck << AEM13920_APM_BUCKEN_Pos) 	\
+		| (((uint8_t) cfg->apm_buck_enable << AEM13920_APM_BUCKEN_Pos) 	\
 		& AEM13920_APM_BUCKEN_Msk) 					\
-		| ((cfg->apmMode << AEM13920_APM_MODE_Pos) 			\
+		| ((cfg->apm_mode << AEM13920_APM_MODE_Pos) 			\
 		& AEM13920_APM_MODE_Msk)					\
-		| ((cfg->apmWindow << AEM13920_APM_WINDOW_Pos) 			\
+		| ((cfg->apm_window << AEM13920_APM_WINDOW_Pos) 		\
 		& AEM13920_APM_WINDOW_Msk));
 	return AEM13920_DRIVER_OK;
 }
 
-static void __AEM13920_ConvertAPMReg(uint8_t reg, AEM13920_Config *cfg)
+static void __AEM13920_ConvertAPMReg(uint8_t reg, AEM13920_CONFIG_t *cfg)
 {
-	cfg->enableAPMSRC1 = (bool)(reg & AEM13920_APM_SRC1EN_Msk);
-	cfg->enableAPMSRC2 = (bool)(reg & AEM13920_APM_SRC2EN_Msk);
-	cfg->enableAPMBuck = (bool)(reg & AEM13920_APM_BUCKEN_Msk);
-	cfg->apmMode = (AEM13920_APM_MODE)(					\
+	cfg->apm_src1_enable = (bool)(reg & AEM13920_APM_SRC1EN_Msk);
+	cfg->apm_src2_enable = (bool)(reg & AEM13920_APM_SRC2EN_Msk);
+	cfg->apm_buck_enable = (bool)(reg & AEM13920_APM_BUCKEN_Msk);
+	cfg->apm_mode = (AEM13920_APM_MODE)(					\
 		(reg & AEM13920_APM_MODE_Msk) >> AEM13920_APM_MODE_Pos);
-	cfg->apmWindow = (AEM13920_APM_WINDOW) (				\
+	cfg->apm_window = (AEM13920_APM_WINDOW) (				\
 		(reg & AEM13920_APM_WINDOW_Msk) >> AEM13920_APM_WINDOW_Pos);
 }
 
-static int32_t __AEM13920_ComputeBSTCFGReg(	const AEM13920_Config *cfg, 	\
-						uint8_t *cfgReg)
+
+/* ~~~~~~~~ IRQEN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+
+/**
+  * @brief	IRQEN Config cast structure
+  */
+typedef union _AEM13920_IRQEN_UNION {
+	uint8_t raw[2];
+	AEM13920_IRQEN_t bf;
+} __AEM13920_IRQEN_UNION_t;
+
+/**
+  * @brief 	Converts a IRQEN configuration structure to the corresponding 
+  *		IRQEN register value
+  * 
+  * @param[in] 	cfg 		The configuration structure
+  * @return 	uint8_t		The register value
+  */
+static void __AEM13920_IRQENHRToReg(const AEM13920_IRQEN_t *cfg, uint8_t regs[2])
 {
-	if (cfg->boost2TimingMult > AEM13920_TMULT16) {
-		return AEM13920_DRIVER_ERR_TMULT;
-	}
-	cfgReg[AEM13920_BST1CFG_OFFSET - AEM13920_CFG_OFFSET] = (		\
-		((cfg->enableBoost1 << AEM13920_BST1CFG_EN_Pos) 		\
-		& AEM13920_BST1CFG_EN_Msk) 					\
-		| ((cfg->enableHPBoost1 << AEM13920_BST1CFG_HPEN_Pos) 		\
-		& AEM13920_BST1CFG_HPEN_Msk) 					\
-		| ((cfg->boost1TimingMult << AEM13920_BST1CFG_TMULT_Pos) 	\
-		& AEM13920_BST1CFG_TMULT_Msk));
-	cfgReg[AEM13920_BST2CFG_OFFSET - AEM13920_CFG_OFFSET] = (		\
-		((cfg->enableBoost2 << AEM13920_BST2CFG_EN_Pos) 		\
-		& AEM13920_BST2CFG_EN_Msk) 					\
-		| ((cfg->enableHPBoost2 << AEM13920_BST2CFG_HPEN_Pos) 		\
-		& AEM13920_BST2CFG_HPEN_Msk) 					\
-		| ((cfg->boost2TimingMult << AEM13920_BST2CFG_TMULT_Pos) 	\
-		& AEM13920_BST2CFG_TMULT_Msk));
-	return AEM13920_DRIVER_OK;
+	__AEM13920_IRQEN_UNION_t _cfg;
+	_cfg.bf = *cfg;
+	regs[0] = _cfg.raw[0];
+	regs[1] = _cfg.raw[1];
 }
 
-static void __AEM13920_ConvertBSTCFGReg(uint8_t bst1cfg, uint8_t bst2cfg, 	\
-					AEM13920_Config *cfg)
+/**
+  * @brief 	Converts the IRQEN register value and sets the configuration
+  *		structure accordingly
+  * 
+  * @param[in] 	reg	The register value 
+  * @param[out] cfg	The corresponding configuration
+  */
+static void __AEM13920_IRQENRegToHR(uint8_t regs[2], AEM13920_IRQEN_t *cfg)
 {
-	cfg->boost1TimingMult = (AEM13920_TMULT)				\
-				((bst1cfg & AEM13920_BST1CFG_TMULT_Msk) 	\
-				>> AEM13920_BST1CFG_TMULT_Pos);
-	cfg->enableBoost1 = (	(bst1cfg & AEM13920_BST1CFG_EN_Msk) 		\
-				>> AEM13920_BST1CFG_EN_Pos);
-	cfg->enableHPBoost1 = (	(bst1cfg & AEM13920_BST1CFG_HPEN_Msk) 		\
-				>> AEM13920_BST1CFG_HPEN_Pos);
-	cfg->boost2TimingMult = (AEM13920_TMULT)				\
-				((bst2cfg & AEM13920_BST2CFG_TMULT_Msk) 	\
-				>> AEM13920_BST2CFG_TMULT_Pos);
-	cfg->enableBoost2 = (	(bst2cfg & AEM13920_BST2CFG_EN_Msk) 		\
-				>> AEM13920_BST2CFG_EN_Pos);
-	cfg->enableHPBoost2 = (	(bst2cfg & AEM13920_BST2CFG_HPEN_Msk) 		\
-				>> AEM13920_BST2CFG_HPEN_Pos);
+	__AEM13920_IRQEN_UNION_t _cfg;
+	_cfg.raw[0] = regs[0];
+	_cfg.raw[1] = regs[1];
+	*cfg = _cfg.bf;
 }
 
-static int32_t __AEM13920_ComputeBUCKCFGReg(	const AEM13920_Config *cfg, 	\
-						uint8_t *cfgReg)
-{	
-	if (cfg->buckVLoad > AEM13920_VLOAD_2500) {
-		return AEM13920_DRIVER_ERR_VLOAD;
-	}
-	if (cfg->buckTimingMult > AEM13920_TMULT16) {
-		return AEM13920_DRIVER_ERR_TMULT;
-	}
-	cfgReg[AEM13920_BUCKCFG_OFFSET - AEM13920_CFG_OFFSET] = 		\
-		(	(cfg->buckVLoad << AEM13920_BUCKCFG_VOUT_Pos) & 	\
-			AEM13920_BUCKCFG_VOUT_Msk)				\
-		| (	(cfg->buckTimingMult << AEM13920_BUCKCFG_TMULT_Pos) & 	\
-			AEM13920_BUCKCFG_TMULT_Msk);
-	return AEM13920_DRIVER_OK;
+static void __AEM13920_ComputeIRQENReg(const AEM13920_CONFIG_t *cfg, uint8_t *regs)
+{
+	regs[AEM13920_IRQEN0_OFFSET - AEM13920_CFG_OFFSET] = (			\
+		((uint8_t) cfg->i2c_rdy_irq_enable 				\
+		<< AEM13920_IRQEN0_I2CRDY_Pos)					\
+		| ((uint8_t) cfg->vovdis_irq_enable 				\
+		<< AEM13920_IRQEN0_VOVDIS_Pos)					\
+		| ((uint8_t) cfg->vchrdy_irq_enable 				\
+		<< AEM13920_IRQEN0_VCHRDY_Pos)					\
+		| ((uint8_t) cfg->vovch_irq_enable 				\
+		<< AEM13920_IRQEN0_VOVCH_Pos)					\
+		| ((uint8_t) cfg->src_low_irq_enable 				\
+		<< AEM13920_IRQEN0_SRCLOW_Pos)					\
+		| ((uint8_t) cfg->temp_ch_irq_enable 				\
+		<< AEM13920_IRQEN0_TEMPCH_Pos)					\
+		| ((uint8_t) cfg->temp_dis_irq_enable 				\
+		<< AEM13920_IRQEN0_TEMPDIS_Pos)					\
+	);
+	regs[AEM13920_IRQEN1_OFFSET - AEM13920_CFG_OFFSET] = (			\
+		((uint8_t) cfg->src1_mppt_start_irq_enable 			\
+		<< AEM13920_IRQEN1_SRC1MPPTSTART_Pos)				\
+		| ((uint8_t) cfg->src1_mppt_done_irq_enable 			\
+		<< AEM13920_IRQEN1_SRC1MPPTDONE_Pos)				\
+		| ((uint8_t) cfg->src2_mppt_start_irq_enable 			\
+		<< AEM13920_IRQEN1_SRC2MPPTSTART_Pos)				\
+		| ((uint8_t) cfg->src2_mppt_done_irq_enable 			\
+		<< AEM13920_IRQEN1_SRC2MPPTDONE_Pos)				\
+		| ((uint8_t) cfg->sto_done_irq_enable 				\
+		<< AEM13920_IRQEN1_STODONE_Pos)					\
+		| ((uint8_t) cfg->temp_done_irq_enable 				\
+		<< AEM13920_IRQEN1_TEMPDONE_Pos)				\
+		| ((uint8_t) cfg->apm_done_irq_enable 				\
+		<< AEM13920_IRQEN1_APMDONE_Pos)					\
+		| ((uint8_t) cfg->apm_err_irq_enable 				\
+		<< AEM13920_IRQEN1_APMERR_Pos)					\
+	);
 }
 
-static void __AEM13920_ConvertBUCKCFGReg(uint8_t reg, AEM13920_Config *cfg)
+static void __AEM13920_ConvertIRQENReg(uint8_t irqen0, uint8_t irqen1, AEM13920_CONFIG_t *cfg)
 {
-	cfg->buckTimingMult = 	(AEM13920_TMULT)				\
-				((reg & AEM13920_BUCKCFG_TMULT_Msk) 		\
-				>> AEM13920_BUCKCFG_TMULT_Pos);
-	cfg->buckVLoad = 	(AEM13920_VLOAD)				\
-				((reg & AEM13920_BUCKCFG_VOUT_Msk) 		\
-				>> AEM13920_BUCKCFG_VOUT_Pos);
+	cfg->i2c_rdy_irq_enable = (bool) (irqen0 & AEM13920_IRQEN0_I2CRDY_Msk);
+	cfg->vovdis_irq_enable = (bool) (irqen0 & AEM13920_IRQEN0_VOVDIS_Msk);
+	cfg->vchrdy_irq_enable = (bool) (irqen0 & AEM13920_IRQEN0_VCHRDY_Msk);
+	cfg->vovch_irq_enable = (bool) (irqen0 & AEM13920_IRQEN0_VOVCH_Msk);
+	cfg->src_low_irq_enable = (bool) (irqen0 & AEM13920_IRQEN0_SRCLOW_Msk);
+	cfg->temp_ch_irq_enable = (bool) (irqen0 & AEM13920_IRQEN0_TEMPCH_Msk);
+	cfg->temp_dis_irq_enable = (bool) (irqen0 & AEM13920_IRQEN0_TEMPDIS_Msk);
+	cfg->src1_mppt_start_irq_enable = 					\
+		(bool) (irqen1 & AEM13920_IRQEN1_SRC1MPPTSTART_Msk);
+	cfg->src1_mppt_done_irq_enable = 					\
+		(bool) (irqen1 & AEM13920_IRQEN1_SRC1MPPTDONE_Msk);
+	cfg->src2_mppt_start_irq_enable = 					\
+		(bool) (irqen1 & AEM13920_IRQEN1_SRC2MPPTSTART_Msk);
+	cfg->src2_mppt_done_irq_enable = 					\
+		(bool) (irqen1 & AEM13920_IRQEN1_SRC2MPPTDONE_Msk);
+	cfg->sto_done_irq_enable = 						\
+		(bool) (irqen1 & AEM13920_IRQEN1_STODONE_Msk);
+	cfg->temp_done_irq_enable = 						\
+		(bool) (irqen1 & AEM13920_IRQEN1_TEMPDONE_Msk);
+	cfg->apm_done_irq_enable = 						\
+		(bool) (irqen1 & AEM13920_IRQEN1_APMDONE_Msk);
+	cfg->apm_err_irq_enable = 						\
+		(bool) (irqen1 & AEM13920_IRQEN1_APMERR_Msk);
 }
 
-static void __AEM13920_ComputeIRQENReg(const AEM13920_IRQEN *irqs, uint8_t *reg)
+/* ~~~~~~~~ IRQFLG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+
+/**
+  * @brief	IRQFLG Config cast structure
+  */
+typedef union _AEM13920_IRQFLG_UNION {
+	uint8_t raw[2];
+	AEM13920_IRQFLG_t bf;	
+} __AEM13920_IRQFLG_UNION_t;
+
+
+/**
+  * @brief 	Converts the IRQFLG register value and sets the configuration
+  *		structure accordingly
+  * 
+  * @param[in] 	reg	The register value 
+  * @param[out] cfg	The corresponding configuration
+  */
+static void __AEM13920_IRQFLGRegToHR(uint8_t regs[2], AEM13920_IRQFLG_t *cfg)
 {
-	__AEM13920_irqCfg _cfg;
-	_cfg.bf = *irqs;
-	reg[0] = _cfg.raw[0] & AEM13920_IRQEN0_ALL_Msk;
-	reg[1] = _cfg.raw[1] & AEM13920_IRQEN1_ALL_Msk;
+	__AEM13920_IRQFLG_UNION_t _cfg;
+	_cfg.raw[0] = regs[0];
+	_cfg.raw[1] = regs[1];
+	*cfg = _cfg.bf;
 }
 
-static void __AEM13920_ConvertIRQENReg(	uint8_t irqCfg0, uint8_t irqCfg1, 	\
-					AEM13920_IRQEN *irqs)
+/* ~~~~~~~~ STATUS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+
+/**
+  * @brief	STATUS Config cast structure
+  */
+typedef union _AEM13920_STATUS_UNION {
+	uint8_t raw[2];
+	AEM13920_STATUS_t bf;
+} __AEM13920_STATUS_UNION_t;
+
+
+/**
+  * @brief 	Converts the STATUS register value and sets the configuration
+  *		structure accordingly
+  * 
+  * @param[in] 	reg	The register value 
+  * @param[out] cfg	The corresponding configuration
+  */
+static void __AEM13920_STATUSRegToHR(uint8_t regs[2], AEM13920_STATUS_t *cfg)
 {
-	__AEM13920_irqCfg _cfg;
-	_cfg.raw[0] = irqCfg0;
-	_cfg.raw[1] = irqCfg1;
-	*irqs = _cfg.bf;
+	__AEM13920_STATUS_UNION_t _cfg;
+	_cfg.raw[0] = regs[0];
+	_cfg.raw[1] = regs[1];
+	*cfg = _cfg.bf;
 }
 
-static int32_t __AEM13920_ComputeSLEEPReg(	const AEM13920_Config *cfg, 	\
-						uint8_t *cfgReg)
-{
-	if (	(cfg->src1SleepThresh > AEM13920_SLEEP_THRESH_600)
-		|| (cfg->src2SleepThresh > AEM13920_SLEEP_THRESH_600)) {
-		return AEM13920_DRIVER_ERR_SLEEP_THRESH;
-	}
-	cfgReg[AEM13920_SLEEP_OFFSET - AEM13920_CFG_OFFSET] = 			\
-		 ((cfg->src1SleepThresh << AEM13920_SLEEP_SRC1THRESH_Pos) & 	\
-		AEM13920_SLEEP_SRC1THRESH_Msk)					\
-		| ((cfg->src2SleepThresh << AEM13920_SLEEP_SRC2THRESH_Pos) & 	\
-		AEM13920_SLEEP_SRC2THRESH_Msk);
-	return AEM13920_DRIVER_OK;
-}
+/* ~~~~~~~~ APM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-static void __AEM13920_ConvertSLEEPReg(uint8_t reg, AEM13920_Config *cfg)
+static void __AEM13920_APMRegToVolt(						\
+	uint8_t regs[3], 							\
+	uint64_t *data, 							\
+	AEM13920_APM_MODE mode)
 {
-	cfg->src1SleepThresh = (AEM13920_SLEEP_THRESHOLD)			\
-				((reg & AEM13920_SLEEP_SRC1THRESH_Msk) 		\
-				>> AEM13920_SLEEP_SRC1THRESH_Pos);
-	cfg->src2SleepThresh = (AEM13920_SLEEP_THRESHOLD)			\
-				((reg & AEM13920_SLEEP_SRC2THRESH_Msk) 		\
-				>> AEM13920_SLEEP_SRC2THRESH_Pos);
-}
-
-static void __AEM13920_ConvertSRCREGUReg(const AEM_i2c_cfg *i2cCfg, 
-					uint8_t *regs, AEM13920_Config *cfg)
-{
-	uint8_t reg1 = regs[AEM13920_SRC1REGU0_OFFSET - AEM13920_CFG_OFFSET];
-	uint8_t reg2 = regs[AEM13920_SRC1REGU1_OFFSET - AEM13920_CFG_OFFSET];
-	if (((reg1 & AEM13920_SRC1REGU0_MODE_Msk) >> AEM13920_SRC1REGU0_MODE_Pos)\
-	 	== AEM13920_SRCREGU_CONST) {
-		AEM13920_GetSourceRegulationVoltage(i2cCfg, AEM13920_SRC1, &(cfg->src1ReguV));
+	if (mode == AEM13920_APM_MODE_PULSE_COUNTER) {
+		*data = (uint32_t)						\
+				(((regs[2] & AEM13920_APM2x_PC_Msk) << 16) 	\
+				+ (regs[1] << 8) + regs[0]);
 	} else {
-		cfg->src1MpptRatio = 	(AEM13920_MPPT_RATIO)			\
-					((reg1 & AEM13920_SRC1REGU0_CFG0_Msk) 	\
-					>> AEM13920_SRC1REGU0_CFG0_Pos);
-		cfg->src1MpptDuration = (AEM13920_MPPT_DURATION)		\
-					((reg2 & AEM13920_SRC1REGU1_CFG1_Msk) 	\
-					>> AEM13920_SRC1REGU1_CFG1_Pos);
-		cfg->src1MpptPeriod = 	(AEM13920_MPPT_PERIOD)			\
-					((reg2 & AEM13920_SRC1REGU1_CFG2_Msk) 	\
-					>> AEM13920_SRC1REGU1_CFG2_Pos);
-	}
-	reg1 = regs[AEM13920_SRC2REGU0_OFFSET - AEM13920_CFG_OFFSET];
-	reg2 = regs[AEM13920_SRC2REGU1_OFFSET - AEM13920_CFG_OFFSET];
-	if (((reg1 & AEM13920_SRC2REGU0_MODE_Msk) >> AEM13920_SRC2REGU0_MODE_Pos)\
-		== AEM13920_SRCREGU_CONST) {
-		AEM13920_GetSourceRegulationVoltage(i2cCfg, AEM13920_SRC2, &(cfg->src1ReguV));
-	} else {
-		cfg->src2MpptRatio = 	(AEM13920_MPPT_RATIO)			\
-					((reg1 & AEM13920_SRC2REGU0_CFG0_Msk) 	\
-					>> AEM13920_SRC2REGU0_CFG0_Pos);
-		cfg->src2MpptDuration = (AEM13920_MPPT_DURATION)		\
-					((reg2 & AEM13920_SRC2REGU1_CFG1_Msk) 	\
-					>> AEM13920_SRC2REGU1_CFG1_Pos);
-		cfg->src2MpptPeriod = 	(AEM13920_MPPT_PERIOD)			\
-					((reg2 & AEM13920_SRC2REGU1_CFG2_Msk) 	\
-					>> AEM13920_SRC2REGU1_CFG2_Pos);
+		*data = ((uint64_t)						\
+				(((regs[2] & AEM13920_APM2x_PM_DATA_Msk) << 0x10)\
+				+ (regs[1] << 8) + regs[0])			\
+			<< (uint8_t)						\
+				((regs[2] & AEM13920_APM2x_PM_SHIFT_Msk) 	\
+				>> AEM13920_APM2x_PM_SHIFT_Pos));
 	}
 }
 
-static int32_t __AEM13920_ComputeSRCREGUReg(	const AEM13920_Config *cfg, 	\
-						uint8_t *cfgReg)
+/* ~~~~~~~~ APMERR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+
+/**
+  * @brief	APMERR Config cast structure
+  */
+typedef union _AEM13920_APMERR_UNION {
+	uint8_t raw;
+	AEM13920_APMERR_t bf;
+} __AEM13920_APMERR_UNION_t;
+
+/**
+  * @brief 	Converts the APMERR register value and sets the configuration
+  *		structure accordingly
+  * 
+  * @param[in] 	reg	The register value 
+  * @param[out] cfg	The corresponding configuration
+  */
+static void __AEM13920_APMERRRegToHR(uint8_t reg, AEM13920_APMERR_t *cfg)
 {
-	uint8_t *reg1 = &(cfgReg[AEM13920_SRC1REGU0_OFFSET - AEM13920_CFG_OFFSET]);
-	uint8_t *reg2 = &(cfgReg[AEM13920_SRC1REGU1_OFFSET - AEM13920_CFG_OFFSET]);
-	if (cfg->src1ReguMode == AEM13920_SRCREGU_CONST) {
-		__AEM13920_ComputeSRCREGURegConst(cfg->src1ReguV, reg1);
-	} else if (cfg->src1ReguMode == AEM13920_SRCREGU_MPPT) {
-		if (cfg->src1MpptRatio > AEM13920_MPPT_RATIO_ZMPP) {
-			return AEM13920_DRIVER_ERR_MPPT_RATIO;
-		}
-		if (cfg->src1MpptDuration > AEM13920_MPPT_DUR512) {
-			return AEM13920_DRIVER_ERR_MPPT_DURATION;
-		}
-		if (cfg->src1MpptPeriod > AEM13920_MPPT_PER16384) {
-			return AEM13920_DRIVER_ERR_MPPT_PERIOD;
-		}
-		*reg1 = (AEM13920_SRC1REGU0_MODE_Msk 				\
-			| ((cfg->src1MpptRatio << AEM13920_SRC1REGU0_CFG0_Pos) 	\
-			& AEM13920_SRC1REGU0_CFG0_Msk));
-		*reg2 = (((cfg->src1MpptDuration << AEM13920_SRC1REGU1_CFG1_Pos)\
-			& AEM13920_SRC1REGU1_CFG1_Msk) 				\
-			| ((cfg->src1MpptPeriod << AEM13920_SRC1REGU1_CFG2_Pos) \
-			& AEM13920_SRC1REGU1_CFG2_Msk));
-	} else {
-		return AEM13920_DRIVER_ERR_SRCREGU_MODE;
-	}
-	reg1 = &(cfgReg[AEM13920_SRC2REGU0_OFFSET - AEM13920_CFG_OFFSET]);
-	reg2 = &(cfgReg[AEM13920_SRC2REGU1_OFFSET - AEM13920_CFG_OFFSET]);
-	if (cfg->src2ReguMode == AEM13920_SRCREGU_CONST) {
-		__AEM13920_ComputeSRCREGURegConst(cfg->src2ReguV, reg1);
-	} else if (cfg->src2ReguMode == AEM13920_SRCREGU_MPPT) {
-		if (cfg->src2MpptRatio > AEM13920_MPPT_RATIO_ZMPP) {
-			return AEM13920_DRIVER_ERR_MPPT_RATIO;
-		}
-		if (cfg->src2MpptDuration > AEM13920_MPPT_DUR512) {
-			return AEM13920_DRIVER_ERR_MPPT_DURATION;
-		}
-		if (cfg->src2MpptPeriod > AEM13920_MPPT_PER16384) {
-			return AEM13920_DRIVER_ERR_MPPT_PERIOD;
-		}
-		*reg1 = (AEM13920_SRC2REGU0_MODE_Msk 				\
-			| ((cfg->src2MpptRatio << AEM13920_SRC2REGU0_CFG0_Pos) 	\
-			& AEM13920_SRC2REGU0_CFG0_Msk));
-		*reg2 = (((cfg->src2MpptDuration << AEM13920_SRC2REGU1_CFG1_Pos)\
-			& AEM13920_SRC2REGU1_CFG1_Msk) 				\
-			| ((cfg->src2MpptPeriod << AEM13920_SRC2REGU1_CFG2_Pos) \
-			& AEM13920_SRC2REGU1_CFG2_Msk));
-	} else {
-		return AEM13920_DRIVER_ERR_SRCREGU_MODE;
-	}
-	return AEM13920_DRIVER_OK;
+	__AEM13920_APMERR_UNION_t _cfg;
+	_cfg.raw = reg;
+	*cfg = _cfg.bf;
 }
 
-int32_t AEM13920_Initialize(const AEM_i2c_cfg *i2cCfg) {
+/* ~~~~~~~~ TEMP ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+#define AEM13920_TEMP_CONV_DIV		(0x0100UL)
+
+/* ~~~~~~~~ STO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+#define	AEM13920_VSTO_CONV_FACT		(0x12C0UL)
+#define AEM13920_VSTO_CONV_DIV		(0x0100UL)
+
+
+
+/* ~~~~~~~~ API ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int32_t AEM13920_Initialize(AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	
+	if (!handler) {
+		return AEM_I2C_ERR_MISSING_CFG;
+	}
+	
+	rc = AEM_I2C_Initialize(handler->i2c_cfg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, 						\
+		AEM13920_VERSION_OFFSET, 					\
+		1, &(handler->revision)						\
+	);
+	
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	if ((handler->revision == 0) || (handler->revision == 1)) {
+		uint8_t tmp = 0;
+		rc = __AEM13920_ReadRegisters(handler->i2c_cfg, 0x51, 1, &tmp);
+		tmp &= ~0x08;
+		rc |= __AEM13920_WriteRegister(handler->i2c_cfg, 0x51, tmp);
+	}
+	
+	return rc;
+}
+
+int32_t AEM13920_Deinitialize(const AEM13920_Handler_t *handler)
+{
 	int32_t rc = AEM13920_DRIVER_OK;
 
-	if (!i2cCfg) {
+	if (!handler) {
 		return AEM_I2C_ERR_MISSING_CFG;
 	}
 
-	rc = AEM_I2C_Initialize(i2cCfg);
+	rc = AEM_I2C_Deinitialize(handler->i2c_cfg);
 	
 	return rc;
 }
 
-int32_t AEM13920_Deinitialize(const AEM_i2c_cfg *i2cCfg)
+int32_t AEM13920_GetSourceRegulationMode(					\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src, 							\
+	AEM13920_SRCREGU_MODE *mode)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
-
-	if (!i2cCfg) {
-		return AEM_I2C_ERR_MISSING_CFG;
-	}
-
-	rc = AEM_I2C_Deinitialize(i2cCfg);
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_SRC1REGU0_OFFSET + (src << 1);
 	
-	return rc;
-}
-
-int32_t AEM13920_GetChipVersion(const AEM_i2c_cfg *i2cCfg, uint8_t *version)
-{
-	if (!version) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-
-	return __AEM13920_ReadRegisters(i2cCfg, AEM13920_VERSION_OFFSET, 1, version);
-}
-
-int32_t AEM13920_GetConfigurationSource(const AEM_i2c_cfg *i2cCfg, uint8_t *source)
-{
-	uint8_t data = 0;
-	int32_t rc = AEM13920_DRIVER_OK;
-	
-	if (!source) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-	
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_CTRL_OFFSET, 1, &data);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	*source = (data & AEM13920_CTRL_UPDATE_Msk) >> AEM13920_CTRL_UPDATE_Pos;
-
-	return rc;
-}
-
-int32_t AEM13920_GetStatus(const AEM_i2c_cfg *i2cCfg, AEM13920_Status *status)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	__AEM13920_status _status;
-	
-	if (!status) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-	
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_STATUS0_OFFSET, 2, _status.raw);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	_status.raw[0] &= AEM13920_STATUS0_ALL_Msk;
-	_status.raw[1] &= AEM13920_STATUS1_ALL_Msk;
-	*status = _status.bf;
-
-	return rc;
-}
-
-int32_t AEM13920_GetSynchronizationStatus(const AEM_i2c_cfg *i2cCfg, bool *sync)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_CTRL_OFFSET, 1, &reg);
-	*sync = (bool) (reg & AEM13920_CTRL_SYNCBUSY_Msk);
-	
-	return rc;	
-}
-
-int32_t AEM13920_GetIRQFlags(const AEM_i2c_cfg *i2cCfg, AEM13920_IRQFLG *flags)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	__AEM13920_irqFlgs _flags;
-
-	if (!flags) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-	
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_IRQFLG0_OFFSET, 2, _flags.raw);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	_flags.raw[0] &= AEM13920_IRQFLG0_ALL_Msk;
-	_flags.raw[1] &= AEM13920_IRQFLG1_ALL_Msk;
-	*flags = _flags.bf;
-	
-	return rc;
-}
-
-int32_t AEM13920_GetAPMSource(	const AEM_i2c_cfg *i2cCfg, AEM13920_Source src,	\
-				uint32_t *apm, AEM13920_LDCDC Ldcdc)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t apmMode = 0;
-	uint8_t apmCfg = 0;
-	AEM13920_TMULT timing = AEM13920_TMULT1;
-	uint32_t Vsrc = 0;
-	uint32_t data = 0;
-	uint32_t offset = 0;
-
-	if (!apm) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-	rc = AEM13920_GetAPMDataSRC(i2cCfg, src, &data, &offset);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &apmCfg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	if (!(apmCfg & (AEM13920_APM_SRC1EN_Msk << src))) {
-		return AEM13920_DRIVER_ERR_APM_DISABLED;
-	}
-	apmMode = ((apmCfg & AEM13920_APM_MODE_Msk) >> AEM13920_APM_MODE_Pos);
-	if (apmMode == AEM13920_APM_MODE_PULSE_COUNTER) {
-		*apm = data;
-		return rc;
-	}
-	rc = AEM13920_GetSourceRegulationVoltage(i2cCfg, src, &Vsrc);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	rc = AEM13920_GetBoostTiming(i2cCfg, src, &timing);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	return __AEM13920_GetAPMPowerMeter(Ldcdc, apm, data, offset, Vsrc, timing);
-}
-
-int32_t AEM13920_GetAPMDataSRC(	const AEM_i2c_cfg *i2cCfg, AEM13920_Source src,	\
-				uint32_t *data, uint32_t *offset)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint32_t idx = AEM13920_APM0SRC1_OFFSET + (3 * src);
-	uint8_t apmData[3] = {0};
-	uint8_t apmMode = AEM13920_APM_MODE_PULSE_COUNTER;
-	uint8_t apmCfg = 0;
-
-	if (!i2cCfg) {
-		return AEM_I2C_ERR_MISSING_CFG;
-	}
-	if (!data) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-	if (!offset) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-	rc = __AEM13920_ReadRegisters(i2cCfg, idx, 3, apmData);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &apmCfg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	if (!(apmCfg & (AEM13920_APM_SRC1EN_Msk << src))) {
-		return AEM13920_DRIVER_ERR_APM_DISABLED;
-	}
-	apmMode = ((apmCfg & AEM13920_APM_MODE_Msk) >> AEM13920_APM_MODE_Pos);
-	if (apmMode == AEM13920_APM_MODE_PULSE_COUNTER) {
-		*data = (uint32_t)((apmData[2] << 16) + (apmData[1] << 8) + apmData[0]);
-		return rc;
-	} else {
-		*data = (uint32_t)(						\
-			((apmData[2] & AEM13920_APM2SRC2_PM_DATA_Msk) << 16)	\
-			+ (apmData[1] << 8) + apmData[0]);
-		*offset = (uint32_t)(						\
-			(apmData[2] & AEM13920_APM2SRC2_PM_SHIFT_Msk) 		\
-			>> AEM13920_APM2SRC2_PM_SHIFT_Pos);
-		return rc;
-	}
-}
-
-int32_t AEM13920_GetAPMBuck(const AEM_i2c_cfg *i2cCfg, uint32_t *apm, AEM13920_LDCDC Ldcdc)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t apmMode = 0;
-	uint8_t apmCfg = 0;
-	AEM13920_TMULT timing = AEM13920_TMULT1;
-	AEM13920_VLOAD Vload = AEM13920_VLOAD_OFF;
-	uint32_t Vsrc = 0;
-	uint32_t data = 0;
-	uint32_t offset = 0;
-
-	if (!apm) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-	rc = AEM13920_GetAPMDataBuck(i2cCfg, &data, &offset);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &apmCfg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	apmMode = ((apmCfg & AEM13920_APM_MODE_Msk) >> AEM13920_APM_MODE_Pos);
-	if (apmMode == AEM13920_APM_MODE_PULSE_COUNTER) {
-		*apm = data;
-		return rc;
-	}
-	rc = AEM13920_GetBuckVLoad(i2cCfg, &Vload);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	Vsrc = (300 + (Vload * 300));
-	rc = AEM13920_GetBuckTiming(i2cCfg, &timing);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	return __AEM13920_GetAPMPowerMeter(Ldcdc, apm, data, offset, Vsrc, timing);
-}
-
-int32_t AEM13920_GetAPMDataBuck(const AEM_i2c_cfg *i2cCfg, uint32_t *data,	\
-				uint32_t *offset)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t apmData[3] = {0};
-	uint8_t apmMode = AEM13920_APM_MODE_PULSE_COUNTER;
-	uint8_t apmCfg = 0;
-	AEM13920_VLOAD Vload = AEM13920_VLOAD_OFF;
-
-	if (!i2cCfg) {
-		return AEM_I2C_ERR_MISSING_CFG;
-	}
-	if (!data) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-	if (!offset) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM0BUCK_OFFSET, 3, apmData);
-	if (rc != AEM13920_DRIVER_OK) { 
-		return rc;
-	}
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &apmCfg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	if (!(apmCfg & AEM13920_APM_BUCKEN_Msk)) {
-		return AEM13920_DRIVER_ERR_APM_DISABLED;
-	}
-	apmMode = ((apmCfg & AEM13920_APM_MODE_Msk) >> AEM13920_APM_MODE_Pos);
-	if (apmMode == AEM13920_APM_MODE_PULSE_COUNTER) {
-		*data = (uint32_t)((apmData[2] << 16) + (apmData[1] << 8) + apmData[0]);
-		return rc;
-	}
-	rc = AEM13920_GetBuckVLoad(i2cCfg, &Vload);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	if (Vload == AEM13920_VLOAD_OFF) {
-		return AEM13920_DRIVER_ERR_BUCK_DISABLED;
-	}
-	*data = (uint32_t)(							\
-		((apmData[2] & AEM13920_APM2BUCK_PM_DATA_Msk) << 16)		\
-		+ (apmData[1] << 8) + apmData[0]);
-	*offset = (uint32_t)(							\
-		(apmData[2] & AEM13920_APM2BUCK_PM_SHIFT_Msk) 			\
-		>> AEM13920_APM2BUCK_PM_SHIFT_Pos);
-	return rc;
-}
-
-int32_t AEM13920_GetAPMError(const AEM_i2c_cfg *i2cCfg, AEM13920_APMERR *apmErr)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	__AEM13920_apmErr _apmErr;
-	
-	if (!apmErr) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-	
-	rc = __AEM13920_ReadRegisters(	i2cCfg, AEM13920_APMERR_OFFSET, 2, 	\
-					&(_apmErr.raw));
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	_apmErr.raw &= AEM13920_APMERR_ALL_Msk;
-	*apmErr = _apmErr.bf;
-
-	return rc;
-}
-
-int32_t AEM13920_GetThermistorZ(const AEM_i2c_cfg *i2cCfg, uint32_t *Rth, 	\
-				uint32_t Rdiv)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t tempData = 0;
-
-	if (!Rth) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_TEMP_OFFSET, 1, &tempData);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	*Rth = __AEM13920_ConvertTEMPReg(tempData, Rdiv);
-
-	return rc;
-}
-
-int32_t AEM13920_GetStorageVoltage(const AEM_i2c_cfg *i2cCfg, uint32_t *Vsto)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t stoData = 0;
-
-	if (!Vsto) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_STO_OFFSET, 1, &stoData);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-
-	*Vsto = (((__AEM13920_VSTO_FACT * stoData) + (__AEM13920_VSTO_DIV / 2)) \
-		/ __AEM13920_VSTO_DIV);
-
-	return rc;
-}
-
-int32_t AEM13920_GetSourceRegulationVoltage(	const AEM_i2c_cfg *i2cCfg, 	\
-						AEM13920_Source src,		\
-						uint32_t *Vsrc)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t VsrcReg;
-
-	if (!Vsrc) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_SRC1_OFFSET + src, 1, &VsrcReg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	*Vsrc = __AEM13920_ConvertSRCReg(VsrcReg);
-
-	return rc;	
-}
-
-int32_t AEM13920_SetSourceRegulationMode( 	const AEM_i2c_cfg *i2cCfg, 	\
-						AEM13920_Source src,		\
-						AEM13920_SRCREGU_MODE mode)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-	uint32_t offset = AEM13920_SRC1REGU0_OFFSET + (src * 2);
-
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-	if (mode > AEM13920_SRCREGU_MPPT) {
-		return AEM13920_DRIVER_ERR_SRCREGU;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg &= ~AEM13920_SRC1REGU0_MODE_Msk;
-	reg |= ((mode << AEM13920_SRC1REGU0_MODE_Pos) & AEM13920_SRC1REGU0_MODE_Msk);
-
-	return __AEM13920_WriteRegisters(i2cCfg, offset, 1, &reg);
-}
-
-int32_t AEM13920_SetMPPTRatio(	const AEM_i2c_cfg *i2cCfg, AEM13920_Source src,	\
-				AEM13920_MPPT_RATIO ratio)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-	uint32_t offset = AEM13920_SRC1REGU0_OFFSET + (src * 2);
-
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-	if (ratio > AEM13920_MPPT_RATIO_ZMPP) {
-		return AEM13920_DRIVER_ERR_MPPT_RATIO;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg &= ~AEM13920_SRC1REGU0_CFG0_Msk;
-	reg |= ((ratio << AEM13920_SRC1REGU0_CFG0_Pos) & AEM13920_SRC1REGU0_CFG0_Msk);
-
-	return __AEM13920_WriteRegisters(i2cCfg, offset, 1, &reg);
-}
-
-int32_t AEM13920_SetMPPTTimings(const AEM_i2c_cfg *i2cCfg, AEM13920_Source src,	\
-				AEM13920_MPPT_DURATION duration,		\
-				AEM13920_MPPT_PERIOD period)
-{
-	uint8_t reg = 0;
-	uint32_t offset = AEM13920_SRC1REGU1_OFFSET + (src * 2);
-
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-	if (duration > AEM13920_MPPT_DUR512) {
-		return AEM13920_DRIVER_ERR_MPPT_DURATION;
-	}
-	if (period > AEM13920_MPPT_PER16384) {
-		return AEM13920_DRIVER_ERR_MPPT_PERIOD;
-	}
-
-	reg = (	(duration << AEM13920_SRC1REGU1_CFG1_Pos) 			\
-		& AEM13920_SRC1REGU1_CFG1_Msk) 					\
-		| ((period << AEM13920_SRC1REGU1_CFG2_Pos) 			\
-		& AEM13920_SRC1REGU1_CFG2_Msk);
-
-	return __AEM13920_WriteRegisters(i2cCfg, offset, 1, &reg);	
-}
-
-int32_t AEM13920_SetSourceRegulationVoltage(	const AEM_i2c_cfg *i2cCfg, 	\
-						AEM13920_Source src,		\
-						uint32_t Vsrc)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t mode = 0;
-	uint8_t regulV[2] = {0};
-	uint32_t offset = AEM13920_SRC1REGU0_OFFSET + (src * 2);
-
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &mode);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	if (((mode & AEM13920_SRC1REGU0_MODE_Msk) >> AEM13920_SRC2REGU0_MODE_Pos) \
-		== AEM13920_SRCREGU_MPPT) {
-		return AEM13920_DRIVER_ERR_SRCREGU;
-	}
-
-	__AEM13920_ComputeSRCREGURegConst(Vsrc, regulV);
-
-	return __AEM13920_WriteRegisters(i2cCfg, offset, 2, regulV);
-}
-
-int32_t AEM13920_SetDischargeVoltage(const AEM_i2c_cfg *i2cCfg, uint32_t Vovdis)
-{
-	uint8_t reg = __AEM13920_ComputeVOVDISReg(Vovdis);
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_VOVDIS_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_SetChargeReadyVoltage(const AEM_i2c_cfg *i2cCfg, uint32_t Vchrdy)
-{
-	uint8_t reg = __AEM13920_ComputeVCHRDYReg(Vchrdy);
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_VCHRDY_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_SetOverchargeVoltage(const AEM_i2c_cfg *i2cCfg, uint32_t Vovch)
-{
-	uint8_t reg = __AEM13920_ComputeVOVCHReg(Vovch);
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_VOVCH_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_EnableBoost(const AEM_i2c_cfg *i2cCfg, AEM13920_Source src)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
-
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg |= AEM13920_BST1CFG_EN_Msk;
-
-	return __AEM13920_WriteRegisters(i2cCfg, offset, 1, &reg);
-}
-
-int32_t AEM13920_DisableBoost(const AEM_i2c_cfg *i2cCfg, AEM13920_Source src)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
-
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg &= ~AEM13920_BST1CFG_EN_Msk;
-
-	return __AEM13920_WriteRegisters(i2cCfg, offset, 1, &reg);
-}
-
-int32_t AEM13920_SetBoostTiming(const AEM_i2c_cfg *i2cCfg, AEM13920_Source src, \
-				AEM13920_TMULT tMult)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
-
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-	if (tMult > AEM13920_TMULT16) {
-		return AEM13920_DRIVER_ERR_TMULT;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg &= ~AEM13920_BST1CFG_TMULT_Msk;
-	reg |= ((tMult << AEM13920_BST1CFG_TMULT_Pos) & AEM13920_BST1CFG_TMULT_Msk);
-
-	return __AEM13920_WriteRegisters(i2cCfg, offset, 1, &reg);
-}
-
-int32_t AEM13920_EnableHighPower(const AEM_i2c_cfg *i2cCfg, AEM13920_Source src)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
-
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}	
-	reg |= AEM13920_BST1CFG_HPEN_Msk;
-
-	return __AEM13920_WriteRegisters(i2cCfg, offset, 1, &reg);
-}
-
-int32_t AEM13920_DisableHighPower(const AEM_i2c_cfg *i2cCfg, AEM13920_Source src)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
-
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg &= ~AEM13920_BST1CFG_HPEN_Msk;
-
-	return __AEM13920_WriteRegisters(i2cCfg, offset, 1, &reg);
-}
-
-int32_t AEM13920_SetBuckVLoad(const AEM_i2c_cfg *i2cCfg, AEM13920_VLOAD vLoad)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-
-	if (vLoad > AEM13920_VLOAD_2500) {
-		return AEM13920_DRIVER_ERR_VLOAD;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_BUCKCFG_OFFSET, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg &= ~AEM13920_BUCKCFG_VOUT_Msk;
-	reg |= ((vLoad << AEM13920_BUCKCFG_VOUT_Pos) & AEM13920_BUCKCFG_VOUT_Msk);
-
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_BUCKCFG_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_SetBuckTiming(const AEM_i2c_cfg *i2cCfg, AEM13920_TMULT tMult)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-
-	if (tMult > AEM13920_TMULT16) {
-		return AEM13920_DRIVER_ERR_TMULT;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_BUCKCFG_OFFSET, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg &= ~AEM13920_BUCKCFG_TMULT_Msk;
-	reg |= ((tMult << AEM13920_BUCKCFG_TMULT_Pos) & AEM13920_BUCKCFG_TMULT_Msk);
-
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_BUCKCFG_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_SetChargeColdThresholdZ(	const AEM_i2c_cfg *i2cCfg, 	\
-						uint32_t Rth, uint32_t Rdiv)
-{
-	uint8_t reg = __AEM13920_ComputeTEMPXTHRESHReg(Rth, Rdiv);
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_TEMPCOLDCH_OFFSET,	\
-					 1, &reg);
-}
-
-int32_t AEM13920_SetDischargeColdThresholdZ(	const AEM_i2c_cfg *i2cCfg, 	\
-						uint32_t Rth, uint32_t Rdiv)
-{
-	uint8_t reg = __AEM13920_ComputeTEMPXTHRESHReg(Rth, Rdiv);
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_TEMPCOLDDIS_OFFSET, 	\
-					 1, &reg);
-}
-
-int32_t AEM13920_SetChargeHotThresholdZ(const AEM_i2c_cfg *i2cCfg, 		\
-					uint32_t Rth, uint32_t Rdiv)
-{
-	uint8_t reg = __AEM13920_ComputeTEMPXTHRESHReg(Rth, Rdiv);
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_TEMPHOTCH_OFFSET, 	\
-					 1, &reg);
-}
-
-int32_t AEM13920_SetDischargeHotThresholdZ(	const AEM_i2c_cfg *i2cCfg, 	\
-						uint32_t Rth, uint32_t Rdiv)
-{
-	uint8_t reg = __AEM13920_ComputeTEMPXTHRESHReg(Rth, Rdiv);
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_TEMPHOTDIS_OFFSET, 	\
-					 1, &reg);
-}
-
-int32_t AEM13920_EnableTemperatureMonitoring(const AEM_i2c_cfg *i2cCfg)
-{
-	uint8_t reg = AEM13920_TMON_EN_Msk;
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_TMON_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_DisableTemperatureMonitoring(const AEM_i2c_cfg *i2cCfg)
-{
-	uint8_t reg = 0;
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_TMON_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_SetSleepThreshold(	const AEM_i2c_cfg *i2cCfg, 		\
-					AEM13920_Source src, 			\
-					AEM13920_SLEEP_THRESHOLD thresh)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-	if (thresh > AEM13920_SLEEP_THRESH_600) {
-		return AEM13920_DRIVER_ERR_SLEEP_THRESH;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_SLEEP_OFFSET, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	if (src == AEM13920_SRC1) {
-		reg &= ~AEM13920_SLEEP_SRC1THRESH_Msk;
-		reg |= ((thresh << AEM13920_SLEEP_SRC1THRESH_Pos) 		\
-			& AEM13920_SLEEP_SRC1THRESH_Msk);
-	} else {
-		reg &= ~AEM13920_SLEEP_SRC2THRESH_Msk;
-		reg |= ((thresh << AEM13920_SLEEP_SRC2THRESH_Pos) 		\
-			& AEM13920_SLEEP_SRC2THRESH_Msk);
-	}
-
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_SLEEP_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_SetAPMMode(const AEM_i2c_cfg *i2cCfg, AEM13920_APM_MODE mode)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-
-	if (mode > AEM13920_APM_MODE_POWER_METER) {
-		return AEM13920_DRIVER_ERR_APM_MODE;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg &= ~AEM13920_APM_MODE_Msk;
-	reg |= ((mode << AEM13920_APM_MODE_Pos) & AEM13920_APM_MODE_Msk);
-
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_SetAPMWindow(const AEM_i2c_cfg *i2cCfg, AEM13920_APM_WINDOW window)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-
-	if (window > AEM13920_APM_WINDOW_64) {
-		return AEM13920_DRIVER_ERR_APM_WINDOW;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg &= ~AEM13920_APM_WINDOW_Msk;
-	reg |= ((window << AEM13920_APM_WINDOW_Pos) & AEM13920_APM_WINDOW_Msk);
-
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_EnableAPMSource(const AEM_i2c_cfg *i2cCfg, AEM13920_Source src)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg |= (AEM13920_APM_SRC1EN_Msk << src);
-
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_DisableAPMSource(const AEM_i2c_cfg *i2cCfg, AEM13920_Source src)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg &= ~(AEM13920_APM_SRC1EN_Msk << src);
-
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_EnableAPMBuck(const AEM_i2c_cfg *i2cCfg)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg |= AEM13920_APM_BUCKEN_Msk;
-
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_DisableAPMBuck(const AEM_i2c_cfg *i2cCfg)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	reg &= ~AEM13920_APM_BUCKEN_Msk;
-
-	return __AEM13920_WriteRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-}
-
-int32_t AEM13920_SetIRQConfiguration(	const AEM_i2c_cfg *i2cCfg, 		\
-					const AEM13920_IRQEN *irqs)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg[2] = {0};
-
-	if (!irqs) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-
-	__AEM13920_ComputeIRQENReg(irqs, reg);
-	rc = __AEM13920_WriteRegisters(i2cCfg, AEM13920_IRQEN0_OFFSET, 2, reg);
-
-	return rc;
-}
-
-int32_t AEM13920_LoadConfiguration(const AEM_i2c_cfg *i2cCfg)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = AEM13920_CTRL_UPDATE_Msk;
-	bool syncing = true;
-
-	rc = __AEM13920_WriteRegisters(i2cCfg, AEM13920_CTRL_OFFSET, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-
-	while (syncing) {
-		rc = AEM13920_GetSynchronizationStatus(i2cCfg, &syncing);
-		if (rc != AEM13920_DRIVER_OK) {
-			return rc;
-		}
-	}
-
-	return rc;
-}
-
-int32_t AEM13920_GetSourceRegulationMode( 	const AEM_i2c_cfg *i2cCfg, 	\
-						AEM13920_Source src,		\
-						AEM13920_SRCREGU_MODE *mode)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-	uint32_t offset = AEM13920_SRC1REGU0_OFFSET + (2 * src);
-
 	if (!mode) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*mode = (AEM13920_SRCREGU_MODE) ((reg & AEM13920_SRC1REGU0_MODE_Msk) 	\
-					>> AEM13920_SRC1REGU0_MODE_Pos);
+	*mode = (AEM13920_SRCREGU_MODE) ((reg & AEM13920_SRCxREGU0_MODE_Msk) 	\
+					>> AEM13920_SRCxREGU0_MODE_Pos);
 
 	return rc;
 }
 
-int32_t AEM13920_GetMPPTRatio(	const AEM_i2c_cfg *i2cCfg, AEM13920_Source src, \
-				AEM13920_MPPT_RATIO *ratio)
+int32_t AEM13920_SetSourceRegulationMode(					\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src, 							\
+	AEM13920_SRCREGU_MODE mode)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_SRC1REGU0_OFFSET + (src << 1);
+
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_SRCxREGU0_MODE_Msk;
+	reg |= ((mode << AEM13920_SRCxREGU0_MODE_Pos) & AEM13920_SRCxREGU0_MODE_Msk);
+
+	return __AEM13920_WriteRegister(handler->i2c_cfg, offset, reg);
+}
+
+int32_t AEM13920_GetSourceRegulationVoltage(					\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src, 							\
+	uint32_t *srcregu)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t regs[2];
+	uint32_t offset = AEM13920_SRC1REGU0_OFFSET + (src << 1);
+	AEM13920_SRCREGU_MODE mode = AEM13920_SRCREGU_CONST;
+	
+	if (!srcregu) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 2, regs);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	mode = ((regs[0] & AEM13920_SRCxREGU0_MODE_Msk) 			\
+	>> AEM13920_SRCxREGU0_MODE_Pos);
+	if (mode != AEM13920_SRCREGU_CONST) {
+		offset = AEM13920_SRC1_OFFSET + src;
+		rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, regs);
+		if (rc != AEM13920_DRIVER_OK) {
+			return rc;
+		}
+		*srcregu = __AEM13920_SRCRegToVolt(regs[0]);
+	} else {
+		*srcregu = __AEM13920_SRCREGURegToVolt(regs);
+	}
+
+	return rc;
+}
+
+int32_t AEM13920_SetSourceConstantVoltage(					\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src, 							\
+	uint32_t srcregu)
+{
+	uint8_t regs[2] = {0};
+	uint32_t offset = AEM13920_SRC1REGU0_OFFSET + (src << 1);
+
+	__AEM13920_SRCREGUVoltToReg(srcregu, regs);
+
+	return __AEM13920_WriteRegisters(handler->i2c_cfg, offset, 2, regs);
+}
+
+int32_t AEM13920_GetMPPTConfig(							\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src,							\
+	AEM13920_MPPTCFG_t *cfg)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t regs[2] = {0};
+	uint32_t offset = AEM13920_SRC1REGU0_OFFSET + (src << 1);
+
+	if (!cfg) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 2, regs);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	cfg->ratio = (AEM13920_MPPT_RATIO) (
+		(regs[0] & AEM13920_SRCxREGU0_CFG0_Msk) 			\
+		>> AEM13920_SRCxREGU0_CFG0_Pos);
+	cfg->duration = (AEM13920_MPPT_DURATION) (				\
+		(regs[1] & AEM13920_SRCxREGU1_CFG1_Msk)				\
+		>> AEM13920_SRCxREGU1_CFG1_Pos);
+	cfg->period = (AEM13920_MPPT_PERIOD) (					\
+		(regs[1] & AEM13920_SRCxREGU1_CFG2_Msk)				\
+		>> AEM13920_SRCxREGU1_CFG2_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_SetMPPTConfig(							\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src,							\
+	const AEM13920_MPPTCFG_t *cfg)
+{
+	uint8_t regs[2] = {0};
+	uint32_t offset = AEM13920_SRC1REGU0_OFFSET + (src << 1);
+
+	regs[0] = AEM13920_SRCREGU_MPPT;
+	regs[0] |= (	(cfg->ratio << AEM13920_SRCxREGU0_CFG0_Pos) 		\
+			& AEM13920_SRCxREGU0_CFG0_Msk);
+	regs[1] = (	(cfg->duration << AEM13920_SRCxREGU1_CFG1_Pos) 		\
+			& AEM13920_SRCxREGU1_CFG1_Msk) 				\
+			| ((cfg->period << AEM13920_SRCxREGU1_CFG2_Pos) 	\
+			& AEM13920_SRCxREGU1_CFG2_Msk);
+
+	return __AEM13920_WriteRegisters(handler->i2c_cfg, offset, 2, regs);
+}
+
+int32_t AEM13920_GetMPPTRatio(							\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src,							\
+	AEM13920_MPPT_RATIO *ratio)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
@@ -1511,285 +1345,658 @@ int32_t AEM13920_GetMPPTRatio(	const AEM_i2c_cfg *i2cCfg, AEM13920_Source src, \
 	if (!ratio) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*ratio = (AEM13920_MPPT_RATIO) ((reg & AEM13920_SRC1REGU0_CFG0_Msk) 	\
-					>> AEM13920_SRC1REGU0_CFG0_Pos);
+	*ratio = (AEM13920_MPPT_RATIO) ((reg & AEM13920_SRCxREGU0_CFG0_Msk) 	\
+					>> AEM13920_SRCxREGU0_CFG0_Pos);
 
 	return rc;
 }
 
-int32_t AEM13920_GetMPPTTimings(const AEM_i2c_cfg *i2cCfg, AEM13920_Source src,	\
-				AEM13920_MPPT_DURATION *duration,		\
-				AEM13920_MPPT_PERIOD *period)
+int32_t AEM13920_SetMPPTRatio(							\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src,							\
+	AEM13920_MPPT_RATIO ratio)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_SRC1REGU0_OFFSET + (src * 2);
+
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_SRCxREGU0_CFG0_Msk;
+	reg |= ((ratio << AEM13920_SRCxREGU0_CFG0_Pos) & AEM13920_SRCxREGU0_CFG0_Msk);
+
+	return __AEM13920_WriteRegister(handler->i2c_cfg, offset, reg);
+}
+
+int32_t AEM13920_GetMPPTDuration(						\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src,							\
+	AEM13920_MPPT_DURATION *duration)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 	uint32_t offset = AEM13920_SRC1REGU1_OFFSET + (2 * src);
 
-	if (!duration || !period) {
+	if (!duration) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*duration = (AEM13920_MPPT_DURATION) ((reg & AEM13920_SRC1REGU1_CFG1_Msk)\
-					      >> AEM13920_SRC1REGU1_CFG1_Pos);
-	*period = (AEM13920_MPPT_PERIOD) ((reg & AEM13920_SRC1REGU1_CFG2_Msk)	\
-					  >> AEM13920_SRC1REGU1_CFG2_Pos);
+	*duration = (AEM13920_MPPT_DURATION) ((reg & AEM13920_SRCxREGU1_CFG1_Msk)\
+					      >> AEM13920_SRCxREGU1_CFG1_Pos);
+	
 	return rc;
 }
 
-int32_t AEM13920_GetDischargeVoltage(const AEM_i2c_cfg *i2cCfg, uint32_t *Vovdis)
+int32_t AEM13920_SetMPPTDuration(						\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src,							\
+	AEM13920_MPPT_DURATION duration)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_SRC1REGU1_OFFSET + (src * 2);
+
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+
+	reg &= ~AEM13920_SRCxREGU1_CFG1_Msk;
+	reg |= ((duration << AEM13920_SRCxREGU1_CFG1_Pos) 			\
+		& AEM13920_SRCxREGU1_CFG1_Msk);
+
+	return __AEM13920_WriteRegister(handler->i2c_cfg, offset, reg);
+}
+
+int32_t AEM13920_GetMPPTPeriod(							\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src,							\
+	AEM13920_MPPT_PERIOD *period)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_SRC1REGU1_OFFSET + (2 * src);
+
+	if (!period) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*period = (AEM13920_MPPT_PERIOD) ((reg & AEM13920_SRCxREGU1_CFG2_Msk)	\
+					  >> AEM13920_SRCxREGU1_CFG2_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_SetMPPTPeriod(							\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src,							\
+	AEM13920_MPPT_PERIOD period)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_SRC1REGU1_OFFSET + (src * 2);
+
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+
+	reg &= ~AEM13920_SRCxREGU1_CFG2_Msk;
+	reg |= ((period << AEM13920_SRCxREGU1_CFG2_Pos) 			\
+		& AEM13920_SRCxREGU1_CFG2_Msk);
+
+	return __AEM13920_WriteRegister(handler->i2c_cfg, offset, reg);
+}
+
+int32_t AEM13920_GetOverdischargeVoltage(					\
+	const AEM13920_Handler_t *handler, 					\
+	uint32_t *vovdis)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 
-	if (!Vovdis) {
+	if (!vovdis) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_VOVDIS_OFFSET, 1, &reg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_VOVDIS_OFFSET, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*Vovdis = __AEM13920_ConvertVOVDISReg(reg);
+	*vovdis = __AEM13920_VOVDISRegToVolt(reg & AEM13920_VOVDIS_THRESH_Msk);
 
 	return rc;
 }
 
-int32_t AEM13920_GetChargeReadyVoltage(const AEM_i2c_cfg *i2cCfg, uint32_t *Vchrdy)
+int32_t AEM13920_SetOverdischargeVoltage(					\
+	const AEM13920_Handler_t *handler, 					\
+	uint32_t vovdis)
+{
+	uint8_t reg = __AEM13920_VOVDISVoltToReg(vovdis);
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_VOVDIS_OFFSET, reg);
+}
+
+int32_t AEM13920_GetChargeReadyVoltage(						\
+	const AEM13920_Handler_t *handler, 					\
+	uint32_t *vchrdy)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 
-	if (!Vchrdy) {
+	if (!vchrdy) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_VCHRDY_OFFSET, 1, &reg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_VCHRDY_OFFSET, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*Vchrdy = __AEM13920_ConvertVCHRDYReg(reg);
+	*vchrdy = __AEM13920_VCHRDYRegToVolt(reg);
 
 	return rc;
 }
 
-int32_t AEM13920_GetOverchargeVoltage(const AEM_i2c_cfg *i2cCfg, uint32_t *Vovch)
+int32_t AEM13920_SetChargeReadyVoltage(						\
+	const AEM13920_Handler_t *handler, 					\
+	uint32_t vchrdy)
+{
+	uint8_t reg = __AEM13920_VCHRDYVoltToReg(vchrdy);
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_VCHRDY_OFFSET, reg);
+}
+
+int32_t AEM13920_GetOverchargeVoltage(						\
+	const AEM13920_Handler_t *handler, 					\
+	uint32_t *vovch)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 
-	if (!Vovch) {
+	if (!vovch) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_VOVCH_OFFSET, 1, &reg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_VOVCH_OFFSET, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*Vovch = __AEM13920_ConvertVOVCHReg(reg);
+	*vovch = __AEM13920_VOVCHRegToVolt(reg);
 
 	return rc;
 }
 
-int32_t AEM13920_GetBoostEnable(const AEM_i2c_cfg *i2cCfg, AEM13920_Source src,	\
-				bool *en)
+int32_t AEM13920_SetOverchargeVoltage(						\
+	const AEM13920_Handler_t *handler, 					\
+	uint32_t vovch)
+{
+	uint8_t reg = __AEM13920_VOVCHVoltToReg(vovch);
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_VOVCH_OFFSET, reg);
+}
+
+int32_t AEM13920_SetBoostConfig(						\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src, 							\
+	const AEM13920_BSTCFG_t *cfg)
+{
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
+	
+	reg = __AEM13920_BSTCFGHRToReg(cfg);
+	
+	return __AEM13920_WriteRegister(handler->i2c_cfg, offset, reg);
+}
+	
+int32_t AEM13920_GetBoostConfig(						\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src, 							\
+	AEM13920_BSTCFG_t *cfg)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
 
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
+	if (!cfg) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
+
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	__AEM13920_BSTCFGRegToHR(reg, cfg);
+
+	return rc;
+}
+
+int32_t AEM13920_EnableBoost(							\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
+
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg |= AEM13920_BSTxCFG_EN_Msk;
+
+	return __AEM13920_WriteRegister(handler->i2c_cfg, offset, reg);
+}
+
+int32_t AEM13920_DisableBoost(							\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
+
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_BSTxCFG_EN_Msk;
+
+	return __AEM13920_WriteRegister(handler->i2c_cfg, offset, reg);
+}
+
+int32_t AEM13920_IsEnabledBoost(						\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src, 							\
+	bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
+
 	if (!en) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*en = (reg & AEM13920_BST1CFG_EN_Msk);
+	*en = (reg & AEM13920_BSTxCFG_EN_Msk);
 
 	return rc;
 }
 
-int32_t AEM13920_GetBoostTiming(const AEM_i2c_cfg *i2cCfg, AEM13920_Source src, \
-				AEM13920_TMULT *tMult)
+int32_t AEM13920_EnableHighPower(						\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
 
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-	if (!tMult) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
-	}
-	*tMult = (AEM13920_TMULT) (	(reg & AEM13920_BST1CFG_TMULT_Msk) 	\
-					>> AEM13920_BST1CFG_TMULT_Pos);
+	}	
+	reg |= AEM13920_BSTxCFG_HPEN_Msk;
 
-	return rc;
+	return __AEM13920_WriteRegister(handler->i2c_cfg, offset, reg);
 }
 
-int32_t AEM13920_GetHighPowerEnable(	const AEM_i2c_cfg *i2cCfg, 		\
-					AEM13920_Source src, bool *en)
+int32_t AEM13920_DisableHighPower(						\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
 
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
 	}
+	reg &= ~AEM13920_BSTxCFG_HPEN_Msk;
+
+	return __AEM13920_WriteRegister(handler->i2c_cfg, offset, reg);
+}
+
+int32_t AEM13920_IsEnabledHighPower(						\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src, bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
+
 	if (!en) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, offset, 1, &reg);
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*en = (bool) (reg & AEM13920_BST1CFG_HPEN_Msk);
+	*en = (bool) (reg & AEM13920_BSTxCFG_HPEN_Msk);
 
 	return rc;
 }
 
-int32_t AEM13920_GetBuckVLoad(const AEM_i2c_cfg *i2cCfg, AEM13920_VLOAD *vLoad)
+int32_t AEM13920_SetBoostTimingMultiplier(					\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src,							\
+	AEM13920_TMULT tmult)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
+
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_BSTxCFG_TMULT_Msk;
+	reg |= ((tmult << AEM13920_BSTxCFG_TMULT_Pos) & AEM13920_BSTxCFG_TMULT_Msk);
+
+	return __AEM13920_WriteRegister(handler->i2c_cfg, offset, reg);
+}
+
+int32_t AEM13920_GetBoostTimingMultiplier(					\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src,							\
+	AEM13920_TMULT *tmult)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_BST1CFG_OFFSET + src;
+
+	if (!tmult) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*tmult = (AEM13920_TMULT) (	(reg & AEM13920_BSTxCFG_TMULT_Msk) 	\
+					>> AEM13920_BSTxCFG_TMULT_Pos);
+
+	return rc;
+}
+
+int32_t AEM13920_SetBuckConfig(							\
+	const AEM13920_Handler_t *handler,					\
+	const AEM13920_BUCKCFG_t *cfg)
+{
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_BUCKCFG_OFFSET;
+
+	reg = __AEM13920_BUCKCFGHRToReg(cfg);
+
+	return __AEM13920_WriteRegister(handler->i2c_cfg, offset, reg);
+}
+
+int32_t AEM13920_GetBuckConfig(							\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_BUCKCFG_t *cfg)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint32_t offset = AEM13920_BUCKCFG_OFFSET;
+
+	if (!cfg) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	__AEM13920_BUCKCFGRegToHR(reg, cfg);
+
+	return rc;
+}
+
+int32_t AEM13920_SetBuckVOUT(							\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_VOUT vout)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 
-	if (!vLoad) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_BUCKCFG_OFFSET, 1, &reg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_BUCKCFG_OFFSET, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*vLoad = (AEM13920_VLOAD) (	(reg & AEM13920_BUCKCFG_VOUT_Msk) 	\
+	reg &= ~AEM13920_BUCKCFG_VOUT_Msk;
+	reg |= ((vout << AEM13920_BUCKCFG_VOUT_Pos) & AEM13920_BUCKCFG_VOUT_Msk);
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_BUCKCFG_OFFSET, reg);
+}
+
+int32_t AEM13920_GetBuckVOUT(							\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_VOUT *vout)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!vout) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_BUCKCFG_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*vout = (AEM13920_VOUT) (	(reg & AEM13920_BUCKCFG_VOUT_Msk) 	\
 					>> AEM13920_BUCKCFG_VOUT_Pos);
 
 	return rc;
 }
 
-int32_t AEM13920_GetBuckTiming(const AEM_i2c_cfg *i2cCfg, AEM13920_TMULT *tMult)
+int32_t AEM13920_SetBuckTimingMultiplier(					\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_TMULT tmult)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 
-	if (!tMult) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_BUCKCFG_OFFSET, 1, &reg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_BUCKCFG_OFFSET, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*tMult = (AEM13920_TMULT) (	(reg & AEM13920_BUCKCFG_TMULT_Msk) 	\
+	reg &= ~AEM13920_BUCKCFG_TMULT_Msk;
+	reg |= ((tmult << AEM13920_BUCKCFG_TMULT_Pos) & AEM13920_BUCKCFG_TMULT_Msk);
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_BUCKCFG_OFFSET, reg);
+}
+
+int32_t AEM13920_GetBuckTimingMultiplier(					\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_TMULT *tmult)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!tmult) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_BUCKCFG_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*tmult = (AEM13920_TMULT) (	(reg & AEM13920_BUCKCFG_TMULT_Msk) 	\
 					>> AEM13920_BUCKCFG_TMULT_Pos);
 
 	return rc;
 }
 
-int32_t AEM13920_GetChargeColdThresholdZ(const AEM_i2c_cfg *i2cCfg, 		\
-					 uint32_t *Rth, uint32_t Rdiv)
+int32_t AEM13920_GetTempColdChargeThresh(					\
+	const AEM13920_Handler_t *handler,					\
+	uint32_t *rth, 								\
+	uint32_t rdiv)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 
-	if (!Rth) {
+	if (!rth) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_TEMPCOLDCH_OFFSET, 1, &reg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_TEMPCOLDCH_OFFSET, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*Rth = __AEM13920_ConvertTEMPReg(reg, Rdiv);
+	*rth = __AEM13920_TEMPRegToOhm(reg, rdiv);
 
 	return rc;
 }
 
-int32_t AEM13920_GetChargeHotThresholdZ(const AEM_i2c_cfg *i2cCfg, 		\
-					uint32_t *Rth, uint32_t Rdiv)
+int32_t AEM13920_SetTempColdChargeThresh(					\
+	const AEM13920_Handler_t *handler,					\
+	uint32_t rth, 								\
+	uint32_t rdiv)
+{
+	uint8_t reg = __AEM13920_TEMPOhmToReg(rth, rdiv);
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_TEMPCOLDCH_OFFSET, reg);
+}
+
+int32_t AEM13920_GetTempHotChargeThresh(					\
+	const AEM13920_Handler_t *handler, 					\
+	uint32_t *rth, 								\
+	uint32_t rdiv)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 
-	if (!Rth) {
+	if (!rth) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_TEMPHOTCH_OFFSET, 1, &reg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_TEMPHOTCH_OFFSET, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*Rth = __AEM13920_ConvertTEMPReg(reg, Rdiv);
+	*rth = __AEM13920_TEMPRegToOhm(reg, rdiv);
 
 	return rc;
 }
 
-int32_t AEM13920_GetDischargeColdThresholdZ(	const AEM_i2c_cfg *i2cCfg, 	\
-						uint32_t *Rth, uint32_t Rdiv)
+int32_t AEM13920_SetTempHotChargeThresh(					\
+	const AEM13920_Handler_t *handler, 					\
+	uint32_t rth, 								\
+	uint32_t rdiv)
+{
+	uint8_t reg = __AEM13920_TEMPOhmToReg(rth, rdiv);
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_TEMPHOTCH_OFFSET, reg);
+}
+
+int32_t AEM13920_GetTempColdDischargeThresh(					\
+	const AEM13920_Handler_t *handler,					\
+	uint32_t *rth, 								\
+	uint32_t rdiv)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 
-	if (!Rth) {
+	if (!rth) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_TEMPCOLDDIS_OFFSET, 1, &reg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_TEMPCOLDDIS_OFFSET, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*Rth = __AEM13920_ConvertTEMPReg(reg, Rdiv);
+	*rth = __AEM13920_TEMPRegToOhm(reg, rdiv);
 
 	return rc;
 }
 
-int32_t AEM13920_GetDischargeHotThresholdZ(	const AEM_i2c_cfg *i2cCfg, 	\
-						uint32_t *Rth, uint32_t Rdiv)
+int32_t AEM13920_SetTempColdDischargeThresh(					\
+	const AEM13920_Handler_t *handler,					\
+	uint32_t rth, 								\
+	uint32_t rdiv)
+{
+	uint8_t reg = __AEM13920_TEMPOhmToReg(rth, rdiv);
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_TEMPCOLDDIS_OFFSET, reg);
+}
+
+int32_t AEM13920_GetTempHotDischargeThresh(					\
+	const AEM13920_Handler_t *handler, 					\
+	uint32_t *rth, 								\
+	uint32_t rdiv)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
 
-	if (!Rth) {
+	if (!rth) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_TEMPHOTDIS_OFFSET, 1, &reg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_TEMPHOTDIS_OFFSET, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	*Rth = __AEM13920_ConvertTEMPReg(reg, Rdiv);
+	*rth = __AEM13920_TEMPRegToOhm(reg, rdiv);
 
 	return rc;
 }
 
-int32_t AEM13920_GetTempMonEnable(const AEM_i2c_cfg *i2cCfg, bool *en)
+int32_t AEM13920_SetTempHotDischargeThresh(					\
+	const AEM13920_Handler_t *handler, 					\
+	uint32_t rth, 								\
+	uint32_t rdiv)
+{
+	uint8_t reg = __AEM13920_TEMPOhmToReg(rth, rdiv);
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_TEMPHOTDIS_OFFSET, reg);
+}
+
+int32_t AEM13920_EnableTempMon(const AEM13920_Handler_t *handler)
+{
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_TMON_OFFSET, AEM13920_TMON_EN_Msk);
+}
+
+int32_t AEM13920_DisableTempMon(const AEM13920_Handler_t *handler)
+{
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_TMON_OFFSET, 0);
+}
+
+int32_t AEM13920_IsEnabledTempMon(const AEM13920_Handler_t *handler, bool *en)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
@@ -1798,7 +2005,8 @@ int32_t AEM13920_GetTempMonEnable(const AEM_i2c_cfg *i2cCfg, bool *en)
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_TMON_OFFSET, 1, &reg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_TMON_OFFSET, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
@@ -1807,7 +2015,264 @@ int32_t AEM13920_GetTempMonEnable(const AEM_i2c_cfg *i2cCfg, bool *en)
 	return rc;
 }
 
-int32_t AEM13920_GetAPMMode(const AEM_i2c_cfg *i2cCfg, AEM13920_APM_MODE *mode)
+int32_t AEM13920_SetSRCLOWConfig(						\
+	const AEM13920_Handler_t *handler, 					\
+	const AEM13920_SRCLOWCFG_t *cfg)
+{
+	uint8_t reg = 0;
+
+	reg = __AEM13920_SRCLOWHRToReg(cfg);
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_SRCLOW_OFFSET, reg);
+}
+
+int32_t AEM13920_GetSRCLOWConfig(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SRCLOWCFG_t *cfg)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!cfg) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_SRCLOW_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+
+	__AEM13920_SRCLOWRegToHR(reg, cfg);
+	
+	return rc;
+}
+
+int32_t AEM13920_SetSRCLowThresh(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src,							\
+	AEM13920_SRCLOW_THRESH thresh)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_SRCLOW_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	if (src == AEM13920_SRC1) {
+		reg &= ~AEM13920_SRCLOW_SRC1THRESH_Msk;
+		reg |= ((thresh << AEM13920_SRCLOW_SRC1THRESH_Pos) 		\
+			& AEM13920_SRCLOW_SRC1THRESH_Msk);
+	} else {
+		reg &= ~AEM13920_SRCLOW_SRC2THRESH_Msk;
+		reg |= ((thresh << AEM13920_SRCLOW_SRC2THRESH_Pos) 		\
+			& AEM13920_SRCLOW_SRC2THRESH_Msk);
+	}
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_SRCLOW_OFFSET, reg);
+}
+
+int32_t AEM13920_GetSRCLowThresh(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src,							\
+	AEM13920_SRCLOW_THRESH *thresh)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!thresh) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_SRCLOW_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+
+	if (src == AEM13920_SRC1) {
+		*thresh = (	(reg & AEM13920_SRCLOW_SRC1THRESH_Msk) 		\
+				>> AEM13920_SRCLOW_SRC1THRESH_Pos);
+	} else {
+		*thresh = (	(reg & AEM13920_SRCLOW_SRC2THRESH_Msk) 		\
+				>> AEM13920_SRCLOW_SRC2THRESH_Pos);
+	}
+	
+	return rc;
+}
+
+int32_t AEM13920_SetAPMConfig(							\
+	const AEM13920_Handler_t *handler, 					\
+	const AEM13920_APMCFG_t *cfg)
+{
+	uint8_t reg = 0;
+
+	if (!cfg) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	reg = __AEM13920_APMHRToReg(cfg);
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, reg);
+}
+
+int32_t AEM13920_GetAPMConfig(							\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_APMCFG_t *cfg)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!cfg) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+
+	__AEM13920_APMRegToHR(reg, cfg);
+
+	return rc;
+}
+
+int32_t AEM13920_EnableAPMSource(						\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg |= (AEM13920_APM_SRC1EN_Msk << src);
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableAPMSource(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~(AEM13920_APM_SRC1EN_Msk << src);
+
+	return __AEM13920_WriteRegister(handler->i2c_cfg, AEM13920_APM_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledAPMSource(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src,							\
+	bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!en) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool) (reg & (AEM13920_APM_SRC1EN_Msk << src));
+
+	return rc;
+}
+
+int32_t AEM13920_EnableAPMBuck(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg |= AEM13920_APM_BUCKEN_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableAPMBuck(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_APM_BUCKEN_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledAPMBuck(const AEM13920_Handler_t *handler, bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!en) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool) (reg & AEM13920_APM_BUCKEN_Msk);
+
+	return rc;
+}
+
+int32_t AEM13920_SetAPMMode(							\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_APM_MODE mode)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_APM_MODE_Msk;
+	reg |= ((mode << AEM13920_APM_MODE_Pos) & AEM13920_APM_MODE_Msk);
+
+	return __AEM13920_WriteRegister(handler->i2c_cfg, AEM13920_APM_OFFSET, reg);
+}
+
+int32_t AEM13920_GetAPMMode(							\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_APM_MODE *mode)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
@@ -1816,7 +2281,8 @@ int32_t AEM13920_GetAPMMode(const AEM_i2c_cfg *i2cCfg, AEM13920_APM_MODE *mode)
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
@@ -1826,7 +2292,27 @@ int32_t AEM13920_GetAPMMode(const AEM_i2c_cfg *i2cCfg, AEM13920_APM_MODE *mode)
 	return rc;
 }
 
-int32_t AEM13920_GetAPMWindow(const AEM_i2c_cfg *i2cCfg, AEM13920_APM_WINDOW *window)
+int32_t AEM13920_SetAPMWindow(							\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_APM_WINDOW window)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_APM_WINDOW_Msk;
+	reg |= ((window << AEM13920_APM_WINDOW_Pos) & AEM13920_APM_WINDOW_Msk);
+
+	return __AEM13920_WriteRegister(handler->i2c_cfg, AEM13920_APM_OFFSET, reg);
+}
+
+int32_t AEM13920_GetAPMWindow(							\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_APM_WINDOW *window)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
 	uint8_t reg = 0;
@@ -1835,7 +2321,8 @@ int32_t AEM13920_GetAPMWindow(const AEM_i2c_cfg *i2cCfg, AEM13920_APM_WINDOW *wi
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &reg);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
@@ -1845,124 +2332,1512 @@ int32_t AEM13920_GetAPMWindow(const AEM_i2c_cfg *i2cCfg, AEM13920_APM_WINDOW *wi
 	return rc;
 }
 
-int32_t AEM13920_GetAPMSourceEnable(	const AEM_i2c_cfg *i2cCfg, 		\
-					AEM13920_Source src, bool *en)
+int32_t AEM13920_SetIRQConfig(							\
+	const AEM13920_Handler_t *handler, 					\
+	const AEM13920_IRQEN_t *irqs)
 {
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-
-	if (!en) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-	if (src > AEM13920_SRC2) {
-		return AEM13920_DRIVER_ERR_SRC;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	*en = (bool) (reg & (AEM13920_APM_SRC1EN_Msk << src));
-
-	return rc;
-}
-
-int32_t AEM13920_GetAPMBuckEnable(const AEM_i2c_cfg *i2cCfg, bool *en)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg = 0;
-
-	if (!en) {
-		return AEM13920_DRIVER_ERR_PARAMETER;
-	}
-
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_APM_OFFSET, 1, &reg);
-	if (rc != AEM13920_DRIVER_OK) {
-		return rc;
-	}
-	*en = (bool) (reg & AEM13920_APM_BUCKEN_Msk);
-
-	return rc;
-}
-
-int32_t AEM13920_GetIRQConfiguration(	const AEM_i2c_cfg *i2cCfg, 		\
-					AEM13920_IRQEN *irqs)
-{
-	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t reg[2] = {0};
+	uint8_t regs[2] = {0};
 
 	if (!irqs) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(i2cCfg, AEM13920_IRQEN0_OFFSET, 2, reg);
+	__AEM13920_IRQENHRToReg(irqs, regs);
+
+	return __AEM13920_WriteRegisters(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 2, regs);
+}
+
+int32_t AEM13920_GetIRQConfig(							\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_IRQEN_t *irqs)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t regs[2] = {0};
+
+	if (!irqs) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 2, regs);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	__AEM13920_ConvertIRQENReg(reg[0], reg[1], irqs);
+
+	__AEM13920_IRQENRegToHR(regs, irqs);
 
 	return rc;
 }
 
-int32_t AEM13920_Configure(const AEM_i2c_cfg *i2cCfg, const AEM13920_Config *cfg)
+int32_t AEM13920_EnableI2CReadyIRQ(const AEM13920_Handler_t *handler)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t cfgReg[AEM13920_CFG_LENGTH] = {0};
-	bool syncing = true;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg |= AEM13920_IRQEN0_I2CRDY_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableI2CReadyIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_IRQEN0_I2CRDY_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledI2CReadyIRQ(const AEM13920_Handler_t *handler, bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool)(	(reg & AEM13920_IRQEN0_I2CRDY_Msk) 			\
+			>> AEM13920_IRQEN0_I2CRDY_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_EnableOverdischargeIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg |= AEM13920_IRQEN0_VOVDIS_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableOverdischargeIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_IRQEN0_VOVDIS_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledOverdischargeIRQ(					\
+	const AEM13920_Handler_t *handler, 					\
+	bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool)(	(reg & AEM13920_IRQEN0_VOVDIS_Msk) 			\
+			>> AEM13920_IRQEN0_VOVDIS_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_EnableChargeReadyIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg |= AEM13920_IRQEN0_VCHRDY_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableChargeReadyIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_IRQEN0_VCHRDY_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledChargeReadyIRQ(					\
+	const AEM13920_Handler_t *handler, 					\
+	bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool)(	(reg & AEM13920_IRQEN0_VCHRDY_Msk) 			\
+			>> AEM13920_IRQEN0_VCHRDY_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_EnableOverchargeIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg |= AEM13920_IRQEN0_VOVCH_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableOverchargeIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_IRQEN0_VOVCH_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledOverchargeIRQ(const AEM13920_Handler_t *handler, bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool)(	(reg & AEM13920_IRQEN0_VOVCH_Msk) 			\
+			>> AEM13920_IRQEN0_VOVCH_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_EnableSRCLowIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg |= AEM13920_IRQEN0_SRCLOW_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableSRCLowIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_IRQEN0_SRCLOW_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledSRCLowIRQ(const AEM13920_Handler_t *handler, bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool)(	(reg & AEM13920_IRQEN0_SRCLOW_Msk) 			\
+			>> AEM13920_IRQEN0_SRCLOW_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_EnableTempChargeIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg |= AEM13920_IRQEN0_TEMPCH_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableTempChargeIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_IRQEN0_TEMPCH_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledTempChargeIRQ(const AEM13920_Handler_t *handler, bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool)(	(reg & AEM13920_IRQEN0_TEMPCH_Msk) 			\
+			>> AEM13920_IRQEN0_TEMPCH_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_EnableTempDischargeIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg |= AEM13920_IRQEN0_TEMPDIS_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableTempDischargeIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	reg &= ~AEM13920_IRQEN0_TEMPDIS_Msk;
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledTempDischargeIRQ(					\
+	const AEM13920_Handler_t *handler, 					\
+	bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN0_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool)(	(reg & AEM13920_IRQEN0_TEMPDIS_Msk) 			\
+			>> AEM13920_IRQEN0_TEMPDIS_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_EnableMPPTStartIRQ(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	if (src == AEM13920_SRC1) {
+		reg |= AEM13920_IRQEN1_SRC1MPPTSTART_Msk;
+	} else {
+		reg |= AEM13920_IRQEN1_SRC2MPPTSTART_Msk;
+	}
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableMPPTStartIRQ(						\
+	const AEM13920_Handler_t *handler,					\
+	AEM13920_SOURCE src)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	if (src == AEM13920_SRC1) {
+		reg &= ~AEM13920_IRQEN1_SRC1MPPTSTART_Msk;
+	} else {
+		reg &= ~AEM13920_IRQEN1_SRC2MPPTSTART_Msk;
+	}
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledMPPTStartIRQ(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src, 							\
+	bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+
+	if (src == AEM13920_SRC1) {
+		*en = (bool)(	(reg & AEM13920_IRQEN1_SRC1MPPTSTART_Msk) 	\
+				>> AEM13920_IRQEN1_SRC1MPPTSTART_Pos);
+	} else {
+		*en = (bool)(	(reg & AEM13920_IRQEN1_SRC2MPPTSTART_Msk) 	\
+				>> AEM13920_IRQEN1_SRC2MPPTSTART_Pos);
+	}
+	
+	return rc;
+}
+
+int32_t AEM13920_EnableMPPTDoneIRQ(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	if (src == AEM13920_SRC1) {
+		reg |= AEM13920_IRQEN1_SRC1MPPTDONE_Msk;
+	} else {
+		reg |= AEM13920_IRQEN1_SRC2MPPTDONE_Msk;
+	}
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableMPPTDoneIRQ(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	if (src == AEM13920_SRC1) {
+		reg &= ~AEM13920_IRQEN1_SRC1MPPTDONE_Msk;
+	} else {
+		reg &= ~AEM13920_IRQEN1_SRC2MPPTDONE_Msk;
+	}
+
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledMPPTDoneIRQ(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src, 							\
+	bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+
+	if (src == AEM13920_SRC1) {
+		*en = (bool)(	(reg & AEM13920_IRQEN1_SRC1MPPTDONE_Msk) 	\
+				>> AEM13920_IRQEN1_SRC1MPPTDONE_Pos);
+	} else {
+		*en = (bool)(	(reg & AEM13920_IRQEN1_SRC2MPPTDONE_Msk) 	\
+				>> AEM13920_IRQEN1_SRC2MPPTDONE_Pos);
+	}
+	
+	return rc;
+}
+
+int32_t AEM13920_EnableSTODoneIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	reg |= AEM13920_IRQEN1_STODONE_Msk;
+	
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableSTODoneIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	reg &= ~AEM13920_IRQEN1_STODONE_Msk;
+	
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledSTODoneIRQ(const AEM13920_Handler_t *handler, bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool)(	(reg & AEM13920_IRQEN1_STODONE_Msk) 			\
+			>> AEM13920_IRQEN1_STODONE_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_EnableTempDoneIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	reg |= AEM13920_IRQEN1_TEMPDONE_Msk;
+	
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableTempDoneIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	reg &= ~AEM13920_IRQEN1_TEMPDONE_Msk;
+	
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledTempDoneIRQ(const AEM13920_Handler_t *handler, bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool)(	(reg & AEM13920_IRQEN1_TEMPDONE_Msk) 			\
+			>> AEM13920_IRQEN1_TEMPDONE_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_EnableAPMDoneIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	reg |= AEM13920_IRQEN1_APMDONE_Msk;
+	
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableAPMDoneIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	reg &= ~AEM13920_IRQEN1_APMDONE_Msk;
+	
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledAPMDoneIRQ(const AEM13920_Handler_t *handler, bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool)(	(reg & AEM13920_IRQEN1_APMDONE_Msk) 			\
+			>> AEM13920_IRQEN1_APMDONE_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_EnableAPMErrIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	reg |= AEM13920_IRQEN1_APMERR_Msk;
+	
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, reg);
+}
+
+int32_t AEM13920_DisableAPMErrIRQ(const AEM13920_Handler_t *handler)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	reg &= ~AEM13920_IRQEN1_APMERR_Msk;
+	
+	return __AEM13920_WriteRegister(					\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, reg);
+}
+
+int32_t AEM13920_IsEnabledAPMErrIRQ(const AEM13920_Handler_t *handler, bool *en)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQEN1_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*en = (bool)(	(reg & AEM13920_IRQEN1_APMERR_Msk) 			\
+			>> AEM13920_IRQEN1_APMERR_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_SetConfigurationMode(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_CONFIG_MODE mode)
+{
+	uint8_t reg = (mode & AEM13920_CTRL_UPDATE_Msk);
+
+	return __AEM13920_WriteRegisters(					\
+		handler->i2c_cfg, AEM13920_CTRL_OFFSET, 1, &reg);
+}
+
+int32_t AEM13920_GetConfigurationMode(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_CONFIG_MODE *mode)
+{
+	uint8_t data = 0;
+	int32_t rc = AEM13920_DRIVER_OK;
+	
+	if (!mode) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_CTRL_OFFSET, 1, &data);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*mode = ((data & AEM13920_CTRL_UPDATE_Msk) >> AEM13920_CTRL_UPDATE_Pos);
+	
+	return rc;
+}
+
+int32_t AEM13920_SyncI2CConfiguration(						\
+	const AEM13920_Handler_t *handler, 					\
+	bool blocking)
+{
+	uint8_t reg = AEM13920_CTRL_UPDATE_Msk;
+	int32_t rc = AEM13920_DRIVER_OK;
+	bool syncing = blocking;
+
+	rc = __AEM13920_WriteRegisters(						\
+		handler->i2c_cfg, AEM13920_CTRL_OFFSET, 1, &reg);
+	while (syncing) {
+		if (rc != AEM13920_DRIVER_OK) {
+			return rc;
+		}
+		rc = AEM13920_IsSyncingI2CConfiguration(handler, &syncing);
+	}
+
+	return rc;
+}
+
+int32_t AEM13920_IsSyncingI2CConfiguration(					\
+	const AEM13920_Handler_t *handler,					\
+	bool *syncing)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_CTRL_OFFSET, 1, &reg);
+
+	*syncing = (bool)(reg & AEM13920_CTRL_SYNCBUSY_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetChipVersion(						\
+	const AEM13920_Handler_t *handler, 					\
+	uint8_t *version)
+{
+	if (!version) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	return __AEM13920_ReadRegisters(					\
+		handler->i2c_cfg, AEM13920_VERSION_OFFSET, 1, version);
+}
+
+int32_t AEM13920_GetIRQFlags(							\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_IRQFLG_t *flags)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t regs[2] = {0};
+
+	if (!flags) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG0_OFFSET, 2, regs);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+
+	__AEM13920_IRQFLGRegToHR(regs, flags);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetI2CReadyFlag(const AEM13920_Handler_t *handler, bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG0_OFFSET, 1, &reg);
+	*flag = (bool)(reg & AEM13920_IRQFLG0_I2CRDY_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetOverdischargeFlag(						\
+	const AEM13920_Handler_t *handler, 					\
+	bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG0_OFFSET, 1, &reg);
+	*flag = (bool)(reg & AEM13920_IRQFLG0_VOVDIS_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetChargeReadyFlag(const AEM13920_Handler_t *handler, bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG0_OFFSET, 1, &reg);
+	*flag = (bool)(reg & AEM13920_IRQFLG0_VCHRDY_Msk);
+	
+	return rc;
+}
+
+
+int32_t AEM13920_GetOverchargeFlag(const AEM13920_Handler_t *handler, bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG0_OFFSET, 1, &reg);
+	*flag = (bool)(reg & AEM13920_IRQFLG0_VOVCH_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetSRCLowFlag(const AEM13920_Handler_t *handler, bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG0_OFFSET, 1, &reg);
+	*flag = (bool)(reg & AEM13920_IRQFLG0_SRCLOW_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetTempChargeFlag(const AEM13920_Handler_t *handler, bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG0_OFFSET, 1, &reg);
+	*flag = (bool)(reg & AEM13920_IRQFLG0_TEMPCH_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetTempDischargeFlag(						\
+	const AEM13920_Handler_t *handler, 					\
+	bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG0_OFFSET, 1, &reg);
+	*flag = (bool)(reg & AEM13920_IRQFLG0_TEMPDIS_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetMPPTStartFlag(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src , 							\
+	bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG1_OFFSET, 1, &reg);
+	
+	if (src == AEM13920_SRC1) {
+		*flag = (bool)(reg & AEM13920_IRQFLG1_SRC1MPPTSTART_Msk);
+	} else {
+		*flag = (bool)(reg & AEM13920_IRQFLG1_SRC2MPPTSTART_Msk);
+	}
+	
+	return rc;
+}
+
+int32_t AEM13920_GetMPPTDoneFlag(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src , 							\
+	bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG1_OFFSET, 1, &reg);
+	
+	if (src == AEM13920_SRC1) {
+		*flag = (bool)(reg & AEM13920_IRQFLG1_SRC1MPPTDONE_Msk);
+	} else {
+		*flag = (bool)(reg & AEM13920_IRQFLG1_SRC2MPPTDONE_Msk);
+	}
+	
+	return rc;
+}
+
+int32_t AEM13920_GetSTODoneFlag(const AEM13920_Handler_t *handler, bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG1_OFFSET, 1, &reg);
+	
+	*flag = (bool)(reg & AEM13920_IRQFLG1_STODONE_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetTempDoneFlag(const AEM13920_Handler_t *handler, bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG1_OFFSET, 1, &reg);
+	
+	*flag = (bool)(reg & AEM13920_IRQFLG1_TEMPDONE_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetAPMDoneFlag(const AEM13920_Handler_t *handler, bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG1_OFFSET, 1, &reg);
+	
+	*flag = (bool)(reg & AEM13920_IRQFLG1_APMDONE_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetAPMErrFlag(const AEM13920_Handler_t *handler, bool *flag)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!flag) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_IRQFLG1_OFFSET, 1, &reg);
+	
+	*flag = (bool)(reg & AEM13920_IRQFLG1_APMERR_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetStatus(							\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_STATUS_t *status)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t regs[2] = {0};
+	
+	if (!status) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_STATUS0_OFFSET, 2, regs);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+
+	__AEM13920_STATUSRegToHR(regs, status);
+
+	return rc;
+}
+
+int32_t AEM13920_GetOverdischargeStatus(					\
+	const AEM13920_Handler_t *handler, 					\
+	bool *status)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!status) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_STATUS0_OFFSET, 1, &reg);
+	*status = (bool)(reg & AEM13920_STATUS0_VOVDIS_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetChargeReadyStatus(						\
+	const AEM13920_Handler_t *handler, 					\
+	bool *status)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!status) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_STATUS0_OFFSET, 1, &reg);
+	*status = (bool)(reg & AEM13920_STATUS0_VCHRDY_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetOverchargeStatus(						\
+	const AEM13920_Handler_t *handler, 					\
+	bool *status)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!status) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_STATUS0_OFFSET, 1, &reg);
+	*status = (bool)(reg & AEM13920_STATUS0_VOVCH_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetSRCLowStatus(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src, 							\
+	bool *status)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!status) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_STATUS0_OFFSET, 1, &reg);
+	
+	if (src == AEM13920_SRC1) {
+		*status = (bool)(reg & AEM13920_STATUS0_SRC1SRCLOW_Msk);
+	} else  {
+		*status = (bool)(reg & AEM13920_STATUS0_SRC2SRCLOW_Msk);
+	}
+	
+	return rc;
+}
+
+int32_t AEM13920_GetTempHotChargeStatus(					\
+	const AEM13920_Handler_t *handler, 					\
+	bool *status)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!status) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_STATUS1_OFFSET, 1, &reg);
+	*status = (bool)(reg & AEM13920_STATUS1_TEMPHOTCH_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetTempHotDischargeStatus(					\
+	const AEM13920_Handler_t *handler, 					\
+	bool *status)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!status) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_STATUS1_OFFSET, 1, &reg);
+	*status = (bool)(reg & AEM13920_STATUS1_TEMPHOTDIS_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetTempColdChargeStatus(					\
+	const AEM13920_Handler_t *handler, 					\
+	bool *status)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!status) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_STATUS1_OFFSET, 1, &reg);
+	*status = (bool)(reg & AEM13920_STATUS1_TEMPCOLDCH_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetTempColdDischargeStatus(					\
+	const AEM13920_Handler_t *handler, 					\
+	bool *status)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!status) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_STATUS1_OFFSET, 1, &reg);
+	*status = (bool)(reg & AEM13920_STATUS1_TEMPCOLDDIS_Msk);
+	
+	return rc;
+}
+
+int32_t AEM13920_GetAPMSourceData(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src, 							\
+	uint64_t *data)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint32_t offset = AEM13920_APM0SRC1_OFFSET + (3 * src);
+	uint8_t regs[3] = {0};
+	AEM13920_APM_MODE apm_mode = AEM13920_APM_MODE_PULSE_COUNTER;
+	uint8_t apm_cfg = 0;
+
+	if (!data) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 3, regs);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &apm_cfg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	if (!(apm_cfg & (AEM13920_APM_SRC1EN_Msk << src))) {
+		return AEM13920_DRIVER_ERR_APM_DISABLED;
+	}
+	apm_mode = ((apm_cfg & AEM13920_APM_MODE_Msk) >> AEM13920_APM_MODE_Pos);
+
+	__AEM13920_APMRegToVolt(regs, data, apm_mode);
+
+	return rc;
+}
+
+int32_t AEM13920_GetAPMBuckData(const AEM13920_Handler_t *handler, uint64_t *data)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint32_t offset = AEM13920_APM0BUCK_OFFSET;
+	uint8_t regs[3] = {0};
+	AEM13920_APM_MODE apm_mode = AEM13920_APM_MODE_PULSE_COUNTER;
+	AEM13920_VOUT vout = AEM13920_VOUT_OFF;
+	uint8_t apm_cfg = 0;
+
+	if (!data) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(handler->i2c_cfg, offset, 3, regs);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APM_OFFSET, 1, &apm_cfg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	if (!(apm_cfg & (AEM13920_APM_BUCKEN_Msk))) {
+		return AEM13920_DRIVER_ERR_APM_DISABLED;
+	}
+	rc = AEM13920_GetBuckVOUT(handler, &vout);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	if (vout == AEM13920_VOUT_OFF) {
+		return AEM13920_DRIVER_ERR_BUCK_DISABLED;
+	}
+	apm_mode = ((apm_cfg & AEM13920_APM_MODE_Msk) >> AEM13920_APM_MODE_Pos);
+
+	__AEM13920_APMRegToVolt(regs, data, apm_mode);
+
+	return rc;
+}
+
+int32_t AEM13920_GetAPMErrors(							\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_APMERR_t *errors)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	
+	if (!errors) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APMERR_OFFSET, 2, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	__AEM13920_APMERRRegToHR(reg, errors);
+
+	return rc;
+}
+
+int32_t AEM13920_IsAPMSourceOverflow(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src, 							\
+	bool *error)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	
+	if (!error) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APMERR_OFFSET, 2, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	if (src == AEM13920_SRC1) {
+		*error = (bool) (reg & AEM13920_APMERR_SRC1OV_Msk);
+	} else  {
+		*error = (bool) (reg & AEM13920_APMERR_SRC2OV_Msk);
+	}
+
+	return rc;
+}
+
+int32_t AEM13920_IsAPMSourceCorrupted(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_SOURCE src, 							\
+	bool *error)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	
+	if (!error) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APMERR_OFFSET, 2, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	if (src == AEM13920_SRC1) {
+		*error = (bool) (reg & AEM13920_APMERR_SRC1NVLD_Msk);
+	} else  {
+		*error = (bool) (reg & AEM13920_APMERR_SRC2NVLD_Msk);
+	}
+
+	return rc;
+}
+
+int32_t AEM13920_IsAPMBuckOverflow(const AEM13920_Handler_t *handler, bool *error)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	
+	if (!error) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APMERR_OFFSET, 2, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	*error = (bool) (reg & AEM13920_APMERR_BUCKOV_Msk);
+
+	return rc;
+}
+
+int32_t AEM13920_IsAPMBuckCorrupted(const AEM13920_Handler_t *handler, bool *error)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	
+	if (!error) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_APMERR_OFFSET, 2, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	
+	*error = (bool) (reg & AEM13920_APMERR_BUCKNVLD_Msk);
+
+	return rc;
+}
+
+int32_t AEM13920_GetThermistorZ(						\
+	const AEM13920_Handler_t *handler, 					\
+	uint32_t rdiv,								\
+	uint64_t *rth)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+	uint64_t dvr = 0;
+
+	if (!handler) {
+		return AEM_I2C_ERR_MISSING_CFG;
+	}
+	if (!rth) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_TEMP_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	dvr = (AEM13920_TEMP_CONV_DIV - reg);
+	*rth = ROUND_NEAREST_DIV((uint64_t) rdiv * reg, dvr);
+
+	return rc;
+}
+
+int32_t AEM13920_GetStorageVoltage(						\
+	const AEM13920_Handler_t *handler, 					\
+	uint32_t *vsto)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t reg = 0;
+
+	if (!vsto) {
+		return AEM13920_DRIVER_ERR_PARAMETER;
+	}
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, AEM13920_STO_OFFSET, 1, &reg);
+	if (rc != AEM13920_DRIVER_OK) {
+		return rc;
+	}
+	*vsto = ROUND_NEAREST_DIV(						\
+		AEM13920_VSTO_CONV_FACT * reg, AEM13920_VSTO_CONV_DIV);
+
+	return rc;
+}
+
+int32_t AEM13920_SetConfiguration(						\
+	const AEM13920_Handler_t *handler, 					\
+	const AEM13920_CONFIG_t *cfg,						\
+	bool blocking)
+{
+	int32_t rc = AEM13920_DRIVER_OK;
+	uint8_t regs[AEM13920_CFG_LENGTH] = {0};
+	bool syncing = blocking;
 
 	if (!cfg) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ComputeSRCREGUReg(cfg, cfgReg);
+	rc = __AEM13920_ComputeSRCREGUReg(cfg, regs);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	rc = __AEM13920_ComputeBSTCFGReg(cfg, cfgReg);
+	regs[AEM13920_VOVDIS_OFFSET - AEM13920_CFG_OFFSET] = 			\
+		__AEM13920_VOVDISVoltToReg(cfg->vovdis);
+	regs[AEM13920_VCHRDY_OFFSET - AEM13920_CFG_OFFSET] = 			\
+		__AEM13920_VCHRDYVoltToReg(cfg->vchrdy);
+	regs[AEM13920_VOVCH_OFFSET - AEM13920_CFG_OFFSET] =			\
+		__AEM13920_VOVCHVoltToReg(cfg->vovch);
+	rc = __AEM13920_ComputeBSTCFGReg(cfg, regs);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	rc = __AEM13920_ComputeBUCKCFGReg(cfg, cfgReg);
+	rc = __AEM13920_ComputeBUCKCFGReg(cfg, regs);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	rc = __AEM13920_ComputeSLEEPReg(cfg, cfgReg);
+	regs[AEM13920_TEMPCOLDCH_OFFSET - AEM13920_CFG_OFFSET] = 		\
+		__AEM13920_TEMPOhmToReg(cfg->temp_cold_ch_rth, cfg->temp_rdiv);
+	regs[AEM13920_TEMPCOLDDIS_OFFSET - AEM13920_CFG_OFFSET] = 		\
+		__AEM13920_TEMPOhmToReg(cfg->temp_cold_dis_rth, cfg->temp_rdiv);
+	regs[AEM13920_TEMPHOTCH_OFFSET - AEM13920_CFG_OFFSET] = 		\
+		__AEM13920_TEMPOhmToReg(cfg->temp_hot_ch_rth, cfg->temp_rdiv);
+	regs[AEM13920_TEMPHOTDIS_OFFSET - AEM13920_CFG_OFFSET] = 		\
+		__AEM13920_TEMPOhmToReg(cfg->temp_hot_dis_rth, cfg->temp_rdiv);
+	regs[AEM13920_TMON_OFFSET - AEM13920_CFG_OFFSET] = (uint8_t)		\
+		(cfg->temp_mon_enable << AEM13920_TMON_EN_Pos);
+	rc = __AEM13920_ComputeSRCLOWReg(cfg, regs);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	rc = __AEM13920_ComputeAPMReg(cfg, cfgReg);
+	rc = __AEM13920_ComputeAPMReg(cfg, regs);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
-	__AEM13920_ComputeIRQENReg(	
-		&(cfg->irq), &(cfgReg[AEM13920_IRQEN0_OFFSET - AEM13920_CFG_OFFSET]));
-	cfgReg[AEM13920_VOVDIS_OFFSET - AEM13920_CFG_OFFSET] = 			\
-		__AEM13920_ComputeVOVDISReg(cfg->dischargeThresh);
-	cfgReg[AEM13920_VCHRDY_OFFSET - AEM13920_CFG_OFFSET] = 			\
-		__AEM13920_ComputeVCHRDYReg(cfg->chargeReadyThresh);
-	cfgReg[AEM13920_VOVCH_OFFSET - AEM13920_CFG_OFFSET] =			\
-		__AEM13920_ComputeVOVCHReg(cfg->overchargeThresh);
-	cfgReg[AEM13920_TEMPCOLDCH_OFFSET - AEM13920_CFG_OFFSET] = 		\
-		__AEM13920_ComputeTEMPXTHRESHReg(cfg->coldChThreshZ, cfg->Rdiv);
-	cfgReg[AEM13920_TEMPCOLDDIS_OFFSET - AEM13920_CFG_OFFSET] = 		\
-		__AEM13920_ComputeTEMPXTHRESHReg(cfg->coldDisThreshZ, cfg->Rdiv);
-	cfgReg[AEM13920_TEMPHOTCH_OFFSET - AEM13920_CFG_OFFSET] = 		\
-		__AEM13920_ComputeTEMPXTHRESHReg(cfg->hotChThreshZ, cfg->Rdiv);
-	cfgReg[AEM13920_TEMPHOTDIS_OFFSET - AEM13920_CFG_OFFSET] = 		\
-		__AEM13920_ComputeTEMPXTHRESHReg(cfg->hotDisThreshZ, cfg->Rdiv);
-	cfgReg[AEM13920_TMON_OFFSET - AEM13920_CFG_OFFSET] = (uint8_t)		\
-		(cfg->enableTempMonitoring << AEM13920_TMON_EN_Pos);
-	cfgReg[AEM13920_CTRL_OFFSET - AEM13920_CFG_OFFSET] = 			\
+	__AEM13920_ComputeIRQENReg(cfg, regs);
+	
+	regs[AEM13920_CTRL_OFFSET - AEM13920_CFG_OFFSET] = 			\
 		AEM13920_CTRL_UPDATE_Msk;
 
-	rc = __AEM13920_WriteRegisters(	i2cCfg, AEM13920_CFG_OFFSET, 		\
-					AEM13920_CFG_LENGTH, cfgReg);
+	rc = __AEM13920_WriteRegisters(						\
+		handler->i2c_cfg, 						\
+		AEM13920_CFG_OFFSET, 						\
+		AEM13920_CFG_LENGTH, 						\
+		regs);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
 
 	while (syncing) {
-		rc = AEM13920_GetSynchronizationStatus(i2cCfg, &syncing);
+		rc = AEM13920_IsSyncingI2CConfiguration(handler, &syncing);
 		if (rc != AEM13920_DRIVER_OK) {
 			return rc;
 		}
@@ -1971,50 +3846,59 @@ int32_t AEM13920_Configure(const AEM_i2c_cfg *i2cCfg, const AEM13920_Config *cfg
 	return rc;
 }
 
-int32_t AEM13920_GetConfiguration(const AEM_i2c_cfg *i2cCfg, AEM13920_Config *cfg)
+int32_t AEM13920_GetConfiguration(						\
+	const AEM13920_Handler_t *handler, 					\
+	AEM13920_CONFIG_t *cfg)
 {
 	int32_t rc = AEM13920_DRIVER_OK;
-	uint8_t cfgReg[AEM13920_CFG_LENGTH] = {0};
+	uint8_t regs[AEM13920_CFG_LENGTH] = {0};
 
 	if (!cfg) {
 		return AEM13920_DRIVER_ERR_PARAMETER;
 	}
 
-	rc = __AEM13920_ReadRegisters(	i2cCfg, AEM13920_CFG_OFFSET, 		\
-					AEM13920_CFG_LENGTH, cfgReg);
+	rc = __AEM13920_ReadRegisters(						\
+		handler->i2c_cfg, 						\
+		AEM13920_CFG_OFFSET, 						\
+		AEM13920_CFG_LENGTH, 						\
+		regs);
 	if (rc != AEM13920_DRIVER_OK) {
 		return rc;
 	}
 
-	__AEM13920_ConvertSRCREGUReg(i2cCfg, cfgReg, cfg);
-	cfg->dischargeThresh =	__AEM13920_ConvertVOVDISReg(			\
-		cfgReg[AEM13920_VOVDIS_OFFSET - AEM13920_CFG_OFFSET]);
-	cfg->chargeReadyThresh = __AEM13920_ConvertVCHRDYReg(			\
-		cfgReg[AEM13920_VCHRDY_OFFSET - AEM13920_CFG_OFFSET]);
-	cfg->overchargeThresh =	__AEM13920_ConvertVOVCHReg(			\
-		cfgReg[AEM13920_VOVCH_OFFSET - AEM13920_CFG_OFFSET]);
+	__AEM13920_ConvertSRCREGUReg(regs, cfg);
+	cfg->vovdis = __AEM13920_VOVDISRegToVolt(				\
+		regs[AEM13920_VOVDIS_OFFSET - AEM13920_CFG_OFFSET]);
+	cfg->vchrdy = __AEM13920_VCHRDYRegToVolt(				\
+		regs[AEM13920_VCHRDY_OFFSET - AEM13920_CFG_OFFSET]);
+	cfg->vovch = __AEM13920_VOVCHRegToVolt(					\
+		regs[AEM13920_VOVCH_OFFSET - AEM13920_CFG_OFFSET]);
 	__AEM13920_ConvertBSTCFGReg(						\
-		cfgReg[AEM13920_BST1CFG_OFFSET - AEM13920_CFG_OFFSET], 		\
-		cfgReg[AEM13920_BST2CFG_OFFSET - AEM13920_CFG_OFFSET], cfg);
+		regs[AEM13920_BST1CFG_OFFSET - AEM13920_CFG_OFFSET], 		\
+		regs[AEM13920_BST2CFG_OFFSET - AEM13920_CFG_OFFSET], cfg);
 	__AEM13920_ConvertBUCKCFGReg(						\
-		cfgReg[AEM13920_BUCKCFG_OFFSET - AEM13920_CFG_OFFSET], cfg);
-	cfg->coldChThreshZ = __AEM13920_ConvertTEMPReg(				\
-		cfgReg[AEM13920_TEMPCOLDCH_OFFSET - AEM13920_CFG_OFFSET], cfg->Rdiv);
-	cfg->hotChThreshZ = __AEM13920_ConvertTEMPReg(				\
-		cfgReg[AEM13920_TEMPHOTCH_OFFSET - AEM13920_CFG_OFFSET], cfg->Rdiv);
-	cfg->coldDisThreshZ = __AEM13920_ConvertTEMPReg(			\
-		cfgReg[AEM13920_TEMPCOLDDIS_OFFSET - AEM13920_CFG_OFFSET], cfg->Rdiv);
-	cfg->hotDisThreshZ = __AEM13920_ConvertTEMPReg(				\
-		cfgReg[AEM13920_TEMPHOTDIS_OFFSET - AEM13920_CFG_OFFSET],cfg->Rdiv);
-	cfg->enableTempMonitoring = 						\
-		cfgReg[AEM13920_TMON_OFFSET - AEM13920_CFG_OFFSET];
-	__AEM13920_ConvertSLEEPReg(						\
-		cfgReg[AEM13920_SLEEP_OFFSET - AEM13920_CFG_OFFSET], cfg);
+		regs[AEM13920_BUCKCFG_OFFSET - AEM13920_CFG_OFFSET], cfg);
+	cfg->temp_cold_ch_rth = __AEM13920_TEMPRegToOhm(			\
+		regs[AEM13920_TEMPCOLDCH_OFFSET - AEM13920_CFG_OFFSET], 	\
+		cfg->temp_rdiv);
+	cfg->temp_hot_ch_rth = __AEM13920_TEMPRegToOhm(				\
+		regs[AEM13920_TEMPHOTCH_OFFSET - AEM13920_CFG_OFFSET], 		\
+		cfg->temp_rdiv);
+	cfg->temp_cold_dis_rth = __AEM13920_TEMPRegToOhm(			\
+		regs[AEM13920_TEMPCOLDDIS_OFFSET - AEM13920_CFG_OFFSET], 	\
+		cfg->temp_rdiv);
+	cfg->temp_hot_dis_rth = __AEM13920_TEMPRegToOhm(			\
+		regs[AEM13920_TEMPHOTDIS_OFFSET - AEM13920_CFG_OFFSET], 	\
+		cfg->temp_rdiv);
+	cfg->temp_mon_enable = regs[AEM13920_TMON_OFFSET - AEM13920_CFG_OFFSET];
+	__AEM13920_ConvertSRCLOWReg(						\
+		regs[AEM13920_SRCLOW_OFFSET - AEM13920_CFG_OFFSET], cfg);
 	__AEM13920_ConvertAPMReg(						\
-		cfgReg[AEM13920_APM_OFFSET - AEM13920_CFG_OFFSET], cfg);
+		regs[AEM13920_APM_OFFSET - AEM13920_CFG_OFFSET], cfg);
 	__AEM13920_ConvertIRQENReg(						\
-		cfgReg[AEM13920_IRQEN0_OFFSET - AEM13920_CFG_OFFSET], 		\
-		cfgReg[AEM13920_IRQEN1_OFFSET - AEM13920_CFG_OFFSET], &(cfg->irq));
+		regs[AEM13920_IRQEN0_OFFSET - AEM13920_CFG_OFFSET], 		\
+		regs[AEM13920_IRQEN1_OFFSET - AEM13920_CFG_OFFSET], cfg);
 
 	return rc;
 }
+

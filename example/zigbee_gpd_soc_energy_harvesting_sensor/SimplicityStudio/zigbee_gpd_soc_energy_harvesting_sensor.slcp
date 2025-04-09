@@ -62,12 +62,6 @@ other_file:
     directory: image
   - path: ../image/HA_Overview.png
     directory: image
-  - path: ../image/aem13920_config_user_enable.png
-    directory: image
-  - path: ../image/aem13920_change_config.png
-    directory: image
-  - path: ../image/aem13920_init_fct.png
-    directory: image
   - path: ../image/aem13920_quality_filter.png
     directory: image
   - path: ../image/gpd_sensor_application_support.png
@@ -180,7 +174,7 @@ configuration:
 
 sdk_extension:
 - id: energy_harvesting
-  version: 1.0.0
+  version: 1.1.0
 
 ui_hints:
   highlight:

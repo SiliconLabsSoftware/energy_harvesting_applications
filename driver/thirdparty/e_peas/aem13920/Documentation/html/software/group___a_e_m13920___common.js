@@ -1,68 +1,100 @@
 var group___a_e_m13920___common =
 [
     [ "Status/Error code", "group___a_e_m13920___s_t_a_t_u_s___e_r_r___c_o_d_e.html", "group___a_e_m13920___s_t_a_t_u_s___e_r_r___c_o_d_e" ],
-    [ "AEM13920_IRQFLG", "group___a_e_m13920___common.html#struct_a_e_m13920___i_r_q_f_l_g", [
-      [ "outOfReset", "group___a_e_m13920___common.html#a4e56cf2bdee8991da3e91cb8c26b2ff1", null ],
-      [ "discharge", "group___a_e_m13920___common.html#aa323da1ed9b5f412465e76986929ea30", null ],
-      [ "chargeReady", "group___a_e_m13920___common.html#ac7e6c5590304a5380c7e2e97a49ea7b6", null ],
-      [ "overcharge", "group___a_e_m13920___common.html#a75d336bb518c159c5853e6b2dc8246e4", null ],
-      [ "sleepThresh", "group___a_e_m13920___common.html#a3bb26061575ed8b48fcb233a3aa8a6ac", null ],
-      [ "tempChThresh", "group___a_e_m13920___common.html#ab69aa6edb89ff948073a0870a6e5b076", null ],
-      [ "tempDisThresh", "group___a_e_m13920___common.html#aec746d49c4131d5bd13542ef05387c9d", null ],
-      [ "__reserved", "group___a_e_m13920___common.html#aef88743ca8df44bf423a839b47e89cd6", null ],
-      [ "src1MPPTStart", "group___a_e_m13920___common.html#ace31290b5a0b5e7dd621fbdc0e458f42", null ],
-      [ "src1MPPTDone", "group___a_e_m13920___common.html#a52beea297216efa2e1610fb9a247283c", null ],
-      [ "src2MPPTStart", "group___a_e_m13920___common.html#ad8dc8e420607ea696d7f4e1622af7286", null ],
-      [ "src2MPPTDone", "group___a_e_m13920___common.html#ad844487cfcb259ff76b7216f21541924", null ],
-      [ "storageDone", "group___a_e_m13920___common.html#a2948890b803a91a79208d2655baed781", null ],
-      [ "tempDone", "group___a_e_m13920___common.html#ad6c0b5ec832ed58418c71caaafecbbee", null ],
-      [ "APMDone", "group___a_e_m13920___common.html#a6a02f82d427e6d2a4a2ad6c030624c25", null ],
-      [ "APMError", "group___a_e_m13920___common.html#ad9f0c4dddf88f3966c2d9a9a489baf8c", null ]
+    [ "AEM13920_MPPTCFG_t", "group___a_e_m13920___common.html#struct_a_e_m13920___m_p_p_t_c_f_g__t", [
+      [ "rsvd0", "group___a_e_m13920___common.html#aa9dc14e62ef416da633889fa4e63306e", null ],
+      [ "ratio", "group___a_e_m13920___common.html#a2f0794749e0c145977f4b866bcac2a9a", null ],
+      [ "rsvd1", "group___a_e_m13920___common.html#a47785237f89bef9982294be08d8dfe34", null ],
+      [ "duration", "group___a_e_m13920___common.html#a1d298fd6fc19577d5cee2f38b26aa560", null ],
+      [ "period", "group___a_e_m13920___common.html#ab8dc55755e6b93421ba4f45184601773", null ],
+      [ "rsvd2", "group___a_e_m13920___common.html#ab44be63f9747f10910e18a18ebc713f1", null ]
     ] ],
-    [ "AEM13920_IRQEN", "group___a_e_m13920___common.html#struct_a_e_m13920___i_r_q_e_n", [
-      [ "enableOutOfReset", "group___a_e_m13920___common.html#a9978131580471094b6152fe537ef92eb", null ],
-      [ "enableDischarge", "group___a_e_m13920___common.html#a8433fc39340165e877b9c546c5d17afb", null ],
-      [ "enableChargeReady", "group___a_e_m13920___common.html#a5a651f1f8c05d8b6561d1a1a79149269", null ],
-      [ "enableOvercharge", "group___a_e_m13920___common.html#a5cbd3dd1ba0ccf10ea2d0c33613dcc94", null ],
-      [ "enableSleepThresh", "group___a_e_m13920___common.html#a782792527b4c402bfc5ffe428d4383ca", null ],
-      [ "enableTempChThresh", "group___a_e_m13920___common.html#ac677fc1ce752e6dbd943a8b2a993d5bf", null ],
-      [ "enableTempDisThresh", "group___a_e_m13920___common.html#ae9089f0f0486def6f004307b9e945efa", null ],
-      [ "__reserved", "group___a_e_m13920___common.html#a7840fae98ee307083d3ae218f7d3204e", null ],
-      [ "enableSrc1MPPTStart", "group___a_e_m13920___common.html#a0645faf7e467a3d7a6017d22b7678d8f", null ],
-      [ "enableSrc1MPPTDone", "group___a_e_m13920___common.html#a4051dd248230493fc53ef7a75c9e5f86", null ],
-      [ "enableSrc2MPPTStart", "group___a_e_m13920___common.html#a25c91be102abadc23cb729abcfb0c91c", null ],
-      [ "enableSrc2MPPTDone", "group___a_e_m13920___common.html#a89e4390242324a86ccb22d2d04adb0f0", null ],
-      [ "enableStorageDone", "group___a_e_m13920___common.html#af3725d8d0a07ce3ab8d7ae907249a5e1", null ],
-      [ "enableTempDone", "group___a_e_m13920___common.html#acda1844e0b40a74c82f0da89331b7746", null ],
-      [ "enableAPMDone", "group___a_e_m13920___common.html#a258ba314cdf9f3c64d2f00fecc672266", null ],
-      [ "enableAPMError", "group___a_e_m13920___common.html#aab446dea1600c81062013a76ffef9da2", null ]
+    [ "AEM13920_BSTCFG_t", "group___a_e_m13920___common.html#struct_a_e_m13920___b_s_t_c_f_g__t", [
+      [ "enable", "group___a_e_m13920___common.html#a7fcf53110e01ce6152720a5afaaf7f43", null ],
+      [ "high_power_enable", "group___a_e_m13920___common.html#a44b88935d393366c1cac78d65b472b55", null ],
+      [ "tmult", "group___a_e_m13920___common.html#a38fa3da592a19f8824ae47ee2d8abe28", null ],
+      [ "__rsvd", "group___a_e_m13920___common.html#a02a3c44a33e21b4120643cfb20b7de81", null ]
     ] ],
-    [ "AEM13920_Status", "group___a_e_m13920___common.html#struct_a_e_m13920___status", [
-      [ "discharge", "group___a_e_m13920___common.html#a9f5338244a077af2ecb4fae9630410bd", null ],
-      [ "chargeReady", "group___a_e_m13920___common.html#a7ee41937830e024fd6c6e67589f6aea7", null ],
-      [ "overcharge", "group___a_e_m13920___common.html#a91005b3396e791e19643c403cb988338", null ],
-      [ "src1Sleep", "group___a_e_m13920___common.html#ab63f5e459ee23fcd1faad52b4c6b5732", null ],
-      [ "src2Sleep", "group___a_e_m13920___common.html#ab5026f19c8602b305e8823f1dc95a575", null ],
-      [ "__reserved0", "group___a_e_m13920___common.html#ae3019c7ea58d0f3011fc27c964cb6a53", null ],
-      [ "tempColdCharge", "group___a_e_m13920___common.html#ac4bce2883a07ba5299c9420deee33299", null ],
-      [ "tempHotCharge", "group___a_e_m13920___common.html#a542590ca5f27b3c6c9e42fce5a52c1d8", null ],
-      [ "tempColdDischarge", "group___a_e_m13920___common.html#aab6a3b61af2107ea459d09414c1877ca", null ],
-      [ "tempHotDischarge", "group___a_e_m13920___common.html#ada3d5680c07c0913a71db248911ed11f", null ],
-      [ "__reserved1", "group___a_e_m13920___common.html#af739e9d51dc438b150b50b6c7e497cb8", null ]
+    [ "AEM13920_BUCKCFG_t", "group___a_e_m13920___common.html#struct_a_e_m13920___b_u_c_k_c_f_g__t", [
+      [ "vout", "group___a_e_m13920___common.html#acfca6c562b7d5bca65334d7164d8c4db", null ],
+      [ "tmult", "group___a_e_m13920___common.html#a74ded5df6f0e901787356781612aa05c", null ],
+      [ "__rsvd", "group___a_e_m13920___common.html#a118bac76a15fe98538fa2ed4d2ec86ed", null ]
     ] ],
-    [ "AEM13920_APMERR", "group___a_e_m13920___common.html#struct_a_e_m13920___a_p_m_e_r_r", [
-      [ "src1CountOverflow", "group___a_e_m13920___common.html#aa175edb8062d935c57d4ec5b9c940223", null ],
-      [ "src1CountCorrupted", "group___a_e_m13920___common.html#af77f8ff1e9d49147a3d7c7ce0a86b7f6", null ],
-      [ "src2CountOverflow", "group___a_e_m13920___common.html#a397f0a7f98f83f5e2b42ac05057cd225", null ],
-      [ "src2CountCorrupted", "group___a_e_m13920___common.html#a5fa20ffedb3ce23b75e8b56628ba8c13", null ],
-      [ "buckCountOverflow", "group___a_e_m13920___common.html#a19d878587cd7ddd85f5ee7968d5ef091", null ],
-      [ "buckCountCorrupted", "group___a_e_m13920___common.html#aa64ec6c6b42f9ad1cd08b853f8ed489f", null ],
-      [ "__reserved", "group___a_e_m13920___common.html#a9b533301ee8562407963061809e0adc4", null ]
+    [ "AEM13920_SRCLOWCFG_t", "group___a_e_m13920___common.html#struct_a_e_m13920___s_r_c_l_o_w_c_f_g__t", [
+      [ "src1_thresh", "group___a_e_m13920___common.html#a17b28d6d3a176a0bdc017c50ac9c0cea", null ],
+      [ "src2_thresh", "group___a_e_m13920___common.html#a9dae6d6a4cf34c6de4e7535fe53f9d88", null ],
+      [ "__rsvd", "group___a_e_m13920___common.html#a57840b2fc47181ee43f4e609c548228a", null ]
+    ] ],
+    [ "AEM13920_APMCFG_t", "group___a_e_m13920___common.html#struct_a_e_m13920___a_p_m_c_f_g__t", [
+      [ "src1_enable", "group___a_e_m13920___common.html#a0cfdb4474f74a672a01dbfa0ee5c06ae", null ],
+      [ "src2_enable", "group___a_e_m13920___common.html#aac5e6d749f63387bb05a8473f5dcb036", null ],
+      [ "buck_enable", "group___a_e_m13920___common.html#aec4dc32f9b205040604b267d0ce9e622", null ],
+      [ "mode", "group___a_e_m13920___common.html#a906cd97a5ce6c7c188e13e0645c45d17", null ],
+      [ "window", "group___a_e_m13920___common.html#a146385cd29b75cd5ead2b5ee44e5f092", null ],
+      [ "__rsvd", "group___a_e_m13920___common.html#a2f110657f7e2239a460c21dd25f4d09c", null ]
+    ] ],
+    [ "AEM13920_IRQFLG_t", "group___a_e_m13920___common.html#struct_a_e_m13920___i_r_q_f_l_g__t", [
+      [ "i2c_rdy", "group___a_e_m13920___common.html#a1216de69649e263e5d1d645f6840be06", null ],
+      [ "vovdis", "group___a_e_m13920___common.html#a7cb7d6d39e05a796e125c4b168e8c86d", null ],
+      [ "vchrdy", "group___a_e_m13920___common.html#abd061cf1d2c649f87ad2ede6a7d9a1fb", null ],
+      [ "vovch", "group___a_e_m13920___common.html#a2857e6cc4b252095651800390cc7938b", null ],
+      [ "src_low", "group___a_e_m13920___common.html#a9807e678277cdc0dedd51fa356568f7f", null ],
+      [ "temp_ch", "group___a_e_m13920___common.html#ab275d0bffeb4d332f51a309a1b3a1638", null ],
+      [ "temp_dis", "group___a_e_m13920___common.html#aee9fc375ebac2d2a74aa855536a9944b", null ],
+      [ "__rsvd", "group___a_e_m13920___common.html#ae02d68e5e54c925fa8991237786143d2", null ],
+      [ "src1_mppt_start", "group___a_e_m13920___common.html#a1d7ada37a13d1619be508f3244171dc0", null ],
+      [ "src1_mppt_done", "group___a_e_m13920___common.html#aac3b4f96829a87ef19a9c9b6e28aaebd", null ],
+      [ "src2_mppt_start", "group___a_e_m13920___common.html#ada1d4d795c2fc0d3223673fbdc71e784", null ],
+      [ "src2_mppt_done", "group___a_e_m13920___common.html#a1444025e7af1698f298d1d37ce595b66", null ],
+      [ "sto_done", "group___a_e_m13920___common.html#a6bb17499d24de559108d143bb618e5ca", null ],
+      [ "temp_done", "group___a_e_m13920___common.html#a889b6561ae2c35d308ca088c7f9586e8", null ],
+      [ "apm_done", "group___a_e_m13920___common.html#a2d552a9beb632e9f3e688670f25da003", null ],
+      [ "apm_err", "group___a_e_m13920___common.html#a93ad5814e8f5053c8ec0b562e4b6ffaa", null ]
+    ] ],
+    [ "AEM13920_IRQEN_t", "group___a_e_m13920___common.html#struct_a_e_m13920___i_r_q_e_n__t", [
+      [ "i2c_rdy", "group___a_e_m13920___common.html#a90a4d64b979633c14f18c6fe99d1adcd", null ],
+      [ "vovdis", "group___a_e_m13920___common.html#a5d1693e849d599cee10316f9044bf079", null ],
+      [ "vchrdy", "group___a_e_m13920___common.html#a6d7307a3ea1b8590f7006cd47c2a1abd", null ],
+      [ "vovch", "group___a_e_m13920___common.html#a1abba008ce145f014282559498dd7109", null ],
+      [ "src_low", "group___a_e_m13920___common.html#a54bbcb6a0548f1a0e51949de81f027ca", null ],
+      [ "temp_ch", "group___a_e_m13920___common.html#a61774f2e63781b37b01e43b4d142c5af", null ],
+      [ "temp_dis", "group___a_e_m13920___common.html#afc1e8380e533ba0b1936eaee01ced96d", null ],
+      [ "__rsvd", "group___a_e_m13920___common.html#ac8913f15897c6943cc14c296bf45fcda", null ],
+      [ "src1_mppt_start", "group___a_e_m13920___common.html#a292f51b7485ca8137d7d76cc128ad5dc", null ],
+      [ "src1_mppt_done", "group___a_e_m13920___common.html#ac473f4816781f86c61305e5c3ae49b6c", null ],
+      [ "src2_mppt_start", "group___a_e_m13920___common.html#a592c72d64b72ba68f448923a0611030d", null ],
+      [ "src2_mppt_done", "group___a_e_m13920___common.html#a89de03232ab6206d5a9b5fbe3058caf1", null ],
+      [ "sto_done", "group___a_e_m13920___common.html#a04afd4de6785985aee24ab417a40798c", null ],
+      [ "temp_done", "group___a_e_m13920___common.html#a3de1dc16a0d7c5f912872d04dbbd3141", null ],
+      [ "apm_done", "group___a_e_m13920___common.html#a091b71dcb0548f08bcc9279e8e0460be", null ],
+      [ "apm_err", "group___a_e_m13920___common.html#acc0075e7dc60f5e10b45de13a848ce25", null ]
+    ] ],
+    [ "AEM13920_STATUS_t", "group___a_e_m13920___common.html#struct_a_e_m13920___s_t_a_t_u_s__t", [
+      [ "vovdis", "group___a_e_m13920___common.html#afd8a64491bb5d89c376c26f30908ba92", null ],
+      [ "vchrdy", "group___a_e_m13920___common.html#ad220be87391571248a71ae1a281f3993", null ],
+      [ "vovch", "group___a_e_m13920___common.html#ad582370bc17532b874b174d79a425bec", null ],
+      [ "src1_low", "group___a_e_m13920___common.html#ad7cfc6b60238e763ac55154bf467ab99", null ],
+      [ "src2_low", "group___a_e_m13920___common.html#adb9fab241fac062a4cf226307b292bd4", null ],
+      [ "__rsvd0", "group___a_e_m13920___common.html#a36b0dcdb053371a1111750fb4715ad7e", null ],
+      [ "temp_cold_ch", "group___a_e_m13920___common.html#a5d1a7977dbeaf2f185dcf7bd1196f831", null ],
+      [ "temp_hot_ch", "group___a_e_m13920___common.html#a7b70706d0f4e0949df551e1c321978b0", null ],
+      [ "temp_cold_dis", "group___a_e_m13920___common.html#a92c186b55d0b5d21cf99eb31ddc77018", null ],
+      [ "temp_hot_dis", "group___a_e_m13920___common.html#a1bf217d1b41eea53515b4c9d1805512d", null ],
+      [ "__rsvd1", "group___a_e_m13920___common.html#adc2fbc2d658a86dafc3ecda7226627b5", null ]
+    ] ],
+    [ "AEM13920_APMERR_t", "group___a_e_m13920___common.html#struct_a_e_m13920___a_p_m_e_r_r__t", [
+      [ "src1_ov", "group___a_e_m13920___common.html#a426897f6152442be335ee5d42f3835cf", null ],
+      [ "src1_nvld", "group___a_e_m13920___common.html#aee486bfd8eee4d32aebd641cc282af59", null ],
+      [ "src2_ov", "group___a_e_m13920___common.html#ab4ec157247660f7823bc252089eee37a", null ],
+      [ "src2_nvld", "group___a_e_m13920___common.html#a858565bb9d1948743c54b07567bc04a0", null ],
+      [ "buck_ov", "group___a_e_m13920___common.html#a79b2464c446d028ded0ca1bd5cc27bb5", null ],
+      [ "buck_nvld", "group___a_e_m13920___common.html#a99ca01247910fad2b91b75ab3d1a0000", null ],
+      [ "__rsvd", "group___a_e_m13920___common.html#a3c69fdb7a65757711e0827c6dd7f2044", null ]
     ] ],
     [ "AEM13920_I2CSLAVE_ADDRESS", "group___a_e_m13920___common.html#ga5776ea6b51743d3e6bd7e2eab26d39b2", null ],
-    [ "AEM13920_Source", "group___a_e_m13920___common.html#gab8e67e72655ec76418d09293e19bab8a", [
-      [ "AEM13920_SRC1", "group___a_e_m13920___common.html#ggab8e67e72655ec76418d09293e19bab8aab986125cc31c176443612facd4db005f", null ],
-      [ "AEM13920_SRC2", "group___a_e_m13920___common.html#ggab8e67e72655ec76418d09293e19bab8aa550b7fc401842dcf0f195ff12d837186", null ]
+    [ "AEM13920_SOURCE", "group___a_e_m13920___common.html#ga685d69d25a21019b395b8cccc13bd3f0", [
+      [ "AEM13920_SRC1", "group___a_e_m13920___common.html#gga685d69d25a21019b395b8cccc13bd3f0ab986125cc31c176443612facd4db005f", null ],
+      [ "AEM13920_SRC2", "group___a_e_m13920___common.html#gga685d69d25a21019b395b8cccc13bd3f0a550b7fc401842dcf0f195ff12d837186", null ]
     ] ],
     [ "AEM13920_SRCREGU_MODE", "group___a_e_m13920___common.html#gacb18d945a027bcda7a2f30ea0103f2b5", [
       [ "AEM13920_SRCREGU_CONST", "group___a_e_m13920___common.html#ggacb18d945a027bcda7a2f30ea0103f2b5a7daef767e7d65eec5898941985e632b8", null ],
@@ -108,25 +140,25 @@ var group___a_e_m13920___common =
       [ "AEM13920_TMULT12", "group___a_e_m13920___common.html#ggaf5a0206be099bb00343f8142ed830d8cabfbc6c40fbd4d1bbda1ada88d7d4b882", null ],
       [ "AEM13920_TMULT16", "group___a_e_m13920___common.html#ggaf5a0206be099bb00343f8142ed830d8ca6af969db3effdad874c225609f81764a", null ]
     ] ],
-    [ "AEM13920_VLOAD", "group___a_e_m13920___common.html#ga0de921081985eacc5e46057a0e26611a", [
-      [ "AEM13920_VLOAD_OFF", "group___a_e_m13920___common.html#gga0de921081985eacc5e46057a0e26611aa057921bd424df55bfcfce9833b9ac012", null ],
-      [ "AEM13920_VLOAD_600", "group___a_e_m13920___common.html#gga0de921081985eacc5e46057a0e26611aa2dd361cce8293f761eb27ea69503bd8a", null ],
-      [ "AEM13920_VLOAD_900", "group___a_e_m13920___common.html#gga0de921081985eacc5e46057a0e26611aa56020843430adf91a5d33f174b00bc2b", null ],
-      [ "AEM13920_VLOAD_1200", "group___a_e_m13920___common.html#gga0de921081985eacc5e46057a0e26611aadb0f96823e1714ee60ed4319bee16edb", null ],
-      [ "AEM13920_VLOAD_1500", "group___a_e_m13920___common.html#gga0de921081985eacc5e46057a0e26611aa28810a3b218e04428428d47289223162", null ],
-      [ "AEM13920_VLOAD_1800", "group___a_e_m13920___common.html#gga0de921081985eacc5e46057a0e26611aaa6b1172055b3cd4cbe5c27d65eaeaec5", null ],
-      [ "AEM13920_VLOAD_2200", "group___a_e_m13920___common.html#gga0de921081985eacc5e46057a0e26611aa5d744c270b4ac4c37b48da57843c0e83", null ],
-      [ "AEM13920_VLOAD_2500", "group___a_e_m13920___common.html#gga0de921081985eacc5e46057a0e26611aaaea68cfe93163c610a0f0e9909dfb09f", null ]
+    [ "AEM13920_VOUT", "group___a_e_m13920___common.html#gabd96065f60e993d0a866343dfcacb1fb", [
+      [ "AEM13920_VOUT_OFF", "group___a_e_m13920___common.html#ggabd96065f60e993d0a866343dfcacb1fba5ee54f02b75f1ac14b1ce724b798e157", null ],
+      [ "AEM13920_VOUT_600", "group___a_e_m13920___common.html#ggabd96065f60e993d0a866343dfcacb1fbabedc1889ac206e470109fffa92d3a4ac", null ],
+      [ "AEM13920_VOUT_900", "group___a_e_m13920___common.html#ggabd96065f60e993d0a866343dfcacb1fba02b23ca850a964d5c2ce06fdfce90bae", null ],
+      [ "AEM13920_VOUT_1200", "group___a_e_m13920___common.html#ggabd96065f60e993d0a866343dfcacb1fbaff228aa345bb5a1fa06b81e514a5303f", null ],
+      [ "AEM13920_VOUT_1500", "group___a_e_m13920___common.html#ggabd96065f60e993d0a866343dfcacb1fba1fbdb9e27cf69db8780375665e64a88e", null ],
+      [ "AEM13920_VOUT_1800", "group___a_e_m13920___common.html#ggabd96065f60e993d0a866343dfcacb1fbacaa89db937af06bc5be9f19cd95cffd5", null ],
+      [ "AEM13920_VOUT_2200", "group___a_e_m13920___common.html#ggabd96065f60e993d0a866343dfcacb1fba190578c5d31f4b3dc8313f8c0c1d2bae", null ],
+      [ "AEM13920_VOUT_2500", "group___a_e_m13920___common.html#ggabd96065f60e993d0a866343dfcacb1fba9555771ff8ae74e2e6a97d0b29620969", null ]
     ] ],
-    [ "AEM13920_SLEEP_THRESHOLD", "group___a_e_m13920___common.html#gab4d8011a52439c0db7063b7a21317086", [
-      [ "AEM13920_SLEEP_THRESH_112", "group___a_e_m13920___common.html#ggab4d8011a52439c0db7063b7a21317086a04c38ea338caeac6ff320043792722e4", null ],
-      [ "AEM13920_SLEEP_THRESH_202", "group___a_e_m13920___common.html#ggab4d8011a52439c0db7063b7a21317086aee8e421df99dc0c112d112b76ed804e1", null ],
-      [ "AEM13920_SLEEP_THRESH_255", "group___a_e_m13920___common.html#ggab4d8011a52439c0db7063b7a21317086a79a06c81d0ebd20cb3d6c7191e2449a0", null ],
-      [ "AEM13920_SLEEP_THRESH_300", "group___a_e_m13920___common.html#ggab4d8011a52439c0db7063b7a21317086add6d1af098fec9082a1a7f00441fcb0d", null ],
-      [ "AEM13920_SLEEP_THRESH_360", "group___a_e_m13920___common.html#ggab4d8011a52439c0db7063b7a21317086aefe842c62d85d16fd737dab0076a5c0f", null ],
-      [ "AEM13920_SLEEP_THRESH_405", "group___a_e_m13920___common.html#ggab4d8011a52439c0db7063b7a21317086ac7ea1aaa41db988c3ea85c3dfafdb916", null ],
-      [ "AEM13920_SLEEP_THRESH_510", "group___a_e_m13920___common.html#ggab4d8011a52439c0db7063b7a21317086a2b7a0a525c514458753ad3d13dc8cebe", null ],
-      [ "AEM13920_SLEEP_THRESH_600", "group___a_e_m13920___common.html#ggab4d8011a52439c0db7063b7a21317086a550d2ec1cf25f279a914e561ee103e82", null ]
+    [ "AEM13920_SRCLOW_THRESH", "group___a_e_m13920___common.html#ga77893383a955ca777943627c7fe48f4a", [
+      [ "AEM13920_SRCLOW_THRESH_112", "group___a_e_m13920___common.html#gga77893383a955ca777943627c7fe48f4aa58e2e751e452d49e919f621a9662ad50", null ],
+      [ "AEM13920_SRCLOW_THRESH_202", "group___a_e_m13920___common.html#gga77893383a955ca777943627c7fe48f4aa50b2154fce01a9844da44ffe95d91787", null ],
+      [ "AEM13920_SRCLOW_THRESH_255", "group___a_e_m13920___common.html#gga77893383a955ca777943627c7fe48f4aaca681b540b96496fc0cd84c6b0ad1c92", null ],
+      [ "AEM13920_SRCLOW_THRESH_300", "group___a_e_m13920___common.html#gga77893383a955ca777943627c7fe48f4aaa46414f3eb13194ee3cefd29ec861b18", null ],
+      [ "AEM13920_SRCLOW_THRESH_360", "group___a_e_m13920___common.html#gga77893383a955ca777943627c7fe48f4aa1e8f9987f1ba708a9e6fd353aad7b33a", null ],
+      [ "AEM13920_SRCLOW_THRESH_405", "group___a_e_m13920___common.html#gga77893383a955ca777943627c7fe48f4aad84ee11f4c92756f45f11b7b0f847124", null ],
+      [ "AEM13920_SRCLOW_THRESH_510", "group___a_e_m13920___common.html#gga77893383a955ca777943627c7fe48f4aa538211ead25b5774e7391d5b8cd558e6", null ],
+      [ "AEM13920_SRCLOW_THRESH_600", "group___a_e_m13920___common.html#gga77893383a955ca777943627c7fe48f4aa6d0e066da174375ca150456a2bc2bb92", null ]
     ] ],
     [ "AEM13920_APM_MODE", "group___a_e_m13920___common.html#ga14afbba9f4eb5541a246f6993103c0be", [
       [ "AEM13920_APM_MODE_PULSE_COUNTER", "group___a_e_m13920___common.html#gga14afbba9f4eb5541a246f6993103c0bea9c56965b82f126822b5d10122fe983fd", null ],
@@ -136,17 +168,8 @@ var group___a_e_m13920___common =
       [ "AEM13920_APM_WINDOW_128", "group___a_e_m13920___common.html#ggaef0ae0015f6f8a0e3c47710718d5ac84aa13a4dca1b7665d513b3e9b0f28fc70d", null ],
       [ "AEM13920_APM_WINDOW_64", "group___a_e_m13920___common.html#ggaef0ae0015f6f8a0e3c47710718d5ac84a8d5972cc0337ed8a4d2019979e3b1442", null ]
     ] ],
-    [ "AEM13920_CFGSRC", "group___a_e_m13920___common.html#ga1e5a5588bfcfe508cd94cb3115ad7648", [
-      [ "AEM13920_CFGSRC_I2C", "group___a_e_m13920___common.html#gga1e5a5588bfcfe508cd94cb3115ad7648a293558ecd69e7ade6650ea55338d8737", null ],
-      [ "AEM13920_CFGSRC_PINS", "group___a_e_m13920___common.html#gga1e5a5588bfcfe508cd94cb3115ad7648a3180942d37276fb7ea779b83a7c9fd9a", null ]
-    ] ],
-    [ "AEM13920_LDCDC", "group___a_e_m13920___common.html#gacae41b0b5fc95af6f709fab598e6ee68", [
-      [ "AEM13920_LDCDC_4_7", "group___a_e_m13920___common.html#ggacae41b0b5fc95af6f709fab598e6ee68a409022f0ca962fbdf7ca7ab2ddcb6bc3", null ],
-      [ "AEM13920_LDCDC_10", "group___a_e_m13920___common.html#ggacae41b0b5fc95af6f709fab598e6ee68a128ad7016c2dac0dc9725e4fdcbf1258", null ],
-      [ "AEM13920_LDCDC_15", "group___a_e_m13920___common.html#ggacae41b0b5fc95af6f709fab598e6ee68a09bf1b0cdbb4e440c5f7a8853cac5584", null ],
-      [ "AEM13920_LDCDC_22", "group___a_e_m13920___common.html#ggacae41b0b5fc95af6f709fab598e6ee68aea8f6c3863e360cdaceaffd1a48e0cbf", null ],
-      [ "AEM13920_LDCDC_33", "group___a_e_m13920___common.html#ggacae41b0b5fc95af6f709fab598e6ee68a81c47ab27d10c990bcea41ad2b64ebaf", null ],
-      [ "AEM13920_LDCDC_47", "group___a_e_m13920___common.html#ggacae41b0b5fc95af6f709fab598e6ee68a882dd3a83e2a79735dcd143279baf751", null ],
-      [ "AEM13920_LDCDC_68", "group___a_e_m13920___common.html#ggacae41b0b5fc95af6f709fab598e6ee68acd04d1d9e0a70d5652c2cdab14fa48b7", null ]
+    [ "AEM13920_CONFIG_MODE", "group___a_e_m13920___common.html#ga1f8360223fa5e4657b6bfd75107e9653", [
+      [ "AEM13920_CONFIG_MODE_GPIO", "group___a_e_m13920___common.html#gga1f8360223fa5e4657b6bfd75107e9653aeec85a9c7d1ce86669bfa73b3a16b2af", null ],
+      [ "AEM13920_CONFIG_MODE_I2C", "group___a_e_m13920___common.html#gga1f8360223fa5e4657b6bfd75107e9653a2fae48bd8e052249023e17e535b9e2a7", null ]
     ] ]
 ];

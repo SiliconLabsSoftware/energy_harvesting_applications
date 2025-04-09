@@ -46,10 +46,6 @@ readme:
   - path: ../README.md
 
 other_file:
-  - path: ../image/aem13920_config_user_enable.png
-    directory: "image"
-  - path: ../image/aem13920_init_fct.png
-    directory: "image"
   - path: ../image/create_example_sensor.png
     directory: "image"
   - path: ../image/filter.png
@@ -59,8 +55,6 @@ other_file:
   - path: ../image/hardware_setup_sensor.png
     directory: "image"
   - path: ../image/hex_to_dec.png
-    directory: "image"
-  - path: ../image/modify_macro_config_aem13920.png
     directory: "image"
   - path: ../image/sensor_overview.png
     directory: "image"
@@ -87,7 +81,7 @@ configuration:
 
 sdk_extension:
   - id: energy_harvesting
-    version: 1.0.0
+    version: 1.1.0
 
 ui_hints:
   highlight:

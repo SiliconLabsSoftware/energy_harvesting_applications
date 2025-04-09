@@ -18,6 +18,7 @@
 <script type="text/javascript" src="../include/js/versionselect.js"></script>
 <script type="text/javascript" src="../include/js/loading.js"></script>
 <script type="text/javascript" src="../include/js/getsection.js"></script>
+<script type="text/javascript" src="../include/js/treeview_fold_and_resize.js"></script>
 <link href="navtree.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="resize.js"></script>
 <script type="text/javascript" src="navtreedata.js"></script>
@@ -111,138 +112,160 @@ $(document).ready(function(){initNavTree('functions.html',''); initResizable(); 
 <div class="textblock">Here is a list of all documented struct and union fields with links to the struct/union documentation for each field:</div>
 
 <h3><a id="index__5F" name="index__5F"></a>- _ -</h3><ul>
-<li>__reserved&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a9b533301ee8562407963061809e0adc4">AEM13920_APMERR</a>, <a class="el" href="group___a_e_m13920___common.html#a7840fae98ee307083d3ae218f7d3204e">AEM13920_IRQEN</a>, <a class="el" href="group___a_e_m13920___common.html#aef88743ca8df44bf423a839b47e89cd6">AEM13920_IRQFLG</a></li>
-<li>__reserved0&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ae3019c7ea58d0f3011fc27c964cb6a53">AEM13920_Status</a></li>
-<li>__reserved1&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#af739e9d51dc438b150b50b6c7e497cb8">AEM13920_Status</a></li>
-<li>_reserved&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a62e0713ed5721c1b328bbbe5fbb3114a">AEM13920_Config</a></li>
+<li>__rsvd&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a2f110657f7e2239a460c21dd25f4d09c">AEM13920_APMCFG_t</a>, <a class="el" href="group___a_e_m13920___common.html#a3c69fdb7a65757711e0827c6dd7f2044">AEM13920_APMERR_t</a>, <a class="el" href="group___a_e_m13920___common.html#a02a3c44a33e21b4120643cfb20b7de81">AEM13920_BSTCFG_t</a>, <a class="el" href="group___a_e_m13920___common.html#a118bac76a15fe98538fa2ed4d2ec86ed">AEM13920_BUCKCFG_t</a>, <a class="el" href="group___a_e_m13920___common.html#ac8913f15897c6943cc14c296bf45fcda">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#ae02d68e5e54c925fa8991237786143d2">AEM13920_IRQFLG_t</a>, <a class="el" href="group___a_e_m13920___common.html#a57840b2fc47181ee43f4e609c548228a">AEM13920_SRCLOWCFG_t</a></li>
+<li>__rsvd0&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a36b0dcdb053371a1111750fb4715ad7e">AEM13920_STATUS_t</a></li>
+<li>__rsvd1&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#adc2fbc2d658a86dafc3ecda7226627b5">AEM13920_STATUS_t</a></li>
 </ul>
 
 
 <h3><a id="index_a" name="index_a"></a>- a -</h3><ul>
-<li>APMDone&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a6a02f82d427e6d2a4a2ad6c030624c25">AEM13920_IRQFLG</a></li>
-<li>APMError&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ad9f0c4dddf88f3966c2d9a9a489baf8c">AEM13920_IRQFLG</a></li>
-<li>apmMode&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a385a41153eb564d71f27adc8ea9e6850">AEM13920_Config</a></li>
-<li>apmWindow&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a4e3a3d400393425d0fcb8f4d032ebcf3">AEM13920_Config</a></li>
+<li>apm_buck_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#aca297815933444e99deaba50fd05974e">AEM13920_CONFIG_t</a></li>
+<li>apm_done&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a091b71dcb0548f08bcc9279e8e0460be">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#a2d552a9beb632e9f3e688670f25da003">AEM13920_IRQFLG_t</a></li>
+<li>apm_done_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#aadf5760c628f8db70c17a42dcef16b4a">AEM13920_CONFIG_t</a></li>
+<li>apm_err&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#acc0075e7dc60f5e10b45de13a848ce25">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#a93ad5814e8f5053c8ec0b562e4b6ffaa">AEM13920_IRQFLG_t</a></li>
+<li>apm_err_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a32425afa6de90c7b7e7406d3ac41fb3d">AEM13920_CONFIG_t</a></li>
+<li>apm_mode&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a5228b2dd03062eb96c84b1d634d10a77">AEM13920_CONFIG_t</a></li>
+<li>apm_src1_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a5e3eae06602912a8627eb410dc52b597">AEM13920_CONFIG_t</a></li>
+<li>apm_src2_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a9bd24794976c34b7325768371322c099">AEM13920_CONFIG_t</a></li>
+<li>apm_window&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a9ab29cc593f6d06626c97a397bf25e23">AEM13920_CONFIG_t</a></li>
 </ul>
 
 
 <h3><a id="index_b" name="index_b"></a>- b -</h3><ul>
-<li>boost1TimingMult&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a46993369ac79272b4d95cc5039b430f4">AEM13920_Config</a></li>
-<li>boost2TimingMult&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a0049afaaca0d9884fd29964c1e719360">AEM13920_Config</a></li>
-<li>buckCountCorrupted&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#aa64ec6c6b42f9ad1cd08b853f8ed489f">AEM13920_APMERR</a></li>
-<li>buckCountOverflow&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a19d878587cd7ddd85f5ee7968d5ef091">AEM13920_APMERR</a></li>
-<li>buckTimingMult&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#adf20ff6f5f8416102b2c1e6bb74ac152">AEM13920_Config</a></li>
-<li>buckVLoad&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a59ff913162b9ff36122d9610c6741cd8">AEM13920_Config</a></li>
-</ul>
-
-
-<h3><a id="index_c" name="index_c"></a>- c -</h3><ul>
-<li>chargeReady&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ac7e6c5590304a5380c7e2e97a49ea7b6">AEM13920_IRQFLG</a>, <a class="el" href="group___a_e_m13920___common.html#a7ee41937830e024fd6c6e67589f6aea7">AEM13920_Status</a></li>
-<li>chargeReadyThresh&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#aaab1fbe0d78d814cfabe26ee9c8a4449">AEM13920_Config</a></li>
-<li>coldChThreshZ&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a1db76b2edbc9f2cba4722e95f4d62cb7">AEM13920_Config</a></li>
-<li>coldDisThreshZ&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#ad7756479c814bc9c2e09d5ee6b7425c3">AEM13920_Config</a></li>
+<li>buck_enable&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#aec4dc32f9b205040604b267d0ce9e622">AEM13920_APMCFG_t</a></li>
+<li>buck_nvld&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a99ca01247910fad2b91b75ab3d1a0000">AEM13920_APMERR_t</a></li>
+<li>buck_ov&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a79b2464c446d028ded0ca1bd5cc27bb5">AEM13920_APMERR_t</a></li>
+<li>buck_tmult&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#af2bb95980083064a92f05269e8da442e">AEM13920_CONFIG_t</a></li>
+<li>buck_vout&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a7eedfe3b96121775339ba71a1eb23134">AEM13920_CONFIG_t</a></li>
 </ul>
 
 
 <h3><a id="index_d" name="index_d"></a>- d -</h3><ul>
-<li>discharge&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#aa323da1ed9b5f412465e76986929ea30">AEM13920_IRQFLG</a>, <a class="el" href="group___a_e_m13920___common.html#a9f5338244a077af2ecb4fae9630410bd">AEM13920_Status</a></li>
-<li>dischargeThresh&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a0d035365459cfa83b4a955ecf3edefef">AEM13920_Config</a></li>
+<li>duration&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a1d298fd6fc19577d5cee2f38b26aa560">AEM13920_MPPTCFG_t</a></li>
 </ul>
 
 
 <h3><a id="index_e" name="index_e"></a>- e -</h3><ul>
-<li>enableAPMBuck&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#aa5eaac0c1dd4d439f9071b947123a277">AEM13920_Config</a></li>
-<li>enableAPMDone&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a258ba314cdf9f3c64d2f00fecc672266">AEM13920_IRQEN</a></li>
-<li>enableAPMError&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#aab446dea1600c81062013a76ffef9da2">AEM13920_IRQEN</a></li>
-<li>enableAPMSRC1&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#afed1fb73d884bcfbc5eaad478edfef57">AEM13920_Config</a></li>
-<li>enableAPMSRC2&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a9b51e483adde394bb4962665e52e50b4">AEM13920_Config</a></li>
-<li>enableBoost1&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a17a871d52186087a4c4a31dfad8cf253">AEM13920_Config</a></li>
-<li>enableBoost2&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#aaba0824bf403c920e4ef1d5ba186449e">AEM13920_Config</a></li>
-<li>enableChargeReady&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a5a651f1f8c05d8b6561d1a1a79149269">AEM13920_IRQEN</a></li>
-<li>enableDischarge&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a8433fc39340165e877b9c546c5d17afb">AEM13920_IRQEN</a></li>
-<li>enableHPBoost1&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a3b8738c54831eb65894b3475c982da22">AEM13920_Config</a></li>
-<li>enableHPBoost2&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a5652ac5aa4c6f0e771429f9568c6fa56">AEM13920_Config</a></li>
-<li>enableOutOfReset&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a9978131580471094b6152fe537ef92eb">AEM13920_IRQEN</a></li>
-<li>enableOvercharge&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a5cbd3dd1ba0ccf10ea2d0c33613dcc94">AEM13920_IRQEN</a></li>
-<li>enableSleepThresh&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a782792527b4c402bfc5ffe428d4383ca">AEM13920_IRQEN</a></li>
-<li>enableSrc1MPPTDone&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a4051dd248230493fc53ef7a75c9e5f86">AEM13920_IRQEN</a></li>
-<li>enableSrc1MPPTStart&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a0645faf7e467a3d7a6017d22b7678d8f">AEM13920_IRQEN</a></li>
-<li>enableSrc2MPPTDone&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a89e4390242324a86ccb22d2d04adb0f0">AEM13920_IRQEN</a></li>
-<li>enableSrc2MPPTStart&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a25c91be102abadc23cb729abcfb0c91c">AEM13920_IRQEN</a></li>
-<li>enableStorageDone&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#af3725d8d0a07ce3ab8d7ae907249a5e1">AEM13920_IRQEN</a></li>
-<li>enableTempChThresh&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ac677fc1ce752e6dbd943a8b2a993d5bf">AEM13920_IRQEN</a></li>
-<li>enableTempDisThresh&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ae9089f0f0486def6f004307b9e945efa">AEM13920_IRQEN</a></li>
-<li>enableTempDone&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#acda1844e0b40a74c82f0da89331b7746">AEM13920_IRQEN</a></li>
-<li>enableTempMonitoring&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#af780ce58e219921e79e0b245a283b7ee">AEM13920_Config</a></li>
+<li>enable&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a7fcf53110e01ce6152720a5afaaf7f43">AEM13920_BSTCFG_t</a></li>
 </ul>
 
 
 <h3><a id="index_h" name="index_h"></a>- h -</h3><ul>
-<li>hotChThreshZ&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#ad9d56af51a012d99183e132289e1ad03">AEM13920_Config</a></li>
-<li>hotDisThreshZ&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a4e3c6b0d99ffea768523eed6e5aefa7a">AEM13920_Config</a></li>
+<li>high_power_enable&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a44b88935d393366c1cac78d65b472b55">AEM13920_BSTCFG_t</a></li>
 </ul>
 
 
 <h3><a id="index_i" name="index_i"></a>- i -</h3><ul>
+<li>i2c_cfg&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a7dbdc63d3406dce0a891f8094d96a6bb">AEM13920_Handler_t</a></li>
+<li>i2c_rdy&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a90a4d64b979633c14f18c6fe99d1adcd">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#a1216de69649e263e5d1d645f6840be06">AEM13920_IRQFLG_t</a></li>
+<li>i2c_rdy_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#aa2c59fadefe60ad03102843229282bc1">AEM13920_CONFIG_t</a></li>
 <li>interface&#160;:&#160;<a class="el" href="struct_a_e_m__i2c__cfg.html#a36a5beec52af7b291a5b2f31199a8141">AEM_i2c_cfg</a></li>
-<li>irq&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a3ab5581e436bd2a42cbbaac1688bb559">AEM13920_Config</a></li>
 </ul>
 
 
-<h3><a id="index_o" name="index_o"></a>- o -</h3><ul>
-<li>outOfReset&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a4e56cf2bdee8991da3e91cb8c26b2ff1">AEM13920_IRQFLG</a></li>
-<li>overcharge&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a75d336bb518c159c5853e6b2dc8246e4">AEM13920_IRQFLG</a>, <a class="el" href="group___a_e_m13920___common.html#a91005b3396e791e19643c403cb988338">AEM13920_Status</a></li>
-<li>overchargeThresh&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#aae21ea152a66a4867073972096ea45ce">AEM13920_Config</a></li>
+<h3><a id="index_m" name="index_m"></a>- m -</h3><ul>
+<li>mode&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a906cd97a5ce6c7c188e13e0645c45d17">AEM13920_APMCFG_t</a></li>
+</ul>
+
+
+<h3><a id="index_p" name="index_p"></a>- p -</h3><ul>
+<li>period&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ab8dc55755e6b93421ba4f45184601773">AEM13920_MPPTCFG_t</a></li>
 </ul>
 
 
 <h3><a id="index_r" name="index_r"></a>- r -</h3><ul>
-<li>Rdiv&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#adda76d19d26eeae49c8bc15a9de838ba">AEM13920_Config</a></li>
+<li>ratio&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a2f0794749e0c145977f4b866bcac2a9a">AEM13920_MPPTCFG_t</a></li>
+<li>revision&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a1715fface3946a4bf3ca1033ff8db970">AEM13920_Handler_t</a></li>
+<li>rsvd0&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#aa9dc14e62ef416da633889fa4e63306e">AEM13920_MPPTCFG_t</a></li>
+<li>rsvd1&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a47785237f89bef9982294be08d8dfe34">AEM13920_MPPTCFG_t</a></li>
+<li>rsvd2&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ab44be63f9747f10910e18a18ebc713f1">AEM13920_MPPTCFG_t</a></li>
 </ul>
 
 
 <h3><a id="index_s" name="index_s"></a>- s -</h3><ul>
 <li>slaveAddress&#160;:&#160;<a class="el" href="struct_a_e_m__i2c__cfg.html#adf888457046002c6a815b7e7abd0d2eb">AEM_i2c_cfg</a></li>
-<li>sleepThresh&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a3bb26061575ed8b48fcb233a3aa8a6ac">AEM13920_IRQFLG</a></li>
-<li>src1CountCorrupted&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#af77f8ff1e9d49147a3d7c7ce0a86b7f6">AEM13920_APMERR</a></li>
-<li>src1CountOverflow&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#aa175edb8062d935c57d4ec5b9c940223">AEM13920_APMERR</a></li>
-<li>src1MPPTDone&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a52beea297216efa2e1610fb9a247283c">AEM13920_IRQFLG</a></li>
-<li>src1MpptDuration&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a8e061fdecfde4fb95eba2b1db55858f5">AEM13920_Config</a></li>
-<li>src1MpptPeriod&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a556428cbcfb9d434829597e9e4a74553">AEM13920_Config</a></li>
-<li>src1MpptRatio&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#ab890e5b5846ef34c2342bd5e3bb1c3d0">AEM13920_Config</a></li>
-<li>src1MPPTStart&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ace31290b5a0b5e7dd621fbdc0e458f42">AEM13920_IRQFLG</a></li>
-<li>src1ReguMode&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a08f181d9f3abaa2721f89c8be185d8cb">AEM13920_Config</a></li>
-<li>src1ReguV&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a451888806cfd0d530c4f0f6b941383a9">AEM13920_Config</a></li>
-<li>src1Sleep&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ab63f5e459ee23fcd1faad52b4c6b5732">AEM13920_Status</a></li>
-<li>src1SleepThresh&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a07754ab9868af9f073b43861532f6250">AEM13920_Config</a></li>
-<li>src2CountCorrupted&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a5fa20ffedb3ce23b75e8b56628ba8c13">AEM13920_APMERR</a></li>
-<li>src2CountOverflow&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a397f0a7f98f83f5e2b42ac05057cd225">AEM13920_APMERR</a></li>
-<li>src2MPPTDone&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ad844487cfcb259ff76b7216f21541924">AEM13920_IRQFLG</a></li>
-<li>src2MpptDuration&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a399158de44614e2d0183232b1830c5f1">AEM13920_Config</a></li>
-<li>src2MpptPeriod&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a5eebd9705ae1b41329a86b5d4b71e4e1">AEM13920_Config</a></li>
-<li>src2MpptRatio&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#ada647619b7d783f9ac7cab8a4911d5cd">AEM13920_Config</a></li>
-<li>src2MPPTStart&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ad8dc8e420607ea696d7f4e1622af7286">AEM13920_IRQFLG</a></li>
-<li>src2ReguMode&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a6e2c2eff4b112b7da8a63731f0ab0b7c">AEM13920_Config</a></li>
-<li>src2ReguV&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a5a98ee4c623499d704847132c4a21a17">AEM13920_Config</a></li>
-<li>src2Sleep&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ab5026f19c8602b305e8823f1dc95a575">AEM13920_Status</a></li>
-<li>src2SleepThresh&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a4bf309ec7547789452fe98a2e1b85566">AEM13920_Config</a></li>
-<li>storageDone&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a2948890b803a91a79208d2655baed781">AEM13920_IRQFLG</a></li>
+<li>src1_boost_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a5ce6a18bbb90a391acafc5b352caefa8">AEM13920_CONFIG_t</a></li>
+<li>src1_boost_high_power_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a3af6dc233e43dcd58c1c840c1bd04424">AEM13920_CONFIG_t</a></li>
+<li>src1_boost_tmult&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#ae17a23650aa1a6aaf44262edc5298fdf">AEM13920_CONFIG_t</a></li>
+<li>src1_const_voltage&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#afac9e7d6b4e2055e99ec483df39c869a">AEM13920_CONFIG_t</a></li>
+<li>src1_enable&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a0cfdb4474f74a672a01dbfa0ee5c06ae">AEM13920_APMCFG_t</a></li>
+<li>src1_low&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ad7cfc6b60238e763ac55154bf467ab99">AEM13920_STATUS_t</a></li>
+<li>src1_low_thresh&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#ae1a73a586b25cb0666774b4978491ae6">AEM13920_CONFIG_t</a></li>
+<li>src1_mppt_done&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ac473f4816781f86c61305e5c3ae49b6c">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#aac3b4f96829a87ef19a9c9b6e28aaebd">AEM13920_IRQFLG_t</a></li>
+<li>src1_mppt_done_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#af2798317c87d13371a7e9269ff6e4f87">AEM13920_CONFIG_t</a></li>
+<li>src1_mppt_duration&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#ae1ea5a4833f65d1cd2b0f0d5172748c9">AEM13920_CONFIG_t</a></li>
+<li>src1_mppt_period&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#af651d78009ea30758b416eb9a4517d83">AEM13920_CONFIG_t</a></li>
+<li>src1_mppt_ratio&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a47059f46495ab72f32d0f715f3e1fa40">AEM13920_CONFIG_t</a></li>
+<li>src1_mppt_start&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a292f51b7485ca8137d7d76cc128ad5dc">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#a1d7ada37a13d1619be508f3244171dc0">AEM13920_IRQFLG_t</a></li>
+<li>src1_mppt_start_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a3e6e4f223ec0d5f598c0cedbc4b19aa1">AEM13920_CONFIG_t</a></li>
+<li>src1_nvld&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#aee486bfd8eee4d32aebd641cc282af59">AEM13920_APMERR_t</a></li>
+<li>src1_ov&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a426897f6152442be335ee5d42f3835cf">AEM13920_APMERR_t</a></li>
+<li>src1_regu_mode&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#ac34d762d0509ad9a09bbbea649383a35">AEM13920_CONFIG_t</a></li>
+<li>src1_thresh&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a17b28d6d3a176a0bdc017c50ac9c0cea">AEM13920_SRCLOWCFG_t</a></li>
+<li>src2_boost_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#aa78225370021279473c5b364731e4b6d">AEM13920_CONFIG_t</a></li>
+<li>src2_boost_high_power_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#ad7164e7aab148c183bf8fed8429014ae">AEM13920_CONFIG_t</a></li>
+<li>src2_boost_tmult&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a0e0e9a039c2380aab45897f773ac2e44">AEM13920_CONFIG_t</a></li>
+<li>src2_const_voltage&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a88075eca638b4c3b268525740ad10170">AEM13920_CONFIG_t</a></li>
+<li>src2_enable&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#aac5e6d749f63387bb05a8473f5dcb036">AEM13920_APMCFG_t</a></li>
+<li>src2_low&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#adb9fab241fac062a4cf226307b292bd4">AEM13920_STATUS_t</a></li>
+<li>src2_low_thresh&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a84224391a86cd7fb9b7dc6f0911a1c28">AEM13920_CONFIG_t</a></li>
+<li>src2_mppt_done&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a89de03232ab6206d5a9b5fbe3058caf1">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#a1444025e7af1698f298d1d37ce595b66">AEM13920_IRQFLG_t</a></li>
+<li>src2_mppt_done_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a46863d7dcb2d36b312f13010d81d9a25">AEM13920_CONFIG_t</a></li>
+<li>src2_mppt_duration&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#ac15e87c916d75bcec76084acd768b0f5">AEM13920_CONFIG_t</a></li>
+<li>src2_mppt_period&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#aebe226bd2bdff385e45c222fdd3ee0d2">AEM13920_CONFIG_t</a></li>
+<li>src2_mppt_ratio&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a03a2e333fc223521a5339410d1e05c05">AEM13920_CONFIG_t</a></li>
+<li>src2_mppt_start&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a592c72d64b72ba68f448923a0611030d">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#ada1d4d795c2fc0d3223673fbdc71e784">AEM13920_IRQFLG_t</a></li>
+<li>src2_mppt_start_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#ad20702640f8393e2fd1c61bbb77ac2bc">AEM13920_CONFIG_t</a></li>
+<li>src2_nvld&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a858565bb9d1948743c54b07567bc04a0">AEM13920_APMERR_t</a></li>
+<li>src2_ov&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ab4ec157247660f7823bc252089eee37a">AEM13920_APMERR_t</a></li>
+<li>src2_regu_mode&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#ae502c8bbc984a0a8d919e2e68314b4c2">AEM13920_CONFIG_t</a></li>
+<li>src2_thresh&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a9dae6d6a4cf34c6de4e7535fe53f9d88">AEM13920_SRCLOWCFG_t</a></li>
+<li>src_low&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a54bbcb6a0548f1a0e51949de81f027ca">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#a9807e678277cdc0dedd51fa356568f7f">AEM13920_IRQFLG_t</a></li>
+<li>src_low_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a9e2af4dfca55288b86f4410f0f807505">AEM13920_CONFIG_t</a></li>
+<li>sto_done&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a04afd4de6785985aee24ab417a40798c">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#a6bb17499d24de559108d143bb618e5ca">AEM13920_IRQFLG_t</a></li>
+<li>sto_done_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a46a412438c8371dbf97c5cafd860a3b0">AEM13920_CONFIG_t</a></li>
 </ul>
 
 
 <h3><a id="index_t" name="index_t"></a>- t -</h3><ul>
-<li>tempChThresh&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ab69aa6edb89ff948073a0870a6e5b076">AEM13920_IRQFLG</a></li>
-<li>tempColdCharge&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ac4bce2883a07ba5299c9420deee33299">AEM13920_Status</a></li>
-<li>tempColdDischarge&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#aab6a3b61af2107ea459d09414c1877ca">AEM13920_Status</a></li>
-<li>tempDisThresh&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#aec746d49c4131d5bd13542ef05387c9d">AEM13920_IRQFLG</a></li>
-<li>tempDone&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ad6c0b5ec832ed58418c71caaafecbbee">AEM13920_IRQFLG</a></li>
-<li>tempHotCharge&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a542590ca5f27b3c6c9e42fce5a52c1d8">AEM13920_Status</a></li>
-<li>tempHotDischarge&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#ada3d5680c07c0913a71db248911ed11f">AEM13920_Status</a></li>
+<li>temp_ch&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a61774f2e63781b37b01e43b4d142c5af">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#ab275d0bffeb4d332f51a309a1b3a1638">AEM13920_IRQFLG_t</a></li>
+<li>temp_ch_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#aa6413071a775025b046061afc50b5bd7">AEM13920_CONFIG_t</a></li>
+<li>temp_cold_ch&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a5d1a7977dbeaf2f185dcf7bd1196f831">AEM13920_STATUS_t</a></li>
+<li>temp_cold_ch_rth&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a297f3ee8dbf211099d61c2e9b1cff8c3">AEM13920_CONFIG_t</a></li>
+<li>temp_cold_dis&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a92c186b55d0b5d21cf99eb31ddc77018">AEM13920_STATUS_t</a></li>
+<li>temp_cold_dis_rth&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a6062d08f7cbd02a9e4851004d837fabb">AEM13920_CONFIG_t</a></li>
+<li>temp_dis&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#afc1e8380e533ba0b1936eaee01ced96d">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#aee9fc375ebac2d2a74aa855536a9944b">AEM13920_IRQFLG_t</a></li>
+<li>temp_dis_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a48edd62dca9889ad4a8467c46f7d447f">AEM13920_CONFIG_t</a></li>
+<li>temp_done&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a3de1dc16a0d7c5f912872d04dbbd3141">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#a889b6561ae2c35d308ca088c7f9586e8">AEM13920_IRQFLG_t</a></li>
+<li>temp_done_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#abd0553b9bd10787c3de831c28b4544df">AEM13920_CONFIG_t</a></li>
+<li>temp_hot_ch&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a7b70706d0f4e0949df551e1c321978b0">AEM13920_STATUS_t</a></li>
+<li>temp_hot_ch_rth&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a7a94f0d4fb86baafa2e7e3188c0b01ec">AEM13920_CONFIG_t</a></li>
+<li>temp_hot_dis&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a1bf217d1b41eea53515b4c9d1805512d">AEM13920_STATUS_t</a></li>
+<li>temp_hot_dis_rth&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a707ab29617bf821c742474899afde0a8">AEM13920_CONFIG_t</a></li>
+<li>temp_mon_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#aa3ad65a12a699fb3def373e15aeb06ef">AEM13920_CONFIG_t</a></li>
+<li>temp_rdiv&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a4ce2c559c34d969b096ef14278754b9e">AEM13920_CONFIG_t</a></li>
+<li>tmult&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a38fa3da592a19f8824ae47ee2d8abe28">AEM13920_BSTCFG_t</a>, <a class="el" href="group___a_e_m13920___common.html#a74ded5df6f0e901787356781612aa05c">AEM13920_BUCKCFG_t</a></li>
 </ul>
 
 
 <h3><a id="index_u" name="index_u"></a>- u -</h3><ul>
 <li>usr_callback&#160;:&#160;<a class="el" href="struct_a_e_m__i2c__cfg.html#a9be9f2971393b7a2ecec14ca8926b317">AEM_i2c_cfg</a></li>
+</ul>
+
+
+<h3><a id="index_v" name="index_v"></a>- v -</h3><ul>
+<li>vchrdy&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a85391511ed7d3b361202234ad127b8b0">AEM13920_CONFIG_t</a>, <a class="el" href="group___a_e_m13920___common.html#a6d7307a3ea1b8590f7006cd47c2a1abd">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#abd061cf1d2c649f87ad2ede6a7d9a1fb">AEM13920_IRQFLG_t</a>, <a class="el" href="group___a_e_m13920___common.html#ad220be87391571248a71ae1a281f3993">AEM13920_STATUS_t</a></li>
+<li>vchrdy_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#aa5a1671572fd774c122b6925c675b107">AEM13920_CONFIG_t</a></li>
+<li>vout&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#acfca6c562b7d5bca65334d7164d8c4db">AEM13920_BUCKCFG_t</a></li>
+<li>vovch&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#acacdb0e13a96725aa03467e00b288ea8">AEM13920_CONFIG_t</a>, <a class="el" href="group___a_e_m13920___common.html#a1abba008ce145f014282559498dd7109">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#a2857e6cc4b252095651800390cc7938b">AEM13920_IRQFLG_t</a>, <a class="el" href="group___a_e_m13920___common.html#ad582370bc17532b874b174d79a425bec">AEM13920_STATUS_t</a></li>
+<li>vovch_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a11d38ab963ec389097aa966fb1ee89ce">AEM13920_CONFIG_t</a></li>
+<li>vovdis&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#af9461ab5e5d37c5ea00dfa6fb3127b98">AEM13920_CONFIG_t</a>, <a class="el" href="group___a_e_m13920___common.html#a5d1693e849d599cee10316f9044bf079">AEM13920_IRQEN_t</a>, <a class="el" href="group___a_e_m13920___common.html#a7cb7d6d39e05a796e125c4b168e8c86d">AEM13920_IRQFLG_t</a>, <a class="el" href="group___a_e_m13920___common.html#afd8a64491bb5d89c376c26f30908ba92">AEM13920_STATUS_t</a></li>
+<li>vovdis_irq_enable&#160;:&#160;<a class="el" href="group___h_a_l___a_e_m13920___a_p_i.html#a087b4fc3674693b42a9068dc93c40046">AEM13920_CONFIG_t</a></li>
+</ul>
+
+
+<h3><a id="index_w" name="index_w"></a>- w -</h3><ul>
+<li>window&#160;:&#160;<a class="el" href="group___a_e_m13920___common.html#a146385cd29b75cd5ead2b5ee44e5f092">AEM13920_APMCFG_t</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -252,7 +275,7 @@ $(document).ready(function(){initNavTree('functions.html',''); initResizable(); 
 	<ul>
 		<li class="footer" id="dark_toggle"></li>
 		<li class="footer" id="use_pursuant_nda">Use pursuant NDA</li>
-		<li class="footer" id="timestamp">Generated on Mon Jan 13 2025 09:35:13</li>
+		<li class="footer" id="timestamp">Generated on Tue Feb 25 2025 17:45:18</li>
 		<li class="footer" id="version"></li>
 	</ul>
 </div>

@@ -42,8 +42,6 @@
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
 
-#define USER_OVERRIDE_AEM13920_CONFIG               (0)
-
 /// Size of the FIFO buffers
 #define RAIL_FIFO_SIZE                              256
 #define RAIL_NUM_OF_TX                              60
@@ -57,14 +55,6 @@
 #define ADV_RAIL_VOLTAGE_OFFSET                     15
 #define EM2_SLEEP_PERIOD_MS                         (1000)
 #define EM4_SLEEP_PERIOD_MS                         (25000)
-
-#if (USER_OVERRIDE_AEM13920_CONFIG == 1)
-// AEM13920 configurations, for more information, please refer to AEM13920 datasheet.
-#define AEM13920_OVERCHARGE_VOLTAGE_THRESHOLD       3788  // VOVCH(Storage element overcharge threshold, used to protect the super cap from overcharge) 3.788V
-#define AEM13920_CHARGE_READY_VOLTAGE_THRESHOLD     2456  // VCHRDY(Storage element minimum voltage before starting to supply, should be slightly higher than VOVDIS) 2.456V
-#define AEM13920_DISCHARGE_VOLTAGE_THRESHOLD        2419  // VOVDIS(Storage element overdischarge threshold, used to prevent the super cap from being drained) 2419
-#define AEM13920_BUCK_OUT_VOLTAGE                   AEM13920_VLOAD_2200  // BUCKCFG(To set the regulation output voltage as 2.2V)
-#endif
 
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
@@ -95,14 +85,11 @@ static void enter_em2(uint32_t period_ms);
  ******************************************************************************/
 static void enter_em4(uint32_t period_ms);
 
-#if (USER_OVERRIDE_AEM13920_CONFIG == 1)
-
 /*******************************************************************************
  * Used to configure AEM19320
  ******************************************************************************/
-static int32_t initAEM13920(const AEM_i2c_cfg *commInfo);
-
-#endif
+static int32_t initAEM13920(AEM13920_Handler_t *aem_handler,
+                            AEM_i2c_cfg *commInfo);
 
 /**************************************************************************//**
  * Transmits the data packet.
@@ -161,7 +148,8 @@ static bool rail_error = false;
 /// Notify end of packet transmission
 static bool rail_packet_sent = false;
 
-const AEM_i2c_cfg aem13920 = {
+static AEM13920_Handler_t aem13920_handler;
+static AEM_i2c_cfg aem13920_i2c_cfg = {
   .usr_callback = NULL,
   .interface = (uint32_t) SL_I2CSPM_MIKROE_PERIPHERAL,
   .slaveAddress = AEM13920_I2CSLAVE_ADDRESS
@@ -205,10 +193,7 @@ RAIL_Handle_t app_init(void)
   // Init EM4
   EMU_EM4Init(&init_em4);
 
-#if (USER_OVERRIDE_AEM13920_CONFIG == 1)
-  // Init AEM13920
-  initAEM13920(&aem13920);
-#endif
+  initAEM13920(&aem13920_handler, &aem13920_i2c_cfg);
 
   rail_ble_init(RAIL_BLE_PROTOCOL_BLE_1MBPS);
 
@@ -342,51 +327,83 @@ static void enter_em2(uint32_t period_ms)
   EMU_EnterEM2(true);
 }
 
-#if (USER_OVERRIDE_AEM13920_CONFIG == 1)
-
 /*******************************************************************************
  * Used to configure AEM19320
  ******************************************************************************/
-static int32_t initAEM13920(const AEM_i2c_cfg *commInfo)
+static int32_t initAEM13920(AEM13920_Handler_t *aem_handler,
+                            AEM_i2c_cfg *commInfo)
 {
   int32_t ret = AEM13920_DRIVER_OK;
+  AEM13920_CONFIG_t aem_cfg;
+  aem_handler->i2c_cfg = commInfo;
 
-  AEM_I2C_Initialize(commInfo);
+  ret = AEM13920_Initialize(aem_handler);
 
-  // default 0x3A(3.788V), this examples uses the same config.
-  ret = AEM13920_SetOverchargeVoltage(commInfo,
-                                      AEM13920_OVERCHARGE_VOLTAGE_THRESHOLD);
-
-  // Only set next configuration while previous one succeeds
-  // default 0x05(2.55V), this example uses 0(2.456V)
   if (ret == AEM13920_DRIVER_OK) {
-    ret = AEM13920_SetChargeReadyVoltage(commInfo,
-                                         AEM13920_CHARGE_READY_VOLTAGE_THRESHOLD);
+    ret = AEM13920_GetConfiguration(aem_handler, &aem_cfg);
   }
 
-  // Only set next configuration while previous one succeeds
-  // default 0x06(2.513V), this example uses 0x01(2.419V)
   if (ret == AEM13920_DRIVER_OK) {
-    ret = AEM13920_SetDischargeVoltage(commInfo,
-                                       AEM13920_DISCHARGE_VOLTAGE_THRESHOLD);
-  }
+    aem_cfg.src1_regu_mode = AEM13920_SRCREGU_CONST;
+    aem_cfg.src1_const_voltage = 600;
+    aem_cfg.src1_boost_tmult = AEM13920_TMULT3;
+    aem_cfg.src1_boost_enable = true;
+    aem_cfg.src1_boost_high_power_enable = true;
+    aem_cfg.src1_low_thresh = AEM13920_SRCLOW_THRESH_112;
 
-  // Only set next configuration while previous one succeeds
-  // default 0x00(Buck Converter off), this example uses 0x06(2.2V)
-  if (ret == AEM13920_DRIVER_OK) {
-    ret = AEM13920_SetBuckVLoad(commInfo,
-                                AEM13920_BUCK_OUT_VOLTAGE);
-  }
+    aem_cfg.src2_regu_mode = AEM13920_SRCREGU_MPPT;
+    aem_cfg.src2_mppt_ratio = AEM13920_MPPT_RATIO_75;
+    aem_cfg.src2_mppt_duration = AEM13920_MPPT_DUR8;
+    aem_cfg.src2_mppt_period = AEM13920_MPPT_PER512;
+    aem_cfg.src2_boost_tmult = AEM13920_TMULT3;
+    aem_cfg.src2_boost_enable = true;
+    aem_cfg.src2_boost_high_power_enable = true;
+    aem_cfg.src2_low_thresh = AEM13920_SRCLOW_THRESH_112;
 
-  // Load the configurations into PMIC
-  if (ret == AEM13920_DRIVER_OK) {
-    ret = AEM13920_LoadConfiguration(commInfo);
+    aem_cfg.vovdis = 2500;
+    aem_cfg.vchrdy = 2550;
+    aem_cfg.vovch = 3800;
+
+    aem_cfg.buck_vout = AEM13920_VOUT_2200;
+    aem_cfg.buck_tmult = AEM13920_TMULT4;
+
+    aem_cfg.temp_mon_enable = true;
+    aem_cfg.temp_rdiv = 22000000;
+    aem_cfg.temp_cold_ch_rth = 98180087;
+    aem_cfg.temp_hot_ch_rth = 2261276;
+    aem_cfg.temp_cold_dis_rth = 98180087;
+    aem_cfg.temp_hot_dis_rth = 2261276;
+
+    aem_cfg.apm_src1_enable = false;
+    aem_cfg.apm_src2_enable = false;
+    aem_cfg.apm_buck_enable = false;
+    aem_cfg.apm_mode = AEM13920_APM_MODE_POWER_METER;  // Ignored as APM is disabled
+    aem_cfg.apm_window = AEM13920_APM_WINDOW_128;     // Ignored as APM is disabled
+
+    aem_cfg.i2c_rdy_irq_enable = true;
+    aem_cfg.apm_done_irq_enable = false;
+    aem_cfg.apm_err_irq_enable = false;
+    aem_cfg.src_low_irq_enable = false;
+    aem_cfg.src1_mppt_start_irq_enable = false;
+    aem_cfg.src1_mppt_done_irq_enable = false;
+    aem_cfg.src2_mppt_start_irq_enable = false;
+    aem_cfg.src2_mppt_done_irq_enable = false;
+    aem_cfg.vovdis_irq_enable = false;
+    aem_cfg.vchrdy_irq_enable = false;
+    aem_cfg.vovch_irq_enable = false;
+    aem_cfg.sto_done_irq_enable = false;
+    aem_cfg.temp_ch_irq_enable = false;
+    aem_cfg.temp_dis_irq_enable = false;
+    aem_cfg.temp_done_irq_enable = false;
+
+    // - Write the updated configuration to the I2C registers,
+    // - Start the synchronization of the registers,
+    // - Wait for it to complete
+    ret = AEM13920_SetConfiguration(aem_handler, &aem_cfg, true);
   }
 
   return ret;
 }
-
-#endif
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -440,7 +457,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
 #endif
 
   if (adv_count == 0) {
-    AEM13920_GetStorageVoltage(&aem13920, &storage_voltage);
+    (void)AEM13920_GetStorageVoltage(&aem13920_handler, &storage_voltage);
     u16_storage_voltage = (uint16_t)storage_voltage;
   }
 

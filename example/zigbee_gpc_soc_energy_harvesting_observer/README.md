@@ -106,7 +106,7 @@ To unpair the paired GPDs, issue the CLI "plugin green-power-client clear-proxy-
 
 - [UG103.15](https://www.silabs.com/documents/public/user-guides/ug103-15-green-power-fundamentals.pdf) Green Power Fundamentals
 - [UG392](https://www.silabs.com/documents/public/user-guides/ug392-using-sl-green-power-with-ezp.pdf) Using Silicon Labs Green Power with Zigbee EmberZNet PRO
-- UG591: User's Guide to EFR32xG22E Energy Harvesting Explorer Kit
+- [UG591](https://www.silabs.com/documents/public/user-guides/ug591-ek8200a-user-guide.pdf) User's Guide to EFR32xG22E Energy Harvesting Explorer Kit
 - [Energy Harvesting Documentation](https://www.silabs.com/development-tools/wireless/efr32xg22e-explorer-kit?tab=overview)
 
 ## Report Bugs & Get Support ##

@@ -2,7 +2,7 @@ id: energy_harvesting
 label: Energy Harvesting
 description: >
   Energy Harvesting extension for the Gecko SDK Suite
-version: 1.0.0
+version: 1.1.0
 sdk:
   id: simplicity_sdk
   version: 2024.6.2

@@ -27,7 +27,7 @@ var NAVTREE =
   [ "AEM13920 Portal", "index.html", [
     [ "Overview", "index.html", [
       [ "AEM13920", "index.html#autotoc_md0", [
-        [ "Dual input energy harvesting", "index.html#autotoc_md1", null ]
+        [ "Dual Input Energy Harvesting", "index.html#autotoc_md1", null ]
       ] ]
     ] ]
   ] ]

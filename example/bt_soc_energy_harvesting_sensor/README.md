@@ -15,6 +15,7 @@ This example uses a Dual Harvester Shield with a lithium capacitor as storage el
 - [Steps to Run Demo](#steps-to-run-demo-application)
   - [Setup](#setup)
     - [Create a project based on an example project](#create-a-project-based-on-an-example-project)
+    - [Interacting with the AEM13920](#interacting-with-the-aem13920)
   - [Test with mobile phone](#test-with-mobile-phone)
   - [Test with Bluetooth - SoC Energy Harvesting Application Observer](#test-with-bluetooth---soc-energy-harvesting-application-observer)
 - [Resources](#resources)
@@ -102,23 +103,92 @@ To test this application, you can create a project in Simplicity Studio by selec
 
 3. Build and flash the examples to the board.
 
-#### Interacting with the AEM13920 ####
+#### Interacting with the AEM13920 #####
 
-The Energy Harvesting SDK provides a set of APIs for interacting with the PMIC. These APIs are built using proprietary libraries from e-peas. During operation, the device reads battery voltage from AEM13920 IC via I2C protocol and updates the payload data with the extracted data. The PMIC is configured in Hardware by a series of resistors connected to input pins to work with the components provided for this example. However, the xG22 SoC can overwrite the default settings by accessing the configuration registers by I2C. To do that, users need to:
+The Energy Harvesting SDK provides a set of APIs for interacting with the PMIC. These APIs are built using proprietary libraries from e-peas. During operation, the device reads battery voltage from AEM13920 IC via I2C protocol and updates the payload data with the extracted data. The PMIC can be configured in two ways: hardware configuration, using a series of resistors connected to input pins, or software configuration, by modifying the configuration registers via I²C. When configured via I²C, the software settings override the hardware configuration. This example demonstrates the I²C-based configuration approach, with settings that are perfectly matched to the combination BRD2710A and BRD8201A.
 
-1. Change the macro "USER_OVERRIDE_AEM13920_CONFIG" to "1" in line 42 file "app.c". Its default value is "0". See the example in the below image:
+The function **initAEM13920** sets the I²C instance, initializes AEM13920 handler, and overrides the PMIC configurations. The default configurations are read using API **AEM13920_GetConfiguration** and put into the variable **aem_cfg**. Then, some of the fields are modified to match the design of xG22-EK8200A EFR32xG22E Energy Harvesting Explorer Kit.
 
-    ![aem13920_user_config_enable](image/aem13920_config_user_enable.png)
+```c
+static int32_t initAEM13920(AEM13920_Handler_t *aem_handler,
+                            AEM_i2c_cfg *commInfo)
+{
+  int32_t ret = AEM13920_DRIVER_OK;
+  AEM13920_CONFIG_t aem_cfg;
+  aem_handler->i2c_cfg = commInfo;
 
-2. Modify the macros for the AEM13920 configuration defined in the app.c file:
+  ret = AEM13920_Initialize(aem_handler);
 
-    ![aem13920_change_config](image/modify_macro_config_aem13920.png)
+  if (ret == AEM13920_DRIVER_OK) {
+    ret = AEM13920_GetConfiguration(aem_handler, &aem_cfg);
+  }
 
-3. Users exploring other energy sources and/or storage elements may need to add/remove some APIs in the "initAEM13920" function. Users are strongly encouraged to consult [the online software documentation on the e-peas’ website](https://doc.e-peas.com/aem13920/software/index.html) and download [the AEM13920 datasheet](https://e-peas.com/aem13920_datasheet/).
+  if (ret == AEM13920_DRIVER_OK) {
+    aem_cfg.src1_regu_mode = AEM13920_SRCREGU_CONST;
+    aem_cfg.src1_const_voltage = 600;
+    aem_cfg.src1_boost_tmult = AEM13920_TMULT3;
+    aem_cfg.src1_boost_enable = true;
+    aem_cfg.src1_boost_high_power_enable = true;
+    aem_cfg.src1_low_thresh = AEM13920_SRCLOW_THRESH_112;
 
-    > **_NOTE_:** The "AEM13920_LoadConfiguration" function loads all bit fields in the I2C registers. Fields that have not been overwritten by I2C maintain their factory default values, and the PMIC will ignore the hardware configuration of its input pins. Please make sure all parameters relative to your specific application (non-default) are set by calling the proper functions, as described in the software documentation.
+    aem_cfg.src2_regu_mode = AEM13920_SRCREGU_MPPT;
+    aem_cfg.src2_mppt_ratio = AEM13920_MPPT_RATIO_75;
+    aem_cfg.src2_mppt_duration = AEM13920_MPPT_DUR8;
+    aem_cfg.src2_mppt_period = AEM13920_MPPT_PER512;
+    aem_cfg.src2_boost_tmult = AEM13920_TMULT3;
+    aem_cfg.src2_boost_enable = true;
+    aem_cfg.src2_boost_high_power_enable = true;
+    aem_cfg.src2_low_thresh = AEM13920_SRCLOW_THRESH_112;
 
-    ![aem13920_change_init_fct](image/aem13920_init_fct.png)
+    aem_cfg.vovdis = 2500;
+    aem_cfg.vchrdy = 2550;
+    aem_cfg.vovch = 3800;
+
+    aem_cfg.buck_vout = AEM13920_VOUT_2200;
+    aem_cfg.buck_tmult = AEM13920_TMULT4;
+
+    aem_cfg.temp_mon_enable = true;
+    aem_cfg.temp_rdiv = 22000000;
+    aem_cfg.temp_cold_ch_rth = 98180087;
+    aem_cfg.temp_hot_ch_rth = 2261276;
+    aem_cfg.temp_cold_dis_rth = 98180087;
+    aem_cfg.temp_hot_dis_rth = 2261276;
+
+    aem_cfg.apm_src1_enable = false;
+    aem_cfg.apm_src2_enable = false;
+    aem_cfg.apm_buck_enable = false;
+    aem_cfg.apm_mode = AEM13920_APM_MODE_POWER_METER;  // Ignored as APM is disabled
+    aem_cfg.apm_window = AEM13920_APM_WINDOW_128 ;     // Ignored as APM is disabled
+
+    aem_cfg.i2c_rdy_irq_enable = true;
+    aem_cfg.apm_done_irq_enable = false;
+    aem_cfg.apm_err_irq_enable = false;
+    aem_cfg.src_low_irq_enable = false;
+    aem_cfg.src1_mppt_start_irq_enable = false;
+    aem_cfg.src1_mppt_done_irq_enable = false;
+    aem_cfg.src2_mppt_start_irq_enable = false;
+    aem_cfg.src2_mppt_done_irq_enable = false;
+    aem_cfg.vovdis_irq_enable = false;
+    aem_cfg.vchrdy_irq_enable = false;
+    aem_cfg.vovch_irq_enable = false;
+    aem_cfg.sto_done_irq_enable = false;
+    aem_cfg.temp_ch_irq_enable = false;
+    aem_cfg.temp_dis_irq_enable = false;
+    aem_cfg.temp_done_irq_enable = false;
+
+    // - Write the updated configuration to the I2C registers,
+    // - Start the synchronization of the registers,
+    // - Wait for it to complete
+    ret = AEM13920_SetConfiguration(aem_handler, &aem_cfg, true);
+  }
+
+  return ret;
+}
+```
+
+Users exploring other energy sources and/or storage elements may need to add, modify, or remove some settings in the "initAEM13920" function. Users are strongly encouraged to consult [the online software documentation on the e-peas’ website](https://doc.e-peas.com/aem13920/software/index.html) and download [the AEM13920 datasheet](https://e-peas.com/aem13920_datasheet/).
+
+> **_NOTE_:** The "AEM13920_SetConfiguration" function loads all bit fields in the I2C registers. The PMIC will ignore the hardware configuration of its input pins. Please make sure all parameters relative to your specific application (non-default) are set accordingly, as described in the AEM13920 software documentation.
 
 ### Test with mobile phone ###
 
@@ -147,6 +217,8 @@ There is one more option, users can use one EFR32/BGM device running the **Bluet
 
 - UG591: User's Guide to EFR32xG22E Energy Harvesting Explorer Kit
 - [Energy Harvesting Documentation](https://www.silabs.com/development-tools/wireless/efr32xg22e-explorer-kit?tab=overview)
+- [The documentation of the drivers and software examples for the AEM13920 harvester](https://doc.e-peas.com/aem13920/software/index.html) 
+- [The AEM13920 datasheet](https://e-peas.com/aem13920_datasheet/)
 
 > **_NOTE_:** Methods for measuring current consumption specific to this hardware are discussed in the kit's User's Guide (UG591). Some example measurements are also provided in the same document.
 

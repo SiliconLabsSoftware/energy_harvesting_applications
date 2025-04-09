@@ -11,7 +11,16 @@
   * \brief	Common Definitions
   * 
   * \version	1.0.0
-  * 	- Minor bug fixes
+  * 	- First public release
+  * \version	2.0.0
+  * 	Breaking Change
+  * 	- API revision
+  * \version	2.0.1
+  * 	Bug Fix
+  * 	- Fix wrong masks
+  * \version	2.0.2
+  * 	Bug Fix
+  * 	- Remove useless include
   * 
   ***************************************************************************//*
   *                    ___         _ __   ___  __ _ ___ 
@@ -203,45 +212,45 @@ extern "C"
 /** @} *//* end name AEM13920_I2C_SLV_ADDR */
 
 
-typedef enum _AEM13920_Source {
-	AEM13920_SRC1			= 0,	/**< Source 1 */
-	AEM13920_SRC2			= 1,	/**< Source 2 */
-} AEM13920_Source;
+typedef enum _AEM13920_SOURCE {
+	AEM13920_SRC1			= 0x00,	/**< Source 1 */
+	AEM13920_SRC2			= 0x01,	/**< Source 2 */
+} AEM13920_SOURCE;
 
 /**
   * @brief 	Source Regulation mode
   */
 typedef enum _AEM13920_SRCREGU_MODE {
-	AEM13920_SRCREGU_CONST		= 0,	/**< Mode: constant voltage */
-	AEM13920_SRCREGU_MPPT		= 1,	/**< Mode: MPP tracking */
+	AEM13920_SRCREGU_CONST		= 0x00,	/**< Mode: constant voltage */
+	AEM13920_SRCREGU_MPPT		= 0x01,	/**< Mode: MPP tracking */
 } AEM13920_SRCREGU_MODE;
 
 /**
   * @brief 	Maximum Power Point Tracking ratio
   */
 typedef enum _AEM13920_MPPT_RATIO {
-	AEM13920_MPPT_RATIO_ZMPP 	= 7,	/**< Ratio: none. Use ZMPP pin */
-	AEM13920_MPPT_RATIO_85 		= 6,	/**< Ratio: 85pc */
-	AEM13920_MPPT_RATIO_80 		= 5,	/**< Ratio: 80pc */
-	AEM13920_MPPT_RATIO_75 		= 4,	/**< Ratio: 75pc */
-	AEM13920_MPPT_RATIO_70 		= 3,	/**< Ratio: 70pc */
-	AEM13920_MPPT_RATIO_65 		= 2,	/**< Ratio: 65pc */
-	AEM13920_MPPT_RATIO_50 		= 1,	/**< Ratio: 50pc */
-	AEM13920_MPPT_RATIO_35 		= 0	/**< Ratio: 35pc */
+	AEM13920_MPPT_RATIO_ZMPP 	= 0x07,	/**< MPPT ratio: none. Use ZMPP pin */
+	AEM13920_MPPT_RATIO_85 		= 0x06,	/**< MPPT ratio: 85% */
+	AEM13920_MPPT_RATIO_80 		= 0x05,	/**< MPPT ratio: 80% */
+	AEM13920_MPPT_RATIO_75 		= 0x04,	/**< MPPT ratio: 75% */
+	AEM13920_MPPT_RATIO_70 		= 0x03,	/**< MPPT ratio: 70% */
+	AEM13920_MPPT_RATIO_65 		= 0x02,	/**< MPPT ratio: 65% */
+	AEM13920_MPPT_RATIO_50 		= 0x01,	/**< MPPT ratio: 50% */
+	AEM13920_MPPT_RATIO_35 		= 0x00	/**< MPPT ratio: 35% */
 } AEM13920_MPPT_RATIO;
 
 /**
   * @brief 	Maximum Power Point Tracking duration
   */
 typedef enum _AEM13920_MPPT_DURATION {
-	AEM13920_MPPT_DUR2 		= 0,	/**< Duration: 2ms */
-	AEM13920_MPPT_DUR4 		= 1,	/**< Duration: 4ms */
-	AEM13920_MPPT_DUR8 		= 2,	/**< Duration: 8ms */
-	AEM13920_MPPT_DUR16 		= 3,	/**< Duration: 16ms */
-	AEM13920_MPPT_DUR32 		= 4,	/**< Duration: 32ms */
-	AEM13920_MPPT_DUR128 		= 5,	/**< Duration: 128ms */
-	AEM13920_MPPT_DUR256 		= 6,	/**< Duration: 256ms */
-	AEM13920_MPPT_DUR512 		= 7	/**< Duration: 512ms */
+	AEM13920_MPPT_DUR2 		= 0x00,	/**< MPPT duration: 2ms */
+	AEM13920_MPPT_DUR4 		= 0x01,	/**< MPPT duration: 4ms */
+	AEM13920_MPPT_DUR8 		= 0x02,	/**< MPPT duration: 8ms */
+	AEM13920_MPPT_DUR16 		= 0x03,	/**< MPPT duration: 16ms */
+	AEM13920_MPPT_DUR32 		= 0x04,	/**< MPPT duration: 32ms */
+	AEM13920_MPPT_DUR128 		= 0x05,	/**< MPPT duration: 128ms */
+	AEM13920_MPPT_DUR256 		= 0x06,	/**< MPPT duration: 256ms */
+	AEM13920_MPPT_DUR512 		= 0x07	/**< MPPT duration: 512ms */
 } AEM13920_MPPT_DURATION;
 
 
@@ -249,361 +258,478 @@ typedef enum _AEM13920_MPPT_DURATION {
   * @brief 	Maximum Power Point Tracking period
   */
 typedef enum _AEM13920_MPPT_PERIOD {
-	AEM13920_MPPT_PER128 		= 0,	/**< Period: 128ms */
-	AEM13920_MPPT_PER256 		= 1,	/**< Period: 256ms */
-	AEM13920_MPPT_PER512 		= 2,	/**< Period: 512ms */
-	AEM13920_MPPT_PER1024 		= 3,	/**< Period: 1024ms */
-	AEM13920_MPPT_PER2048 		= 4,	/**< Period: 2048ms */
-	AEM13920_MPPT_PER4096 		= 5,	/**< Period: 4096ms */
-	AEM13920_MPPT_PER8192 		= 6,	/**< Period: 8192ms */
-	AEM13920_MPPT_PER16384 		= 7,	/**< Period: 16384ms */
+	AEM13920_MPPT_PER128 		= 0x00,	/**< MPPT period: 128ms */
+	AEM13920_MPPT_PER256 		= 0x01,	/**< MPPT period: 256ms */
+	AEM13920_MPPT_PER512 		= 0x02,	/**< MPPT period: 512ms */
+	AEM13920_MPPT_PER1024 		= 0x03,	/**< MPPT period: 1024ms */
+	AEM13920_MPPT_PER2048 		= 0x04,	/**< MPPT period: 2048ms */
+	AEM13920_MPPT_PER4096 		= 0x05,	/**< MPPT period: 4096ms */
+	AEM13920_MPPT_PER8192 		= 0x06,	/**< MPPT period: 8192ms */
+	AEM13920_MPPT_PER16384 		= 0x07,	/**< MPPT period: 16384ms */
 } AEM13920_MPPT_PERIOD;
 
 /**
   * @brief 	Boost/Buck converters timing multiplier
   */
 typedef enum _AEM13920_TMULT {
-	AEM13920_TMULT1			= 0,	/**< Multiplier: 1 */
-	AEM13920_TMULT2			= 1,	/**< Multiplier: 2 */
-	AEM13920_TMULT3			= 2,	/**< Multiplier: 3 */
-	AEM13920_TMULT4			= 3,	/**< Multiplier: 4 */
-	AEM13920_TMULT6			= 4,	/**< Multiplier: 6 */
-	AEM13920_TMULT8			= 5,	/**< Multiplier: 8 */
-	AEM13920_TMULT12		= 6,	/**< Multiplier: 12 */
-	AEM13920_TMULT16		= 7,	/**< Multiplier: 16 */
+	AEM13920_TMULT1			= 0x00,	/**< Timing multiplier: 1 */
+	AEM13920_TMULT2			= 0x01,	/**< Timing multiplier: 2 */
+	AEM13920_TMULT3			= 0x02,	/**< Timing multiplier: 3 */
+	AEM13920_TMULT4			= 0x03,	/**< Timing multiplier: 4 */
+	AEM13920_TMULT6			= 0x04,	/**< Timing multiplier: 6 */
+	AEM13920_TMULT8			= 0x05,	/**< Timing multiplier: 8 */
+	AEM13920_TMULT12		= 0x06,	/**< Timing multiplier: 12 */
+	AEM13920_TMULT16		= 0x07,	/**< Timing multiplier: 16 */
 } AEM13920_TMULT;
 
 /**
   * @brief 	Buck converter output regulation voltage
   */
-typedef enum _AEM13920_VLOAD {
-	AEM13920_VLOAD_OFF		= 0,	/**< Off */
-	AEM13920_VLOAD_600		= 1,	/**< VLOAD: 600mV */
-	AEM13920_VLOAD_900		= 2,	/**< VLOAD: 900mV */
-	AEM13920_VLOAD_1200		= 3,	/**< VLOAD: 1200mV */
-	AEM13920_VLOAD_1500		= 4,	/**< VLOAD: 1500mV */
-	AEM13920_VLOAD_1800		= 5,	/**< VLOAD: 1800mV */
-	AEM13920_VLOAD_2200		= 6,	/**< VLOAD: 2200mV */
-	AEM13920_VLOAD_2500		= 7,	/**< VLOAD: 2500mV */
-} AEM13920_VLOAD;
+typedef enum _AEM13920_VOUT {
+	AEM13920_VOUT_OFF		= 0x00,	/**< Off */
+	AEM13920_VOUT_600		= 0x01,	/**< VOUT: 600mV */
+	AEM13920_VOUT_900		= 0x02,	/**< VOUT: 900mV */
+	AEM13920_VOUT_1200		= 0x03,	/**< VOUT: 1200mV */
+	AEM13920_VOUT_1500		= 0x04,	/**< VOUT: 1500mV */
+	AEM13920_VOUT_1800		= 0x05,	/**< VOUT: 1800mV */
+	AEM13920_VOUT_2200		= 0x06,	/**< VOUT: 2200mV */
+	AEM13920_VOUT_2500		= 0x07,	/**< VOUT: 2500mV */
+} AEM13920_VOUT;
 
 /**
-  * @brief 	Sleep threshold
+  * @brief 	SRC low threshold
   */
-typedef enum _AEM13920_SLEEP_THRESHOLD {
-	AEM13920_SLEEP_THRESH_112 	= 0,	/**< Threshold: 112mV */
-	AEM13920_SLEEP_THRESH_202 	= 1,	/**< Threshold: 202mV */
-	AEM13920_SLEEP_THRESH_255 	= 2,	/**< Threshold: 255mV */
-	AEM13920_SLEEP_THRESH_300 	= 3,	/**< Threshold: 300mV */
-	AEM13920_SLEEP_THRESH_360 	= 4,	/**< Threshold: 360mV */
-	AEM13920_SLEEP_THRESH_405 	= 5,	/**< Threshold: 405mV */
-	AEM13920_SLEEP_THRESH_510 	= 6,	/**< Threshold: 510mV */
-	AEM13920_SLEEP_THRESH_600 	= 7	/**< Threshold: 600mV */
-} AEM13920_SLEEP_THRESHOLD;
+typedef enum _AEM13920_SRCLOW_THRESH {
+	AEM13920_SRCLOW_THRESH_112 	= 0x00,	/**< SRC low threshold: 112mV */
+	AEM13920_SRCLOW_THRESH_202 	= 0x01,	/**< SRC low threshold: 202mV */
+	AEM13920_SRCLOW_THRESH_255 	= 0x02,	/**< SRC low threshold: 255mV */
+	AEM13920_SRCLOW_THRESH_300 	= 0x03,	/**< SRC low threshold: 300mV */
+	AEM13920_SRCLOW_THRESH_360 	= 0x04,	/**< SRC low threshold: 360mV */
+	AEM13920_SRCLOW_THRESH_405 	= 0x05,	/**< SRC low threshold: 405mV */
+	AEM13920_SRCLOW_THRESH_510 	= 0x06,	/**< SRC low threshold: 510mV */
+	AEM13920_SRCLOW_THRESH_600 	= 0x07	/**< SRC low threshold: 600mV */
+} AEM13920_SRCLOW_THRESH;
 
 /**
   * @brief 	APM mode of operation
   */
 typedef enum _AEM13920_APM_MODE {
-	AEM13920_APM_MODE_PULSE_COUNTER = 0,	/**< Mode: pulse counter */
-	AEM13920_APM_MODE_POWER_METER 	= 1	/**< Mode: power meter */
+	AEM13920_APM_MODE_PULSE_COUNTER = 0x00,	/**< APM Mode: pulse counter */
+	AEM13920_APM_MODE_POWER_METER 	= 0x01	/**< APM Mode: power meter */
 } AEM13920_APM_MODE;
 
 /**
   * @brief 	APM computation window
   */
 typedef enum _AEM13920_APM_WINDOW {
-	AEM13920_APM_WINDOW_128 	= 0,	/**< Window: 128ms, Refresh rate: 256ms */
-	AEM13920_APM_WINDOW_64 		= 1,	/**< Window: 64ms, Refresh rate: 128ms */
+	AEM13920_APM_WINDOW_128 	= 0x00,	/**< APM window: 128ms, Refresh rate: 256ms */
+	AEM13920_APM_WINDOW_64 		= 0x01,	/**< APM window: 64ms, Refresh rate: 128ms */
 } AEM13920_APM_WINDOW;
 
 /**
-  * @brief 	Source of configuration
+  * @brief 	Configuration Mode
   */
-typedef enum _AEM13920_CFGSRC {
-	AEM13920_CFGSRC_I2C		= 1,	/**< Source: I2C's registers */
-	AEM13920_CFGSRC_PINS		= 0	/**< Source: configuration pins */
-} AEM13920_CFGSRC;
+typedef enum _AEM13920_CONFIG_MODE {
+	AEM13920_CONFIG_MODE_GPIO	= 0x00,	/**< Configuration from GPIO */
+	AEM13920_CONFIG_MODE_I2C	= 0x01	/**< Configuration from I2C */
+} AEM13920_CONFIG_MODE;
+
+typedef struct _AEM13920_MPPTCFG {
+	/**
+	  * @brief 	Reserved
+	  */
+	uint8_t rsvd0			:1;
+	/**
+	  * @brief 	MPPT ratio
+	  * @details 	Set the MPPT ratio
+	  */
+	AEM13920_MPPT_RATIO ratio	:3;
+	/**
+	  * @brief 	Reserved
+	  */
+	uint8_t rsvd1			:4;
+	/**
+	  * @brief 	MPPT duration
+	  * @details 	Set the MPPT sampling duration
+	  */
+	AEM13920_MPPT_DURATION duration	:3;
+	/**
+	  * @brief 	MPPT period
+	  * @details 	Set the MPPT period
+	  */
+	AEM13920_MPPT_PERIOD period	:3;
+	/**
+	  * @brief 	Reserved
+	  */
+	uint8_t rsvd2			:2;
+} AEM13920_MPPTCFG_t;
 
 /**
-  * @brief 	Ldcdc value
+  * @brief 	Bost converter configuration
   */
-typedef enum _AEM13920_LDCDC {
-	AEM13920_LDCDC_4_7		= 0,	/**< Ldcdc: 4.7uH */
-	AEM13920_LDCDC_10		= 1,	/**< Ldcdc: 10uH */
-	AEM13920_LDCDC_15		= 2,	/**< Ldcdc: 15uH */
-	AEM13920_LDCDC_22		= 3,	/**< Ldcdc: 22uH */
-	AEM13920_LDCDC_33		= 4,	/**< Ldcdc: 33uH */
-	AEM13920_LDCDC_47		= 5,	/**< Ldcdc: 47uH */
-	AEM13920_LDCDC_68		= 6,	/**< Ldcdc: 68uH */
-} AEM13920_LDCDC;
+typedef struct _AEM13920_BSTCFG {
+	/**
+	  * @brief 	Enable/Disable the boost converter
+	  * @details 	Set to \c true to enable, to \c false to disable
+	  */
+	bool enable			:1;
+	/**
+	  * @brief 	Enable/Disable the High Power feature for the boost 
+	  *		converter
+	  * @details 	Set to \c true to enable, to \c false to disable
+	  */
+	bool high_power_enable		:1;
+	/**
+	  * @brief 	Boost converter's timing multiplier
+	  * @details 	Set the timing multiplier for the boost converter.
+	  *		The higher the timing multiplier, the higher the average
+	  *		current pulled from the source to charge the storage 
+	  *		element
+	  */
+	AEM13920_TMULT tmult		:3;
+	/**
+	  * @brief 	Reserved
+	  */
+	uint8_t __rsvd			:3;
+} AEM13920_BSTCFG_t;
+
+/**
+  * @brief 	Buck converter configuration
+  */
+typedef struct _AEM13920_BUCKCFG {
+	/**
+	  * @brief 	Buck converter output regulation voltage
+	  * @details 	Set the buck converter output regulation voltage
+	  */
+	AEM13920_VOUT vout		:3;
+	/**
+	  * @brief 	Timing multiplier
+	  * @details 	Set the timing multiplier for the buck converter
+	  */
+	AEM13920_TMULT tmult		:3;
+	/**
+	  * @brief 	Reserved
+	  */
+	uint8_t __rsvd			:2;
+} AEM13920_BUCKCFG_t;
+
+/**
+  * @brief 	SRC Low thresholds configuration
+  */
+typedef struct _AEM13920_SRCLOWCFG {
+	/**
+	  * @brief 	SRC1 threshold
+	  * @details 	Set the SRC1 regulation voltage below which the AEM 
+	  *		enters SLEEP STATE
+	  */
+	AEM13920_SRCLOW_THRESH src1_thresh	:3;
+	/**
+	  * @brief 	SRC2 threshold
+	  * @details 	Set the SRC2 regulation voltage below which the AEM 
+	  *		enters SLEEP STATE
+	  */
+	AEM13920_SRCLOW_THRESH src2_thresh	:3;
+	/**
+	  * @brief 	Reserved
+	  */
+	uint8_t __rsvd				:2;
+} AEM13920_SRCLOWCFG_t;
+
+/**
+  * @brief 	APM configuration
+  */
+typedef struct _AEM13920_APMCFG {
+	/**
+	  * @brief 	Enable/Disable APM for SRC1
+	  * @details 	Set to \c true to enable, to \c false to disable
+	  */
+	bool src1_enable		:1;
+	/**
+	  * @brief 	Enable/Disable APM for SRC2
+	  * @details 	Set to \c true to enable, to \c false to disable
+	  */
+	bool src2_enable		:1;
+	/**
+	  * @brief 	Enable/Disable APM for the buck converter
+	  * @details 	Set to \c true to enable, to \c false to disable
+	  */
+	bool buck_enable		:1;
+	/**
+	  * @brief 	Average Power Monitoring operation mode
+	  * @details 	Set the APM mode of operation
+	  */
+	AEM13920_APM_MODE mode		:1;
+	/**
+	  * @brief 	Computation window for the Average Power Monitoring
+	  * @details 	Set the APM computation window
+	  */
+	AEM13920_APM_WINDOW window	:1;
+	/**
+	  * @brief 	Reserved
+	  */
+	uint8_t __rsvd			:3;
+} AEM13920_APMCFG_t;
 
 /**
   * @brief 	IRQ flags
   */
 typedef struct _AEM13920_IRQFLG {
-	/**
-	  * @brief 	Out of reset flag
+	/** 
+	  * @brief 	I2C ready flag 
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool outOfReset 		:1;
-	/**
-	  * @brief 	Discharge flag
+	bool i2c_rdy 		:1;
+	/** 
+	  * @brief 	Overdischarge flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool discharge 			:1;
+	bool vovdis		:1;
 	/**
 	  * @brief 	Charge ready flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool chargeReady 		:1;
-	/**
+	bool vchrdy	:1;
+	/** 
 	  * @brief 	Overcharge flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool overcharge 		:1;
-	/**
-	  * @brief 	Sleep threshold flag
+	bool vovch		:1;
+	/** 
+	  * @brief 	SRC Low Threshold flag 
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool sleepThresh 		:1;
+	bool src_low		:1;
 	/**
-	  * @brief 	Temperature threshold for storage element charging flag
+	  * @brief 	Charge temperature threshold flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool tempChThresh 		:1;
+	bool temp_ch 		:1;
 	/**
-	  * @brief 	Temeperature threshold for storage element discharging flag
+	  * @brief 	Discharge temperature threshold flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool tempDisThresh 		:1;
+	bool temp_dis 		:1;
 	/**
 	  * @brief 	reserved
 	  */
-	uint8_t __reserved		:1;
+	uint8_t __rsvd		:1;
 	/**
 	  * @brief 	SRC1 MPPT start flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool src1MPPTStart		:1;
+	bool src1_mppt_start	:1;
 	/**
 	  * @brief 	SRC1 MPPT done flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool src1MPPTDone		:1;
+	bool src1_mppt_done	:1;
 	/**
 	  * @brief 	SRC2 MPPT start flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool src2MPPTStart		:1;
+	bool src2_mppt_start	:1;
 	/**
 	  * @brief 	SRC2 MPPT done flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool src2MPPTDone		:1;
+	bool src2_mppt_done	:1;
 	/**
-	  * @brief	STO ADC done flag
+	  * @brief	STO data ready flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool storageDone		:1;
+	bool sto_done		:1;
 	/**
-	  * @brief	Temperature ADC done flag
+	  * @brief	Temperature data ready flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool tempDone			:1;
+	bool temp_done		:1;
 	/**
 	  * @brief	APM data ready flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool APMDone 			:1;
+	bool apm_done 		:1;
 	/**
 	  * @brief	APM error flag
 	  * @details 	Set to \c true if the flag is raised, to \c false otherwise
 	  */
-	bool APMError 			:1;
-} AEM13920_IRQFLG;
+	bool apm_err		:1;
+} AEM13920_IRQFLG_t;
 
 /**
   * @brief 	IRQ settings
   */
-typedef struct _AEM13920_IRQ_cfg {
+typedef struct _AEM13920_IRQEN {
 	/**
 	  * @brief 	Enable/Disable the generation of interrupts when the 
 	  * 		AEM is out of reset and ready to communicate
 	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableOutOfReset 		:1;
+	bool i2c_rdy 		:1;
 	/**
-	  * @brief 	Enable/Disable the generation of interrupts when the 
-	  * 		storage level is under the discharge threshold defined 
-	  * 		in \ref AEM13920_Config.dischargeThresh
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief 	Enable/Disable the IRQ pin to be asserted (HIGH) when 
+	  *		the storage level crosses the overdischarge threshold
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableDischarge 		:1;
+	bool vovdis 		:1;
 	/**
-	  * @brief 	Enable/Disable the generation of interrupts when the 
-	  * 		storage level is above the charge ready threshold defined 
-	  * 		in \ref AEM13920_Config.chargeReadyThresh
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief 	Enable/Disablethe IRQ pin to be asserted (HIGH) when 
+	  *		the storage level crosses the charge ready threshold
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableChargeReady 		:1;
+	bool vchrdy 		:1;
 	/**
-	  * @brief 	Enable/Disable the generation of interrupts when the 
-	  * 		storage level is above the overcharge threshold defined 
-	  * 		in \ref AEM13920_Config.overchargeThresh
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief 	Enable/Disable the IRQ pin to be asserted (HIGH) when 
+	  *		the storage level crosses the overcharge threshold
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableOvercharge 		:1;
+	bool vovch 		:1;
 	/**
-	  * @brief 	Enable/Disable the generation of interrupts when the 
-	  * 		source voltage drops below the defined threshold
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief 	Enable/Disable the IRQ pin to be asserted (HIGH) on any
+	  *		transition between a state where at least one source 
+	  *		voltage is above its low threshold and a state where 
+	  *		both are below their respective thresholds.
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableSleepThresh 		:1;
+	bool src_low 		:1;
 	/**
-	  * @brief 	Enable/Disable the generation of interrupts when the 
-	  * 		ambient temperature is out of the defined range for 
-	  * 		storage element charging
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief 	Enable/Disable the IRQ pin to be asserted (HIGH) when 
+	  *		the ambient temperature is out of the defined range for
+	  *		storage element charging
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableTempChThresh 		:1;
+	bool temp_ch 		:1;
 	/**
-	  * @brief 	Enable/Disable the generation of interrupts when the 
-	  * 		ambient temperature is out of the defined range for 
-	  * 		storage element discharging
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief 	Enable/Disable the IRQ pin to be asserted (HIGH) when 
+	  *		the ambient temperature is out of the defined range for
+	  *		storage element discharging
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableTempDisThresh 		:1;
+	bool temp_dis 		:1;
 	/**
 	  * @brief 	reserved
 	  */
-	uint8_t __reserved			:1;
+	uint8_t __rsvd		:1;
 	/**
-	  * @brief 	Enable/Disable the generation of interrupts on MPPT start
-	  * 		for SRC1
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief 	Enable/Disable the IRQ pin to be asserted (HIGH) when 
+	  *		the MPPT starts for SRC1
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableSrc1MPPTStart		:1;
+	bool src1_mppt_start	:1;
 	/**
-	  * @brief 	Enable/Disable the generation of interrupts on MPPT done
-	  * 		for SRC1
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief 	Enable/Disable the IRQ pin to be asserted (HIGH) when 
+	  *		the MPPT is done for SRC1
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableSrc1MPPTDone		:1;
+	bool src1_mppt_done	:1;
 	/**
-	  * @brief 	Enable/Disable the generation of interrupts on MPPT start
-	  * 		for SRC2
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief 	Enable/Disable the IRQ pin to be asserted (HIGH) when 
+	  *		the MPPT starts for SRC2
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableSrc2MPPTStart		:1;
+	bool src2_mppt_start	:1;
 	/**
-	  * @brief 	Enable/Disable the generation of interrupts on MPPT done
-	  * 		for SRC2
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief 	Enable/Disable the IRQ pin to be asserted (HIGH) when 
+	  *		the MPPT is done for SRC2
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableSrc2MPPTDone		:1;
+	bool src2_mppt_done	:1;
 	/**
-	  * @brief	Enable/Disable the generation of interrupts on STO 
-	  * 		ADC done
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief	Enable/Disable the IRQ pin to be asserted (HIGH) wwhen 
+	  *		a new data from the STO ADC is available
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableStorageDone		:1;
+	bool sto_done		:1;
 	/**
-	  * @brief	Enable/Disable the generation of interrupts on temperature
-	  * 		ADC done
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief	Enable/Disable the IRQ pin to be asserted (HIGH) when 
+	  *		a new data from the temperature ADC is available
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableTempDone		:1;
+	bool temp_done		:1;
 	/**
-	  * @brief	Enable/Disable the generation of interrupts when the 
-	  * 		APM data is ready
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief	Enable/Disable the IRQ pin to be asserted (HIGH) when 
+	  *		new APM data are available
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableAPMDone 		:1;
+	bool apm_done 		:1;
 	/**
-	  * @brief	Enable/Disable the generation of interrupts on APM errors
-	  * @details	Set to \p 1 to enable, to \c false to disable
+	  * @brief	Enable/Disable the IRQ pin to be asserted (HIGH) when
+	  *		an APM error occurs
+	  * @details	Set to \c true to enable, to \c false to disable
 	  */
-	bool enableAPMError		:1;
-} AEM13920_IRQEN;
+	bool apm_err		:1;
+} AEM13920_IRQEN_t;
 
 /**
   * @brief 	Status
   */
-typedef struct _AEM13920_Status {
+typedef struct _AEM13920_STATUS {
 	/**
-	  * @brief 	Discharge status
+	  * @brief 	Overdischarge status
 	  * @details 	Set to \c true when the storage level is under the 
-	  * 		discharge threshold defined in 
-	  * 		\ref AEM13920_Config.dischargeThresh, to \c false 
-	  * 		otherwise
+	  * 		overdischarge threshold, to \c false otherwise
 	  */
-	bool discharge 		:1;
+	bool vovdis 		:1;
 	/**
 	  * @brief 	Charge ready status
 	  * @details 	Set to \c true  when the storage level is above the 
-	  * 		charge ready threshold defined in
-	  * 		\ref AEM13920_Config.chargeReadyThresh, to \c false 
-	  * 		otherwise
+	  * 		charge ready threshold, to \c false otherwise
 	  */
-	bool chargeReady 	:1;
+	bool vchrdy 	:1;
 	/**
 	  * @brief 	Overcharge status
 	  * @details 	Set to \c true when the storage level is above the 
-	  * 		overcharge threshold defined in 
-	  * 		\ref AEM13920_Config.overchargeThresh, to \c false 
-	  * 		otherwise
+	  * 		overcharge threshold, to \c false otherwise
 	  */
-	bool overcharge		:1;
+	bool vovch		:1;
 	/**
-	  * @brief 	Sleep threshold on SRC1 status
-	  * @details 	Set to \c true when the source voltage is under the 
-	  * 		defined sleep threshold, to \c false otherwise
+	  * @brief 	SRC1LOW threshold status
+	  * @details 	Set to \c true when the SRC1's voltage is under the 
+	  * 		defined threshold, to \c false otherwise
 	  */
-	bool src1Sleep 		:1;
+	bool src1_low 		:1;
 	/**
-	  * @brief 	Sleep threshold on SRC2 status
-	  * @details 	Set to \c true when the source voltage is under the 
-	  * 		defined sleep threshold, to \c false otherwise
+	  * @brief 	SRC2LOW threshold status
+	  * @details 	Set to \c true when the SRC2 voltage is under the 
+	  * 		defined threshold, to \c false otherwise
 	  */
-	bool src2Sleep 		:1;
+	bool src2_low 		:1;
 	/**
-	  * @brief 	reserved
+	  * @brief 	Reserved
 	  */
-	uint8_t __reserved0	:3;
+	uint8_t __rsvd0		:3;
 	/**
 	  * @brief 	Cold temperature threshold for storage element charging
 	  * 		status
-	  * @details 	Set to \c true when the temperature is out of the 
-	  * 		defined range, to \c false otherwise
+	  * @details 	Set to \c true when the temperature is below the cold
+	  *		threshold, to \c false otherwise
 	  */
-	bool tempColdCharge	:1;
+	bool temp_cold_ch	:1;
 	/**
 	  * @brief 	Hot temperature threshold for storage element charging
 	  * 		status
-	  * @details 	Set to \c true when the temperature is out of the 
-	  * 		defined range, to \c false otherwise
+	  * @details 	Set to \c true when the temperature is above the hot
+	  *		threshold, to \c false otherwise
 	  */
-	bool tempHotCharge	:1;
+	bool temp_hot_ch	:1;
 	/**
 	  * @brief 	Cold Temperature threshold for storage element discharging
 	  * 		status
-	  * @details 	Set to \c true when the temperature is out of the 
-	  * 		defined range, to \c false otherwise
+	  * @details 	Set to \c true when the temperature is below the cold
+	  *		threshold, to \c false otherwise
 	  */
-	bool tempColdDischarge	:1;
+	bool temp_cold_dis	:1;
 	/**
 	  * @brief 	Hot temperature threshold for storage element discharging
 	  * 		status
-	  * @details 	Set to \c true when the temperature is out of the 
-	  * 		defined range, to \c false otherwise
+	  * @details 	Set to \c true when the temperature is above the hot 
+	  *		threshold, to \c false otherwise
 	  */
-	bool tempHotDischarge	:1;
+	bool temp_hot_dis	:1;
 	/**
-	  * @brief 	reserved
+	  * @brief 	Reserved
 	  */
-	uint8_t __reserved1	:4;
-} AEM13920_Status;
+	uint8_t __rsvd1		:4;
+} AEM13920_STATUS_t;
 
 /**
   * @brief 	APM Error
@@ -615,45 +741,42 @@ typedef struct _AEM13920_APMERR {
 	  * @details	Set to \c true when a counter overflow has occured, to 
 	  * 		\c false otherwise
 	  */
-	bool src1CountOverflow	:1;
+	bool src1_ov	:1;
 	/**
 	  * @brief 	SRC1 counter corrupted
 	  * @details	Set to \c true when the counter is corrupted, to \c false
 	  * 		otherwise
 	  */
-	bool src1CountCorrupted	:1;
+	bool src1_nvld	:1;
 	/**
 	  * @brief 	SRC2 counter overflow
 	  * @details	Set to \c true when a counter overflow has occured, to 
 	  * 		\c false otherwise
 	  */
-	bool src2CountOverflow	:1;
+	bool src2_ov	:1;
 	/**
 	  * @brief 	SRC2 counter corrupted
 	  * @details	Set to \c true when the counter is corrupted, to \c false
 	  * 		otherwise
 	  */
-	bool src2CountCorrupted	:1;
+	bool src2_nvld	:1;
 	/**
 	  * @brief 	BUCK counter overflow
 	  * @details	Set to \c true when a counter overflow has occured, to 
 	  * 		\c false otherwise
 	  */
-	bool buckCountOverflow	:1;
+	bool buck_ov	:1;
 	/**
 	  * @brief 	Buck counter corrupted
 	  * @details	Set to \c true when the counter is corrupted, to \c false
 	  * 		otherwise
 	  */
-	bool buckCountCorrupted	:1;
+	bool buck_nvld	:1;
 	/**
 	  * @brief 	reserved
 	  */
-	uint8_t __reserved	:2;
-} AEM13920_APMERR;
-
-
-
+	uint8_t __rsvd	:2;
+} AEM13920_APMERR_t;
 
 #ifdef __cplusplus
 }
