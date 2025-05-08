@@ -21,7 +21,7 @@ This project showcases a ZigBee Green Power device that operates without a batte
     - [For GPC create a Zigbee GPC Observer project](#for-gpc-create-a-zigbee-gpc-observer-project)
   - [Testing](#testing)
     - [Test with Silabs GPC distributed network](#test-with-silabs-gpc-distributed-network)
-    - [Test with Home Assistant on Raspberry Pi and Sonoff ZBDongle](#test-with-home-assistant-on-raspberry-pi-and-sonoff-zbdongle)
+    - [Test with Home Assistant on Raspberry Pi and Sonoff ZBDongle](#test-with-a-centralized-zigbee-network)
 - [Resources](#resources)
 - [Report Bugs & Get Support](#report-bugs--get-support)
 
@@ -45,7 +45,7 @@ For testing purposes, if the device is not paired and Button 0 is held during bo
 
 ### Hardware Requirements ###
 
-- xG22-EK8200A EFR32xG22E Energy Harvesting Explorer Kit
+- [xG22-EK8200A](https://www.silabs.com/development-tools/wireless/efr32xg22e-energy-harvesting-explorer-kit?tab=overview) - EFR32xG22E Energy Harvesting Explorer Kit
   - 1x [BRD2710A](https://www.silabs.com/development-tools/wireless/efr32xg22e-explorer-kit?tab=overview) - EFR32xG22E Explorer Board 
   - 1x BRD8201A - Dual-source Energy Harvester Shield, with e-peas PMIC [AEM13920](https://e-peas.com/product/aem13920-dual-source-energy-harvesting/)
   - 1x [AM-1417CA-DGK-E](https://www.digikey.fi/en/products/detail/panasonic-bsg/AM-1417CA-DGK-E/2165185?srsltid=AfmBOorLxw9j8zAgh_TfQ08n8cPcNWbRo8Y4Q2tpDqP7lzBZQPNEgTyW) photovoltaic cell for indoor use
@@ -72,7 +72,7 @@ For testing purposes, if the device is not paired and Button 0 is held during bo
   - Download the [Simplicity Studio v5 IDE](https://www.silabs.com/developers/simplicity-studio)
   - Follow the [Simplicity Studio User Guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
 - [Simplicity SDK Version 2024.6.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2024.6.2)
-- [Energy Harvesting Applications Extension](https://github.com/SiliconLabs/energy_harvesting_applications), follow the [How to add to Simplicity Studio IDE](https://github.com/SiliconLabs/energy_harvesting_applications/README.md#how-to-add-to-simplicity-studio-ide) to install the extension.
+- [Energy Harvesting Applications Extension](https://github.com/SiliconLabs/energy_harvesting_applications), follow the [How to add to Simplicity Studio IDE](https://github.com/SiliconLabs/energy_harvesting_applications/blob/main/README.md#how-to-add-to-simplicity-studio-ide) to install the extension.
 
 - Install Energy Harvesting SDK Extension, with the "AEM13920 - Dual sources energy manager - I2C" component.
   **Note:** The quality of this component is EVALUATION, so it's not visible by default. Change the quality filter by checking the checkbox for the evaluation components in the quality filter view to see AEM13920 component listed.

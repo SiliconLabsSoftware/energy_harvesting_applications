@@ -1,6 +1,6 @@
 # Silicon Labs Energy Harvesting Applications - Simplicity SDK Extension #
 
-[![Version Badge](https://img.shields.io/badge/-v1.1.0-green)](https://github.com/SiliconLabs/energy_harvesting_applications/releases)
+[![Version Badge](https://img.shields.io/badge/-v1.1.1-green)](https://github.com/SiliconLabs/energy_harvesting_applications/releases)
 [![SiSDK Badge](https://img.shields.io/badge/SiSDK-v2024.6.2-green)](https://github.com/SiliconLabs/simplicity_sdk/releases)
 ![License badge](https://img.shields.io/badge/License-Zlib-green)
 
@@ -17,6 +17,8 @@ This repo contains documentation, demos, examples and all the code needed for th
 
 - [Simplicity Studio v5 IDE](https://www.silabs.com/developers/simplicity-studio)
 - [Simplicity SDK Version 2024.6.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2024.6.2)
+  - To install specific SDK version in Simplicity Studio 5, open **Installation Manager** via Help → Update Software. It is recommended to install and update all the items in the tab "Product Updates". In tab **SDKs**, find "Simplicity SDK - 32-bit and Wireless MCUs", click **Add** button on the right, and install **Simplicity SDK 2024.6.2**.
+  - The compatible GCC(The GNU Compiler Collection) version of SiSDK 2024.6.2 is 12.2.1 which is provided with Simplicity Studio. Please make sure to use the compatible toolchain while creating the examples of energy harvesting projects. If it's not present, open **Installation Manager** and install it in **Toolchains** tab.
 - [Simplicity Connect Mobile App](https://www.silabs.com/developer-tools/simplicity-connect-mobile-app)
 
 ### External tools ###
@@ -25,7 +27,7 @@ This repo contains documentation, demos, examples and all the code needed for th
 
 ## How to add to Simplicity Studio IDE ##
 
-- Clone the repository somewhere on your PC
+- Clone the repository somewhere on your PC(A git-client tool is required to issue the following command.)
 
   `git clone https://github.com/SiliconLabs/energy_harvesting_applications.git`
 
