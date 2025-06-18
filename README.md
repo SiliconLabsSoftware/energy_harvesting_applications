@@ -1,6 +1,6 @@
 # Silicon Labs Energy Harvesting Applications - Simplicity SDK Extension #
 
-[![Version Badge](https://img.shields.io/badge/-v1.1.1-green)](https://github.com/SiliconLabs/energy_harvesting_applications/releases)
+[![Version Badge](https://img.shields.io/badge/-v1.1.2-green)](https://github.com/SiliconLabs/energy_harvesting_applications/releases)
 [![SiSDK Badge](https://img.shields.io/badge/SiSDK-v2024.6.2-green)](https://github.com/SiliconLabs/simplicity_sdk/releases)
 ![License badge](https://img.shields.io/badge/License-Zlib-green)
 

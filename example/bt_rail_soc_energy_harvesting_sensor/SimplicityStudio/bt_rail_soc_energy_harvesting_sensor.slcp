@@ -82,7 +82,7 @@ configuration:
 
 sdk_extension:
   - id: energy_harvesting
-    version: 1.1.1
+    version: 1.1.2
 
 ui_hints:
   highlight:

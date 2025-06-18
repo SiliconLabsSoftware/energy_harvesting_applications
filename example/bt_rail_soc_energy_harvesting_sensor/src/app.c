@@ -122,7 +122,7 @@ static volatile RAIL_Status_t calibration_status = 0;
 static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_fifo[RAIL_FIFO_SIZE];
 
 static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t adv_rail_packet[] =
-{ 0x02,     // packet type: AUX_ADV_IND, non-connectable
+{ 0x02,     // packet type: ADV_NONCONN_­IND, non-connectable
   0x1A,     // length: 29
   0x2f, 0x45, 0x0a, 0x6f, 0x0d, 0x00,     // AdvA: advertiser address
   0x02,     // adv data length 2
