@@ -49,12 +49,13 @@ static sl_sleeptimer_timer_handle_t debounce_timer;
 
 sl_zigbee_af_status_t sl_zigbee_af_on_off_cluster_set_value_cb(uint8_t endpoint,
                                                                uint8_t command,
-                                                               bool initiatedByLevelChange)
+                                                               bool
+                                                               initiatedByLevelChange)
 {
   sl_zigbee_af_status_t status;
   bool currentValue, newValue;
 
-  sl_zigbee_af_on_off_cluster_println("On/Off set value: %x %x",
+  sl_zigbee_af_on_off_cluster_println("On/Off set value: %02X %02X",
                                       endpoint,
                                       command);
 
@@ -67,7 +68,7 @@ sl_zigbee_af_status_t sl_zigbee_af_on_off_cluster_set_value_cb(uint8_t endpoint,
                                        sizeof(currentValue),
                                        NULL); // data type
   if (status != SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
-    sl_zigbee_af_on_off_cluster_println("ERR: reading on/off %x", status);
+    sl_zigbee_af_on_off_cluster_println("ERR: reading on/off %02X", status);
     return status;
   }
 
@@ -105,7 +106,7 @@ sl_zigbee_af_status_t sl_zigbee_af_on_off_cluster_set_value_cb(uint8_t endpoint,
   // we either got a toggle, or an on when off, or an off when on,
   // so we need to swap the value
   newValue = !currentValue;
-  sl_zigbee_af_on_off_cluster_println("Toggle on/off from %x to %x",
+  sl_zigbee_af_on_off_cluster_println("Toggle on/off from %02X to %02X",
                                       currentValue,
                                       newValue);
 
@@ -123,7 +124,7 @@ sl_zigbee_af_status_t sl_zigbee_af_on_off_cluster_set_value_cb(uint8_t endpoint,
                                           (uint8_t *)&newValue,
                                           ZCL_BOOLEAN_ATTRIBUTE_TYPE);
     if (status != SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
-      sl_zigbee_af_on_off_cluster_println("ERR: writing on/off %x", status);
+      sl_zigbee_af_on_off_cluster_println("ERR: writing on/off %02X", status);
       return status;
     }
 
@@ -153,7 +154,7 @@ sl_zigbee_af_status_t sl_zigbee_af_on_off_cluster_set_value_cb(uint8_t endpoint,
                                           (uint8_t *)&newValue,
                                           ZCL_BOOLEAN_ATTRIBUTE_TYPE);
     if (status != SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
-      sl_zigbee_af_on_off_cluster_println("ERR: writing on/off %x", status);
+      sl_zigbee_af_on_off_cluster_println("ERR: writing on/off %02X", status);
       return status;
     }
   }
@@ -176,52 +177,49 @@ sl_zigbee_af_status_t sl_zigbee_af_on_off_cluster_set_value_cb(uint8_t endpoint,
   return SL_ZIGBEE_ZCL_STATUS_SUCCESS;
 }
 
-bool sl_zigbee_af_on_off_cluster_off_cb(void)
+sl_zigbee_af_zcl_request_status_t sl_zigbee_af_on_off_cluster_off_cb(void)
 {
-  sl_zigbee_af_status_t status = sl_zigbee_af_on_off_cluster_set_value_cb(
-    sl_zigbee_af_current_endpoint(),
-    ZCL_OFF_COMMAND_ID,
-    false);
+  sl_zigbee_af_status_t status =
+    sl_zigbee_af_on_off_cluster_set_value_cb(sl_zigbee_af_current_endpoint(),
+                                             ZCL_OFF_COMMAND_ID,
+                                             false);
 #ifdef SL_CATALOG_ZIGBEE_ZLL_ON_OFF_SERVER_PRESENT
   if (status == SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
     sl_zigbee_af_zll_on_off_server_off_zll_extensions(
       sl_zigbee_af_current_command());
   }
 #endif
-  sl_zigbee_af_send_immediate_default_response(status);
-  return true;
+  return status;
 }
 
-bool sl_zigbee_af_on_off_cluster_on_cb(void)
+sl_zigbee_af_zcl_request_status_t sl_zigbee_af_on_off_cluster_on_cb(void)
 {
-  sl_zigbee_af_status_t status = sl_zigbee_af_on_off_cluster_set_value_cb(
-    sl_zigbee_af_current_endpoint(),
-    ZCL_ON_COMMAND_ID,
-    false);
+  sl_zigbee_af_status_t status =
+    sl_zigbee_af_on_off_cluster_set_value_cb(sl_zigbee_af_current_endpoint(),
+                                             ZCL_ON_COMMAND_ID,
+                                             false);
 #ifdef SL_CATALOG_ZIGBEE_ZLL_ON_OFF_SERVER_PRESENT
   if (status == SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
     sl_zigbee_af_zll_on_off_server_on_zll_extensions(
       sl_zigbee_af_current_command());
   }
 #endif
-  sl_zigbee_af_send_immediate_default_response(status);
-  return true;
+  return status;
 }
 
-bool sl_zigbee_af_on_off_cluster_toggle_cb(void)
+sl_zigbee_af_zcl_request_status_t sl_zigbee_af_on_off_cluster_toggle_cb(void)
 {
-  sl_zigbee_af_status_t status = sl_zigbee_af_on_off_cluster_set_value_cb(
-    sl_zigbee_af_current_endpoint(),
-    ZCL_TOGGLE_COMMAND_ID,
-    false);
+  sl_zigbee_af_status_t status =
+    sl_zigbee_af_on_off_cluster_set_value_cb(sl_zigbee_af_current_endpoint(),
+                                             ZCL_TOGGLE_COMMAND_ID,
+                                             false);
 #ifdef SL_CATALOG_ZIGBEE_ZLL_ON_OFF_SERVER_PRESENT
   if (status == SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
     sl_zigbee_af_zll_on_off_server_toggle_zll_extensions(
       sl_zigbee_af_current_command());
   }
 #endif
-  sl_zigbee_af_send_immediate_default_response(status);
-  return true;
+  return status;
 }
 
 void sl_zigbee_af_on_off_cluster_server_init_cb(uint8_t endpoint)
@@ -252,7 +250,8 @@ void sl_zigbee_af_on_off_cluster_server_init_cb(uint8_t endpoint)
                                                                ZCL_ON_OFF_CLUSTER_ID,
                                                                ZCL_START_UP_ON_OFF_ATTRIBUTE_ID,
                                                                CLUSTER_MASK_SERVER,
-                                                               (uint8_t *)&startUpOnOff,
+                                                               (uint8_t *)&
+                                                               startUpOnOff,
                                                                sizeof(
                                                                  startUpOnOff),
                                                                NULL);
@@ -327,11 +326,12 @@ static bool areStartUpOnOffServerAttributesTokenized(uint8_t endpoint)
 
 uint32_t sl_zigbee_af_on_off_cluster_server_command_parse(
   sl_service_opcode_t opcode,
-  sl_service_function_context_t *context)
+  sl_service_function_context_t
+  *context)
 {
   (void)opcode;
 
-  bool wasHandled = false;
+  sl_zigbee_af_zcl_request_status_t status = SL_ZIGBEE_ZCL_STATUS_UNSUP_COMMAND;
   sl_zigbee_af_cluster_command_t *cmd =
     (sl_zigbee_af_cluster_command_t *)context->data;
 
@@ -339,23 +339,21 @@ uint32_t sl_zigbee_af_on_off_cluster_server_command_parse(
     switch (cmd->commandId) {
       case ZCL_OFF_COMMAND_ID:
       {
-        wasHandled = sl_zigbee_af_on_off_cluster_off_cb();
+        status = sl_zigbee_af_on_off_cluster_off_cb();
         break;
       }
       case ZCL_ON_COMMAND_ID:
       {
-        wasHandled = sl_zigbee_af_on_off_cluster_on_cb();
+        status = sl_zigbee_af_on_off_cluster_on_cb();
         break;
       }
       case ZCL_TOGGLE_COMMAND_ID:
       {
-        wasHandled = sl_zigbee_af_on_off_cluster_toggle_cb();
+        status = sl_zigbee_af_on_off_cluster_toggle_cb();
         break;
       }
     }
   }
 
-  return ((wasHandled)
-          ? SL_ZIGBEE_ZCL_STATUS_SUCCESS
-          : SL_ZIGBEE_ZCL_STATUS_UNSUP_COMMAND);
+  return status;
 }

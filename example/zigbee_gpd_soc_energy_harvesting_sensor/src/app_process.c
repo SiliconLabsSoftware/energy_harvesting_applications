@@ -355,12 +355,12 @@ void app_init(void)
   // Initialize NV
   sl_zigbee_gpd_nv_init();
 
-  // Initialize Radio
-  sl_zigbee_gpd_radio_init();
-
   // Provide the rail handle from the configured RAIL instance
   sl_zigbee_gpd_rail_provide_rail_handle(sl_rail_util_get_handle(
                                            SL_RAIL_UTIL_HANDLE_GPDRAIL));
+
+  // Initialize Radio
+  sl_zigbee_gpd_radio_init();
 
   // Initialize the GPD
   (void)sl_zigbee_gpd_init();

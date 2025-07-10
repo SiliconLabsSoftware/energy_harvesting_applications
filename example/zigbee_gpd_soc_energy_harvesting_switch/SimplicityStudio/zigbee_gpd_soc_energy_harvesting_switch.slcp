@@ -20,7 +20,7 @@ source:
   - path: ../src/main.c
   - path: ../src/app_process.c
   - path: ../patch/protocol/zigbee/app/gpd/plugin/apps/gpd-apps-commission.c
-    directory: "simplicity_sdk_2024.6.2/protocol/zigbee/app/gpd/plugin/apps"
+    directory: "simplicity_sdk_2024.12.2/protocol/zigbee/app/gpd/plugin/apps"
 
 include:
 - path: ../inc

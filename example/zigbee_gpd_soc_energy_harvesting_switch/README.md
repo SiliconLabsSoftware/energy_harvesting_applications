@@ -7,24 +7,30 @@ This project demonstrates a ZigBee Green Power (GP) device powered entirely by a
 
 ## Table of Contents ##
 
-- [Overview](#overview)
-- [Purpose/Scope](#purposescope)
-  - [How it Works](#how-it-works)
-    - [Commissioning](#commissioning)
-    - [Operational](#operational)
-    - [Decommissioning](#decommissioning)
-- [Prerequisites](#prerequisites)
-  - [Hardware Requirements](#hardware-requirements)
-    - [Hardware Connection](#hardware-connection)
-  - [Software Requirements](#software-requirements)
-- [Steps to Run Demo Application](#steps-to-run-demo-application)
-  - [Setup](#setup)
-    - [Create a project based on an example project](#create-a-project-based-on-an-example-project)
-  - [Testing](#testing)
-    - [Test with Silabs GPC distributed network](#test-with-silabs-gpc-distributed-network)
-    - [Test with Home Assistant on Raspberry Pi and Sonoff ZBDongle](#test-with-a-centralized-zigbee-network)
-- [Resources](#resources)
-- [Report Bugs & Get Support](#report-bugs--get-support)
+- [Zigbee GPD - SoC Energy Harvesting Switch](#zigbee-gpd---soc-energy-harvesting-switch)
+  - [Overview](#overview)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+    - [How It Works](#how-it-works)
+      - [Commissioning](#commissioning)
+      - [Operational](#operational)
+      - [Decommissioning](#decommissioning)
+  - [Prerequisites](#prerequisites)
+    - [Hardware Requirements](#hardware-requirements)
+      - [Hardware Connection](#hardware-connection)
+    - [Software Requirements](#software-requirements)
+  - [Steps to Run Demo Application](#steps-to-run-demo-application)
+    - [Setup](#setup)
+      - [Create a project based on an example project](#create-a-project-based-on-an-example-project)
+    - [Testing](#testing)
+      - [Test with Silabs GPC distributed network](#test-with-silabs-gpc-distributed-network)
+      - [Preparing the observer](#preparing-the-observer)
+      - [Commissioning](#commissioning-1)
+      - [Decommissioning](#decommissioning-1)
+      - [Test with a centralized Zigbee network](#test-with-a-centralized-zigbee-network)
+      - [Preparing the observer](#preparing-the-observer-1)
+  - [Resources](#resources)
+  - [Report Bugs \& Get Support](#report-bugs--get-support)
 
 ## Purpose/Scope ##
 
@@ -83,7 +89,7 @@ No matter if the GPD is paired or not, keep Button 0 pressed on the GPD board du
 - Simplicity Studio
   - Download the [Simplicity Studio v5 IDE](https://www.silabs.com/developers/simplicity-studio)
   - Follow the [Simplicity Studio User Guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
-- [Simplicity SDK Version 2024.6.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2024.6.2)
+- [Simplicity SDK Version 2024.12.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2024.12.2)
 - [Energy Harvesting Applications Extension](https://github.com/SiliconLabs/energy_harvesting_applications), follow the [How to add to Simplicity Studio IDE](https://github.com/SiliconLabs/energy_harvesting_applications/blob/main/README.md#how-to-add-to-simplicity-studio-ide) to install the extension.
 
 ## Steps to Run Demo Application ##
@@ -127,6 +133,21 @@ Please create a project in Simplicity Studio based on an example project to test
    ![SDK_Modification](image/SDK_Modification.png)
 
 6. Build and flash the examples to the board.
+   > **_NOTE_:** When creating your own project, please pay attention to the initialization sequence in app_init(). It should follow the same order as in the example project as below.
+   ```c
+   // Initialize NV
+   sl_zigbee_gpd_nv_init();
+
+   // Provide the rail handle from the configured RAIL instance
+   sl_zigbee_gpd_rail_provide_rail_handle(sl_rail_util_get_handle(
+                                           SL_RAIL_UTIL_HANDLE_GPDRAIL));
+   
+   // Initialize Radio
+   sl_zigbee_gpd_radio_init();
+
+   // Initialize the GPD
+   sl_zigbee_gpd_init();
+   ```
 
 **Note:**
 

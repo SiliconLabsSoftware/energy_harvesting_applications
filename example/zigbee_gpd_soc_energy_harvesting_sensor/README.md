@@ -7,23 +7,30 @@ This project showcases a ZigBee Green Power device that operates without a batte
 
 ## Table of Contents ##
 
-- [Overview](#overview)
-- [Purpose/Scope](#purposescope)
-  - [How it Works](#how-it-works)
-- [Prerequisites](#prerequisites)
-  - [Hardware Requirements](#hardware-requirements)
-    - [Hardware Connection](#hardware-connection)
-  - [Software Requirements](#software-requirements)
-- [Steps to Run Demo Application](#steps-to-run-demo-application)
-  - [Setup](#setup)
-    - [Create a project based on an example project](#create-a-project-based-on-an-example-project)
-    - [Interacting with the AEM13920](#interacting-with-the-aem13920)
-    - [For GPC create a Zigbee GPC Observer project](#for-gpc-create-a-zigbee-gpc-observer-project)
-  - [Testing](#testing)
-    - [Test with Silabs GPC distributed network](#test-with-silabs-gpc-distributed-network)
-    - [Test with Home Assistant on Raspberry Pi and Sonoff ZBDongle](#test-with-a-centralized-zigbee-network)
-- [Resources](#resources)
-- [Report Bugs & Get Support](#report-bugs--get-support)
+- [Zigbee GPD - SoC Energy Harvesting Sensor](#zigbee-gpd---soc-energy-harvesting-sensor)
+  - [Overview](#overview)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+    - [How It Works](#how-it-works)
+  - [Prerequisites](#prerequisites)
+    - [Hardware Requirements](#hardware-requirements)
+      - [Hardware Connection](#hardware-connection)
+    - [Software Requirements](#software-requirements)
+  - [Steps to Run Demo Application](#steps-to-run-demo-application)
+    - [Setup](#setup)
+      - [Create a project based on an example project](#create-a-project-based-on-an-example-project)
+      - [Interacting with the AEM13920](#interacting-with-the-aem13920)
+      - [For GPC create a Zigbee GPC Observer project](#for-gpc-create-a-zigbee-gpc-observer-project)
+    - [Testing](#testing)
+      - [Test with Silabs GPC distributed network](#test-with-silabs-gpc-distributed-network)
+      - [Preparing the observer](#preparing-the-observer)
+      - [Commissioning](#commissioning)
+      - [Decommissioning](#decommissioning)
+      - [Slow Discharging Mode](#slow-discharging-mode)
+      - [Test with a centralized Zigbee network](#test-with-a-centralized-zigbee-network)
+      - [Preparing the observer](#preparing-the-observer-1)
+  - [Resources](#resources)
+  - [Report Bugs \& Get Support](#report-bugs--get-support)
 
 ## Purpose/Scope ##
 
@@ -71,7 +78,7 @@ For testing purposes, if the device is not paired and Button 0 is held during bo
 - Simplicity Studio
   - Download the [Simplicity Studio v5 IDE](https://www.silabs.com/developers/simplicity-studio)
   - Follow the [Simplicity Studio User Guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
-- [Simplicity SDK Version 2024.6.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2024.6.2)
+- [Simplicity SDK Version 2024.12.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2024.12.2)
 - [Energy Harvesting Applications Extension](https://github.com/SiliconLabs/energy_harvesting_applications), follow the [How to add to Simplicity Studio IDE](https://github.com/SiliconLabs/energy_harvesting_applications/blob/main/README.md#how-to-add-to-simplicity-studio-ide) to install the extension.
 
 - Install Energy Harvesting SDK Extension, with the "AEM13920 - Dual sources energy manager - I2C" component.
@@ -103,6 +110,21 @@ Please create a project in Simplicity Studio based on an example project to test
    ![gpd_sensor_application_support](image/gpd_sensor_application_support.png)
 
 5. Build and flash the examples to the board.
+   > **_NOTE_:** When creating your own project, please pay attention to the initialization sequence in app_init(). It should follow the same order as in the example project as below.
+   ```c
+   // Initialize NV
+   sl_zigbee_gpd_nv_init();
+
+   // Provide the rail handle from the configured RAIL instance
+   sl_zigbee_gpd_rail_provide_rail_handle(sl_rail_util_get_handle(
+                                           SL_RAIL_UTIL_HANDLE_GPDRAIL));
+   
+   // Initialize Radio
+   sl_zigbee_gpd_radio_init();
+
+   // Initialize the GPD
+   sl_zigbee_gpd_init();
+   ```
 
 #### Interacting with the AEM13920 ####
 
