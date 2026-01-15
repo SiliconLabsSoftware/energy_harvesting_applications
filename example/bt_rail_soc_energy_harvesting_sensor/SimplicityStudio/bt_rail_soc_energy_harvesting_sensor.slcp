@@ -26,7 +26,7 @@ component:
   - id: rail_util_dma
   - id: rail_util_pa
   - id: rail_util_rf_path
-  - id: sl_system
+  - id: sl_main
   - id: app_assert
   - id: iostream_usart
     instance: [vcom]
@@ -82,7 +82,7 @@ configuration:
 
 sdk_extension:
   - id: energy_harvesting
-    version: 1.2.0
+    version: 1.3.0
 
 ui_hints:
   highlight:

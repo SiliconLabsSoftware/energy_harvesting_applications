@@ -1,5 +1,12 @@
 # Zigbee GPC - SoC Energy Harvesting Observer #
 
+[![Type badge](https://img.shields.io/badge/Connected%20Outdoor-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Connected%20Outdoor)
+[![Type badge](https://img.shields.io/badge/Smart%20Agriculture-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Agriculture)
+[![Type badge](https://img.shields.io/badge/Smart%20Buildings-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Buildings)
+[![Type badge](https://img.shields.io/badge/Smart%20Hospitals-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Hospitals)
+[![Type badge](https://img.shields.io/badge/Street%20Lighting-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Street%20Lighting)
+[![Type badge](https://img.shields.io/badge/Switches-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Switches)
+
 ## Overview ##
 
 This project demonstrates a ZigBee Green Power Combo(GPC) device acting as an observer for Energy Harvesting Green Power Devices(GPD). Multiple GPDs are allowed to pair with the GPC. The GPC can receive and process Green Power Frames (GPDFs) and convert GPDFs to ZigBee Cluster Library(ZCL) packets. Its network abilities match the requirement of ZigBee specification which can either form a distributed ZigBee network or join an existing network, e.g. network formed by a Home Assistant coordinator on a Raspberry Pi.
@@ -56,7 +63,7 @@ The device will power on automatically once connected. Your PC should recognize 
 - Simplicity Studio
   - Download the [Simplicity Studio v5 IDE](https://www.silabs.com/developers/simplicity-studio)
   - Follow the [Simplicity Studio User Guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
-- [Simplicity SDK Version 2024.12.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2024.12.2)
+- [Simplicity SDK Version 2025.6.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2025.6.2)
 - [Energy Harvesting Applications Extension](https://github.com/SiliconLabs/energy_harvesting_applications), follow the [How to add to Simplicity Studio IDE](https://github.com/SiliconLabs/energy_harvesting_applications/blob/main/README.md#how-to-add-to-simplicity-studio-ide) to install the extension.
 
 ## Steps to Run Demo Application ##

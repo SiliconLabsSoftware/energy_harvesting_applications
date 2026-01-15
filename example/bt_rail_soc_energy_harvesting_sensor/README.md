@@ -1,5 +1,12 @@
 # Bluetooth RAIL - SoC Energy Harvesting Sensor #
 
+[![Type badge](https://img.shields.io/badge/Connected%20Outdoor-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Connected%20Outdoor)
+[![Type badge](https://img.shields.io/badge/Sensors-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Sensors)
+[![Type badge](https://img.shields.io/badge/Smart%20Agriculture-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Agriculture)
+[![Type badge](https://img.shields.io/badge/Smart%20Buildings-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Buildings)
+[![Type badge](https://img.shields.io/badge/Smart%20Hospitals-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Hospitals)
+[![Type badge](https://img.shields.io/badge/Smart%20Polar%20PV%20Systems-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Polar%20PV%20Systems)
+
 ## Overview ##
 
 This example uses a Dual Harvester Shield with a lithium capacitor as storage element and a photovoltaic cell as power source. The device's operation principle is taking sensor readings from the PMIC (AEM13920 - Power Management IC), then using **RAIL** to craft the BLE packet, and advertising the packet as non-connectable to optimize energy consumption.
@@ -76,7 +83,7 @@ The Silicon Labs - Dual Harvestor Shield (BRD8201A) is connected on top of the M
 - Simplicity Studio
   - Download the [Simplicity Studio v5 IDE](https://www.silabs.com/developers/simplicity-studio)
   - Follow the [Simplicity Studio User Guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
-- [Simplicity SDK Version 2024.12.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2024.12.2)
+- [Simplicity SDK Version 2025.6.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2025.6.2)
 - [Energy Harvesting Applications Extension](https://github.com/SiliconLabs/energy_harvesting_applications), follow the [How to add to Simplicity Studio IDE](../../README.md#how-to-add-to-simplicity-studio-ide) to install the extension.
 - Simplicity Connect Mobile Application [(iOS)](https://apps.apple.com/us/app/simplicity-connect/id1030932759) or [(Android)](https://play.google.com/store/apps/details?id=com.siliconlabs.bledemo&hl=en_NZ)
 

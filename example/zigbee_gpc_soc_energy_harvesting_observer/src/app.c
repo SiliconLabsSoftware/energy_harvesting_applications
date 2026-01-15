@@ -808,24 +808,25 @@ static void appGpScheduleOutgoingGpdf(sl_zigbee_zigbee_packet_type_t packetType,
                                                                   (uint8_t *)&outPkt);
       if (entry) {
         // Schedule sending the response.
-        RAIL_SchedulerInfo_t schedulerInfo = {
+        sl_rail_scheduler_info_t schedulerInfo = {
           .priority = 50,
-          .slipTime = 2000,
-          .transactionTime = 5000
+          .slip_time = 2000,
+          .transaction_time = 5000
         };
-        RAIL_ScheduleTxConfig_t scheduledTxConfig = {
+        sl_rail_scheduled_tx_config_t scheduledTxConfig = {
           .mode = RAIL_TIME_DELAY,
           // We could reuse macToAppDelay here, but recalculating the delay
           // will give us the most up-to-date timings:
           .when = GP_RX_OFFSET_USEC - macToAppDelay(macTimeStamp)
         };
 
-        RAIL_Status_t UNUSED status = sl_zigbee_af_multirail_demo_send(outPkt,
-                                                                       outPktLength,
-                                                                       sli_mac_lower_mac_get_radio_channel(
-                                                                         0),
-                                                                       &scheduledTxConfig,
-                                                                       &schedulerInfo);
+        sl_rail_status_t UNUSED status =
+          sl_zigbee_af_multirail_demo_send(outPkt,
+                                           outPktLength,
+                                           sli_mac_lower_mac_get_radio_channel(
+                                             0),
+                                           &scheduledTxConfig,
+                                           &schedulerInfo);
         free_gp_tx_queue_entry(entry);
       }
     }

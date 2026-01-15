@@ -19,6 +19,7 @@ filter:
 component:
   - id: bluetooth_stack
   - id: bluetooth_feature_connection
+  - id: bluetooth_feature_connection_role_central
   - id: bluetooth_feature_gatt
   - id: bluetooth_feature_legacy_scanner
   - id: bluetooth_feature_system
@@ -27,7 +28,7 @@ component:
   - id: rail_util_pti
   - id: mpu
   - id: bt_post_build
-  - id: sl_system
+  - id: sl_main
   - id: clock_manager
   - id: device_init
   - id: app_log
@@ -45,7 +46,6 @@ include:
       - path: app.h
 
 source:
-  - path: ../src/main.c
   - path: ../src/app.c
 
 configuration:

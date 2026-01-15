@@ -1,6 +1,14 @@
 # Zigbee GPD - SoC Energy Harvesting Sensor #
 
+[![Type badge](https://img.shields.io/badge/Connected%20Outdoor-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Connected%20Outdoor)
+[![Type badge](https://img.shields.io/badge/Smart%20Agriculture-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Agriculture)
+[![Type badge](https://img.shields.io/badge/Smart%20Buildings-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Buildings)
+[![Type badge](https://img.shields.io/badge/Smart%20Hospitals-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Hospitals)
+[![Type badge](https://img.shields.io/badge/Street%20Lighting-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Street%20Lighting)
+[![Type badge](https://img.shields.io/badge/Switches-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Switches)
+
 ## Overview ##
+
 This project showcases a ZigBee Green Power device that operates without a battery, powered entirely by energy harvested from a photovoltaic (PV) cell. The device periodically wakes up to send reports to a paired Green Power Combo device, demonstrating an energy-efficient and sustainable communication system.
 
 ![System Overview](image/SystemOverview.png)
@@ -78,14 +86,13 @@ For testing purposes, if the device is not paired and Button 0 is held during bo
 - Simplicity Studio
   - Download the [Simplicity Studio v5 IDE](https://www.silabs.com/developers/simplicity-studio)
   - Follow the [Simplicity Studio User Guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
-- [Simplicity SDK Version 2024.12.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2024.12.2)
+- [Simplicity SDK Version 2025.6.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2025.6.2)
 - [Energy Harvesting Applications Extension](https://github.com/SiliconLabs/energy_harvesting_applications), follow the [How to add to Simplicity Studio IDE](https://github.com/SiliconLabs/energy_harvesting_applications/blob/main/README.md#how-to-add-to-simplicity-studio-ide) to install the extension.
 
 - Install Energy Harvesting SDK Extension, with the "AEM13920 - Dual sources energy manager - I2C" component.
   **Note:** The quality of this component is EVALUATION, so it's not visible by default. Change the quality filter by checking the checkbox for the evaluation components in the quality filter view to see AEM13920 component listed.
 
   ![aem13920_sw_component](image/aem13920_quality_filter.png)
-
 
 ## Steps to Run Demo Application ##
 
@@ -224,10 +231,13 @@ After flashing the code to the target device, the application starts running aut
 Before starting the test, connect the GPC device to a PC via USB. The device outputs debug messages through a virtual COM port (vcom), with the default serial configuration set to a baud rate of 115200, no parity, one stop bit, and no hardware flow control. Next, unplug the GPD and attach the energy harvester shield.
 
 #### Test with Silabs GPC distributed network ####
+
 #### Preparing the observer ####
+
 Make sure the GPC has formed a distributed network. If LED0 is blinking, it indicates the GPC's network is not ready, check GPC observer project for more information.
 
 #### Commissioning ####
+
 1. Press BTN0 on the GPC end (BRD2703A) to enter commissioning state. When the GPC application is in commissioning state, LED0 remains on. If LED0 is blinking, it indicates the GPC's network is not ready, check GPC observer project for more information. 
    While entering commissioning mode, the GPC outputs the debug message below which be captured using any serial port tool.
 
@@ -255,9 +265,10 @@ While the GPD is not paired, holding BTN0 on booting(For instance, hold BTN0 and
 
 This example also demonstrates how to join the GBC to Home Assistant system running on Raspberry Pi with a ZigBee dongle Sonoff ZBDongle-E.
 **Note:** The following steps are optional and explain how to alternatively set-up the GPC to join a centralized network instead of forming its own distributed network as in the previous section
-#### Preparing the observer ####
-Make sure the GPC has NOT formed a distributed network. If LED0 is blinking, you are all set. Please check GPC observer project for more information.
 
+#### Preparing the observer ####
+
+Make sure the GPC has NOT formed a distributed network. If LED0 is blinking, you are all set. Please check GPC observer project for more information.
 
 ![HA_Overview](image/HA_Overview.png)
 

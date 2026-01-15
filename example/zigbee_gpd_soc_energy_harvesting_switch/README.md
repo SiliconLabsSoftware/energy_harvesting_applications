@@ -1,6 +1,14 @@
 # Zigbee GPD - SoC Energy Harvesting Switch #
 
+[![Type badge](https://img.shields.io/badge/Connected%20Outdoor-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Connected%20Outdoor)
+[![Type badge](https://img.shields.io/badge/Smart%20Agriculture-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Agriculture)
+[![Type badge](https://img.shields.io/badge/Smart%20Buildings-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Buildings)
+[![Type badge](https://img.shields.io/badge/Smart%20Hospitals-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Smart%20Hospitals)
+[![Type badge](https://img.shields.io/badge/Street%20Lighting-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Street%20Lighting)
+[![Type badge](https://img.shields.io/badge/Switches-salmon)](https://siliconlabs-massmarket.github.io/repository-catalog/#applications-list?filter=Switches)
+
 ## Overview ##
+
 This project demonstrates a ZigBee Green Power (GP) device powered entirely by an energy harvester, eliminating the need for batteries or other energy storage elements. With its reduced boot time, the wireless SoC operates using power harvested from a kinetic switch, rapidly waking up to send a report to a paired Green Power Combo (GPC) device. After successful commissioning, the Green Power Device (GPD) transmits toggle commands (GPDFs) to the GPC, enabling the control of an LED on the GPC.
 
 ![System Overview](image/SystemOverview.png)
@@ -39,6 +47,7 @@ ZigBee Green Power is a specialized feature of the ZigBee protocol designed for 
 This solution uses Silicon Labs' EFR32MG22E system-on-chip (SoC), where a kinetic switch generates energy for Green Power frames through button-pushing. The ultra-low power design enables sustainable, maintenance-free performance and **Secure commissioning**, an alternative method to Out Of Band (OOB) methods is implemented here to provide an example of Secure Commissioning procedure, using GP protocol in energy constrained systems with normally disrupted supply. The Green Power state is stored in non-volatile memory (NVM) only after commissioning is complete to optimize energy efficiency.
 
 Once commissioned, the kinetic switch generates Green Power Data Frames (GPDFs) to control the LED of a remote Green Power Combo (GPC) device, which is required to test the system.
+
 - Green Power Combo device example project is available on GitHub as well - [**Zigbee GPC - SoC Energy Harvesting Observer**](https://github.com/SiliconLabs/energy_harvesting_applications/tree/main/example/zigbee_gpc_soc_energy_harvesting_observer)
 
 ### How It Works ###
@@ -89,7 +98,7 @@ No matter if the GPD is paired or not, keep Button 0 pressed on the GPD board du
 - Simplicity Studio
   - Download the [Simplicity Studio v5 IDE](https://www.silabs.com/developers/simplicity-studio)
   - Follow the [Simplicity Studio User Guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
-- [Simplicity SDK Version 2024.12.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2024.12.2)
+- [Simplicity SDK Version 2025.6.2](https://github.com/SiliconLabs/simplicity_sdk/releases/tag/v2025.6.2)
 - [Energy Harvesting Applications Extension](https://github.com/SiliconLabs/energy_harvesting_applications), follow the [How to add to Simplicity Studio IDE](https://github.com/SiliconLabs/energy_harvesting_applications/blob/main/README.md#how-to-add-to-simplicity-studio-ide) to install the extension.
 
 ## Steps to Run Demo Application ##
@@ -163,6 +172,7 @@ Please create a project in Simplicity Studio based on an example project to test
 
 To test the GPD switch, it is necessary to pair it to a GPC device in a Zigbee network, either a distributed network or a centralized network. The following diagram summarizes the machine states of the GPD switch and GPC observer from a high level perspective and can be useful to refer while reading the steps described in next section. 
 ![Machine States from a high level perspective](image/high_level_machine_states.png) 
+
 #### Test with Silabs GPC distributed network ####
 
 After flashing the code to the target device and mounting BRD8202A onto BRD2710A explorer kit, the application is ready for the test.
@@ -171,7 +181,9 @@ In order to reduce the power consumption, most peripherals including IO Stream h
 **Please note:** When programming the firmware of the GPD, it must be connected to a PC via a USB cable, which provides power to the device. After the firmware is flashed, the GPD automatically initiates commissioning and attempts to pair with any nearby GPC in commissioning mode.
 To prevent unintended pairing, either power off the GPC or ensure it exits commissioning mode before flashing the firmware to the GPD.
 If the GPC device (observer) is not on a network (LE0 slowly blinking), press BTN1 or issue the command "plugin network-steering start 0" to form a distributed network with the GPC device. Note that power cycling  or reflashing should not affect the network state, so this step is typicaly needed the first time after unboxing the GPC, full-erasing memory or after leaving a network (long press BTN1).
+
 #### Preparing the observer ####
+
 Make sure the GPC has formed a distributed network. If LED0 is blinking, it indicates the GPC's network is not ready, check GPC observer project for more information.
 
 #### Commissioning ####
@@ -188,7 +200,6 @@ Make sure the GPC has formed a distributed network. If LED0 is blinking, it indi
 
 3. Once the GPD pairs with GPC, pushing the switch will generate the command to toggle LED on the GPC. This allows users to confirm successful commissioning by simply observing LED1 without checking debug messages. If the commissioning process is successful, LED1 will toggle in response to activations of the GPD kinetic switch, with a brief delay due to the GPC’s de-bouncing mechanism, which prevents toggling within one second. This confirms that the commissioning process completes and GPD is transmitting toggle frames as expected during normal operation.
 
-
    ![GPC Toggle](image/GPC_Toggle.png)
 
 #### Decommissioning ####
@@ -204,7 +215,9 @@ After decommissioning, the GPD shall not exist in the GPC's proxy table. Issue t
 
 This example also demonstrates how to join the GBC to Home Assistant system running on Raspberry Pi with a ZigBee dongle Sonoff ZBDongle-E.
 **Note:** The following steps are optional and explain how to alternatively set-up the GPC to join a centralized network instead of forming its own distributed network as in the previous section
+
 #### Preparing the observer ####
+
 Make sure the GPC has NOT formed a distributed network. If LED0 is blinking, you are all set. Please check GPC observer project for more information.
 
 ![HA_Overview](image/HA_Overview.png)

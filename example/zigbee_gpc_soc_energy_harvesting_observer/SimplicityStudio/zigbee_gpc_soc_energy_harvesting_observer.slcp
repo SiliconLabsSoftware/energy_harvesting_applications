@@ -21,7 +21,7 @@ source:
 - path: ../src/main.c
 - path: ../src/app.c
 - path: ../patch/protocol/zigbee/app/framework/plugin/on-off/on-off.c
-  directory: "simplicity_sdk_2024.12.2/protocol/zigbee/app/framework/plugin/on-off/"
+  directory: "simplicity_sdk_2025.6.2/protocol/zigbee/app/framework/plugin/on-off/"
 
 include:
   - path: ../inc
@@ -87,7 +87,8 @@ component:
 - id: zigbee_multirail_demo
 - id: zigbee_packet_handoff
 - id: clock_manager
-
+- id: sl_main
+- id: device_init
 
 configuration:
   - name: SL_ZIGBEE_GP_PROXY_TABLE_SIZE
